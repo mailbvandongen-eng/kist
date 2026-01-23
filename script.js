@@ -57,6 +57,15 @@ function initApp() {
     try { loadSpookyMode(); } catch(e) { console.error('Spookmodus laden mislukt:', e); }
     try { renderSavedCharacters(); } catch(e) { console.error('Karakters laden mislukt:', e); }
     try { updateYourStats(); } catch(e) { console.error('Stats laden mislukt:', e); }
+
+    // Nieuwe features
+    try { initFortuneWheel(); } catch(e) { console.error('Rad van Fortuin init mislukt:', e); }
+    try { loadVotingShows(); } catch(e) { console.error('Voting laden mislukt:', e); }
+    try { loadDailyReward(); } catch(e) { console.error('Daily reward laden mislukt:', e); }
+    try { loadBadges(); } catch(e) { console.error('Badges laden mislukt:', e); }
+    try { loadStickers(); } catch(e) { console.error('Stickers laden mislukt:', e); }
+    try { loadEmojiStories(); } catch(e) { console.error('Emoji stories laden mislukt:', e); }
+    try { updateHeaderStars(); } catch(e) { console.error('Header stars mislukt:', e); }
 }
 
 // ==========================================
@@ -1074,6 +1083,122 @@ function setupEventListeners() {
     // Kraskaart
     const claimScratchBtn = document.getElementById('claim-scratch-btn');
     if (claimScratchBtn) claimScratchBtn.addEventListener('click', claimScratchPrize);
+
+    // ==========================================
+    // TAB NAVIGATIE
+    // ==========================================
+    setupTabNavigation();
+
+    // ==========================================
+    // SPELLETJES
+    // ==========================================
+
+    // Memory
+    const memoryRestartBtn = document.getElementById('memory-restart-btn');
+    if (memoryRestartBtn) {
+        memoryRestartBtn.addEventListener('click', initMemoryGame);
+        initMemoryGame(); // Start met een spel
+    }
+
+    // Quiz
+    const quizStartBtn = document.getElementById('quiz-start-btn');
+    if (quizStartBtn) quizStartBtn.addEventListener('click', startQuiz);
+
+    // Balloon Pop
+    const balloonStartBtn = document.getElementById('balloon-start-btn');
+    if (balloonStartBtn) balloonStartBtn.addEventListener('click', startBalloonGame);
+
+    // Whack-a-Mole
+    const whackStartBtn = document.getElementById('whack-start-btn');
+    if (whackStartBtn) whackStartBtn.addEventListener('click', startWhackGame);
+
+    document.querySelectorAll('.whack-hole').forEach(hole => {
+        hole.addEventListener('click', () => whackMole(hole));
+    });
+
+    // ==========================================
+    // MUZIEK MAKER
+    // ==========================================
+    document.querySelectorAll('.piano-key').forEach(key => {
+        key.addEventListener('click', function() {
+            playPianoNote(this.dataset.note);
+            this.classList.add('playing');
+            setTimeout(() => this.classList.remove('playing'), 200);
+        });
+    });
+
+    document.querySelectorAll('.drum-pad').forEach(pad => {
+        pad.addEventListener('click', function() {
+            playDrumSound(this.dataset.drum);
+            this.classList.add('playing');
+            setTimeout(() => this.classList.remove('playing'), 200);
+        });
+    });
+
+    // ==========================================
+    // EMOJI VERHAAL
+    // ==========================================
+    document.querySelectorAll('.story-emoji').forEach(emoji => {
+        emoji.addEventListener('click', function() {
+            addEmojiToStory(this.dataset.emoji);
+        });
+    });
+
+    const clearStoryBtn = document.getElementById('clear-story-btn');
+    if (clearStoryBtn) clearStoryBtn.addEventListener('click', clearEmojiStory);
+
+    const saveStoryBtn = document.getElementById('save-story-btn');
+    if (saveStoryBtn) saveStoryBtn.addEventListener('click', saveEmojiStory);
+
+    // ==========================================
+    // FAN MAIL
+    // ==========================================
+    const sendFanmailBtn = document.getElementById('send-fanmail-btn');
+    if (sendFanmailBtn) sendFanmailBtn.addEventListener('click', sendFanMail);
+
+    // ==========================================
+    // FAN CLUB KAART
+    // ==========================================
+    const generateFanclubBtn = document.getElementById('generate-fanclub-btn');
+    if (generateFanclubBtn) generateFanclubBtn.addEventListener('click', generateFanClubCard);
+
+    // ==========================================
+    // DAGELIJKSE BELONING
+    // ==========================================
+    const claimDailyBtn = document.getElementById('claim-daily-btn');
+    if (claimDailyBtn) claimDailyBtn.addEventListener('click', claimDailyReward);
+
+    // ==========================================
+    // COMPLIMENTEN
+    // ==========================================
+    const complimentBtn = document.getElementById('compliment-btn');
+    if (complimentBtn) complimentBtn.addEventListener('click', generateCompliment);
+
+    // ==========================================
+    // DANCE PARTY
+    // ==========================================
+    const dancePartyBtn = document.getElementById('dance-party-btn');
+    if (dancePartyBtn) dancePartyBtn.addEventListener('click', toggleDanceParty);
+
+    const stopPartyBtn = document.getElementById('stop-party-btn');
+    if (stopPartyBtn) stopPartyBtn.addEventListener('click', toggleDanceParty);
+
+    // ==========================================
+    // CONFETTI KANON
+    // ==========================================
+    const confettiCannonBtn = document.getElementById('confetti-cannon-btn');
+    if (confettiCannonBtn) confettiCannonBtn.addEventListener('click', fireConfettiCannon);
+
+    // ==========================================
+    // POPCORN
+    // ==========================================
+    const eatPopcornBtn = document.getElementById('eat-popcorn-btn');
+    if (eatPopcornBtn) eatPopcornBtn.addEventListener('click', eatPopcorn);
+
+    // ==========================================
+    // LOAD GAME COUNT
+    // ==========================================
+    try { loadGameCount(); } catch(e) { console.error('Game count laden mislukt:', e); }
 }
 
 // ==========================================
@@ -1841,4 +1966,980 @@ function showScratchCard() {
     document.getElementById('claim-scratch-btn').classList.add('hidden');
     document.getElementById('scratch-canvas').style.opacity = '1';
     initScratchCard();
+}
+
+// ==========================================
+// TAB NAVIGATIE
+// ==========================================
+function setupTabNavigation() {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+
+            // Update active button
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            // Update active content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('tab-' + tabId).classList.add('active');
+
+            playClickSound();
+        });
+    });
+}
+
+// ==========================================
+// HEADER STERREN
+// ==========================================
+function updateHeaderStars() {
+    const visitorId = getVisitorId();
+    database.ref('stars/' + visitorId).on('value', (snapshot) => {
+        const stars = snapshot.val() || 0;
+        const el = document.getElementById('header-stars');
+        if (el) el.textContent = stars;
+    });
+}
+
+// ==========================================
+// RAD VAN FORTUIN - FIX
+// ==========================================
+function initFortuneWheel() {
+    const wheel = document.getElementById('fortune-wheel');
+    if (!wheel) return;
+
+    // Emoji's voor elk segment
+    const prizes = ['🎫', '⭐', '🎉', '👑', '🎵', '🌟', '🎭', '💎'];
+
+    // Clear wheel (maar hou de achtergrond via CSS)
+    wheel.innerHTML = '';
+
+    // Voeg emoji's toe in een cirkel
+    prizes.forEach((prize, i) => {
+        const emoji = document.createElement('div');
+        emoji.className = 'wheel-emoji';
+        emoji.textContent = prize;
+
+        // Bereken positie in cirkel (elk segment = 45 graden)
+        const angle = (i * 45 + 22.5) * (Math.PI / 180); // +22.5 voor midden van segment
+        const radius = 75; // afstand van centrum
+        const x = 125 + radius * Math.sin(angle) - 15; // 125 = helft van 250px wheel
+        const y = 125 - radius * Math.cos(angle) - 15;
+
+        emoji.style.left = x + 'px';
+        emoji.style.top = y + 'px';
+
+        wheel.appendChild(emoji);
+    });
+}
+
+// ==========================================
+// MEMORY SPEL
+// ==========================================
+let memoryCards = [];
+let memoryFlipped = [];
+let memoryMoves = 0;
+let memoryScore = 0;
+let memoryLocked = false;
+
+const memoryEmojis = ['🎭', '🎪', '🎨', '🎵', '⭐', '🎁', '🎈', '🎉'];
+
+function initMemoryGame() {
+    const grid = document.getElementById('memory-grid');
+    if (!grid) return;
+
+    // Reset
+    memoryMoves = 0;
+    memoryScore = 0;
+    memoryFlipped = [];
+    memoryLocked = false;
+    document.getElementById('memory-moves').textContent = '0';
+    document.getElementById('memory-score').textContent = '0';
+
+    // Maak kaarten (elk emoji 2x)
+    memoryCards = [...memoryEmojis, ...memoryEmojis];
+
+    // Shuffle
+    for (let i = memoryCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [memoryCards[i], memoryCards[j]] = [memoryCards[j], memoryCards[i]];
+    }
+
+    // Render
+    grid.innerHTML = '';
+    memoryCards.forEach((emoji, index) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.index = index;
+        card.dataset.emoji = emoji;
+        card.innerHTML = `
+            <div class="memory-card-inner">
+                <div class="memory-card-front">?</div>
+                <div class="memory-card-back">${emoji}</div>
+            </div>
+        `;
+        card.addEventListener('click', () => flipMemoryCard(card));
+        grid.appendChild(card);
+    });
+}
+
+function flipMemoryCard(card) {
+    if (memoryLocked) return;
+    if (card.classList.contains('flipped')) return;
+    if (memoryFlipped.length >= 2) return;
+
+    card.classList.add('flipped');
+    memoryFlipped.push(card);
+    playClickSound();
+
+    if (memoryFlipped.length === 2) {
+        memoryMoves++;
+        document.getElementById('memory-moves').textContent = memoryMoves;
+
+        const [card1, card2] = memoryFlipped;
+
+        if (card1.dataset.emoji === card2.dataset.emoji) {
+            // Match!
+            memoryScore += 10;
+            document.getElementById('memory-score').textContent = memoryScore;
+            playSuccessSound();
+            memoryFlipped = [];
+
+            // Check win
+            const allFlipped = document.querySelectorAll('.memory-card.flipped');
+            if (allFlipped.length === memoryCards.length) {
+                setTimeout(() => {
+                    alert('Gewonnen! Score: ' + memoryScore);
+                    addStars(5);
+                    unlockBadge('memory-win');
+                    incrementGameCount();
+                }, 500);
+            }
+        } else {
+            // No match
+            memoryLocked = true;
+            setTimeout(() => {
+                card1.classList.remove('flipped');
+                card2.classList.remove('flipped');
+                memoryFlipped = [];
+                memoryLocked = false;
+            }, 1000);
+        }
+    }
+}
+
+// ==========================================
+// QUIZ SPEL
+// ==========================================
+const quizQuestions = [
+    { q: 'Welke kleur heeft de zon?', a: ['Geel', 'Blauw', 'Groen', 'Paars'], correct: 0 },
+    { q: 'Hoeveel poten heeft een hond?', a: ['2', '4', '6', '8'], correct: 1 },
+    { q: 'Welk dier zegt "Boe"?', a: ['Kip', 'Varken', 'Koe', 'Schaap'], correct: 2 },
+    { q: 'Wat eet een konijn graag?', a: ['Vis', 'Wortel', 'Spaghetti', 'Kaas'], correct: 1 },
+    { q: 'Hoeveel dagen heeft een week?', a: ['5', '6', '7', '8'], correct: 2 },
+    { q: 'Welke kleur krijg je van rood + geel?', a: ['Groen', 'Paars', 'Oranje', 'Bruin'], correct: 2 },
+    { q: 'Waar woont een vis?', a: ['Boom', 'Water', 'Berg', 'Wolk'], correct: 1 },
+    { q: 'Wat komt er uit een ei?', a: ['Appel', 'Steen', 'Kuiken', 'Bloem'], correct: 2 },
+];
+
+let currentQuestion = 0;
+let quizPoints = 0;
+let quizActive = false;
+
+function startQuiz() {
+    currentQuestion = 0;
+    quizPoints = 0;
+    quizActive = true;
+    document.getElementById('quiz-points').textContent = '0';
+    showQuizQuestion();
+    playClickSound();
+}
+
+function showQuizQuestion() {
+    if (currentQuestion >= quizQuestions.length) {
+        endQuiz();
+        return;
+    }
+
+    const q = quizQuestions[currentQuestion];
+    document.getElementById('quiz-question').textContent = q.q;
+
+    const answersDiv = document.getElementById('quiz-answers');
+    answersDiv.innerHTML = '';
+
+    q.a.forEach((answer, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-answer-btn';
+        btn.textContent = answer;
+        btn.addEventListener('click', () => checkQuizAnswer(index));
+        answersDiv.appendChild(btn);
+    });
+}
+
+function checkQuizAnswer(index) {
+    if (!quizActive) return;
+
+    const q = quizQuestions[currentQuestion];
+    const buttons = document.querySelectorAll('.quiz-answer-btn');
+
+    buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.correct) {
+            btn.classList.add('correct');
+        } else if (i === index) {
+            btn.classList.add('wrong');
+        }
+    });
+
+    if (index === q.correct) {
+        quizPoints += 10;
+        document.getElementById('quiz-points').textContent = quizPoints;
+        playSuccessSound();
+    } else {
+        playBooSound();
+    }
+
+    currentQuestion++;
+    setTimeout(showQuizQuestion, 1500);
+}
+
+function endQuiz() {
+    quizActive = false;
+    document.getElementById('quiz-question').textContent = `Quiz klaar! Score: ${quizPoints}/${quizQuestions.length * 10}`;
+    document.getElementById('quiz-answers').innerHTML = '';
+
+    addStars(Math.floor(quizPoints / 10));
+    incrementGameCount();
+
+    if (quizPoints === quizQuestions.length * 10) {
+        unlockBadge('quiz-perfect');
+        launchConfetti();
+    }
+}
+
+// ==========================================
+// BALLOON POP
+// ==========================================
+let balloonScore = 0;
+let balloonTime = 30;
+let balloonInterval = null;
+let balloonSpawnInterval = null;
+let balloonActive = false;
+
+function startBalloonGame() {
+    const area = document.getElementById('balloon-area');
+    if (!area) return;
+
+    balloonScore = 0;
+    balloonTime = 30;
+    balloonActive = true;
+
+    document.getElementById('balloon-score').textContent = '0';
+    document.getElementById('balloon-time').textContent = '30';
+    area.innerHTML = '';
+
+    // Spawn balloons
+    balloonSpawnInterval = setInterval(spawnBalloon, 800);
+
+    // Timer
+    balloonInterval = setInterval(() => {
+        balloonTime--;
+        document.getElementById('balloon-time').textContent = balloonTime;
+
+        if (balloonTime <= 0) {
+            endBalloonGame();
+        }
+    }, 1000);
+
+    playClickSound();
+}
+
+function spawnBalloon() {
+    if (!balloonActive) return;
+
+    const area = document.getElementById('balloon-area');
+    const balloon = document.createElement('div');
+    balloon.className = 'balloon';
+
+    const colors = ['🎈', '🔴', '🟡', '🟢', '🔵', '🟣'];
+    balloon.textContent = colors[Math.floor(Math.random() * colors.length)];
+    balloon.style.left = Math.random() * 80 + 10 + '%';
+    balloon.style.animationDuration = (2 + Math.random() * 2) + 's';
+
+    balloon.addEventListener('click', () => popBalloon(balloon));
+    area.appendChild(balloon);
+
+    // Remove after animation
+    setTimeout(() => {
+        if (balloon.parentNode) balloon.remove();
+    }, 4000);
+}
+
+function popBalloon(balloon) {
+    if (!balloonActive) return;
+
+    balloon.classList.add('popped');
+    balloonScore += 10;
+    document.getElementById('balloon-score').textContent = balloonScore;
+    playClickSound();
+
+    setTimeout(() => balloon.remove(), 200);
+}
+
+function endBalloonGame() {
+    balloonActive = false;
+    clearInterval(balloonInterval);
+    clearInterval(balloonSpawnInterval);
+
+    document.getElementById('balloon-area').innerHTML = `<div class="game-over">Game Over! Score: ${balloonScore}</div>`;
+
+    addStars(Math.floor(balloonScore / 20));
+    incrementGameCount();
+    playFanfare();
+}
+
+// ==========================================
+// WHACK-A-MOLE
+// ==========================================
+let whackScore = 0;
+let whackTime = 30;
+let whackInterval = null;
+let whackMoleInterval = null;
+let whackActive = false;
+
+function startWhackGame() {
+    whackScore = 0;
+    whackTime = 30;
+    whackActive = true;
+
+    document.getElementById('whack-score').textContent = '0';
+    document.getElementById('whack-time').textContent = '30';
+
+    // Hide all moles
+    document.querySelectorAll('.mole').forEach(m => m.classList.remove('visible'));
+
+    // Show random moles
+    whackMoleInterval = setInterval(showRandomMole, 800);
+
+    // Timer
+    whackInterval = setInterval(() => {
+        whackTime--;
+        document.getElementById('whack-time').textContent = whackTime;
+
+        if (whackTime <= 0) {
+            endWhackGame();
+        }
+    }, 1000);
+
+    playClickSound();
+}
+
+function showRandomMole() {
+    if (!whackActive) return;
+
+    const moles = document.querySelectorAll('.mole');
+    const randomIndex = Math.floor(Math.random() * moles.length);
+    const mole = moles[randomIndex];
+
+    mole.classList.add('visible');
+
+    setTimeout(() => {
+        mole.classList.remove('visible');
+    }, 600 + Math.random() * 400);
+}
+
+function whackMole(hole) {
+    if (!whackActive) return;
+
+    const mole = hole.querySelector('.mole');
+    if (mole.classList.contains('visible')) {
+        mole.classList.remove('visible');
+        mole.classList.add('hit');
+        whackScore += 10;
+        document.getElementById('whack-score').textContent = whackScore;
+        playClickSound();
+
+        setTimeout(() => mole.classList.remove('hit'), 200);
+    }
+}
+
+function endWhackGame() {
+    whackActive = false;
+    clearInterval(whackInterval);
+    clearInterval(whackMoleInterval);
+
+    document.querySelectorAll('.mole').forEach(m => m.classList.remove('visible'));
+
+    alert('Game Over! Score: ' + whackScore);
+    addStars(Math.floor(whackScore / 20));
+    incrementGameCount();
+}
+
+// ==========================================
+// MUZIEK MAKER
+// ==========================================
+const pianoNotes = {
+    'C': 261.63, 'Cs': 277.18, 'D': 293.66, 'Ds': 311.13,
+    'E': 329.63, 'F': 349.23, 'Fs': 369.99, 'G': 392.00,
+    'Gs': 415.30, 'A': 440.00, 'As': 466.16, 'B': 493.88
+};
+
+function playPianoNote(note) {
+    const freq = pianoNotes[note];
+    if (!freq) return;
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.5);
+}
+
+function playDrumSound(drum) {
+    switch(drum) {
+        case 'kick':
+            playKickDrum();
+            break;
+        case 'snare':
+            playSnareDrum();
+            break;
+        case 'hihat':
+            playHiHat();
+            break;
+        case 'cymbal':
+            playCymbal();
+            break;
+    }
+}
+
+function playKickDrum() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(150, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.1);
+    gain.gain.setValueAtTime(1, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.3);
+}
+
+function playSnareDrum() {
+    const bufferSize = audioContext.sampleRate * 0.2;
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    source.buffer = buffer;
+    filter.type = 'highpass';
+    filter.frequency.value = 1000;
+    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    source.start();
+}
+
+function playHiHat() {
+    const bufferSize = audioContext.sampleRate * 0.05;
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+    }
+
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    source.buffer = buffer;
+    filter.type = 'highpass';
+    filter.frequency.value = 5000;
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    source.start();
+}
+
+function playCymbal() {
+    const bufferSize = audioContext.sampleRate * 0.5;
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+    }
+
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    source.buffer = buffer;
+    filter.type = 'highpass';
+    filter.frequency.value = 3000;
+    gain.gain.setValueAtTime(0.4, audioContext.currentTime);
+
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    source.start();
+}
+
+// ==========================================
+// EMOJI VERHAAL
+// ==========================================
+let currentStory = [];
+
+function addEmojiToStory(emoji) {
+    currentStory.push(emoji);
+    renderEmojiStory();
+    playClickSound();
+}
+
+function renderEmojiStory() {
+    const display = document.getElementById('emoji-story-display');
+    if (currentStory.length === 0) {
+        display.innerHTML = '<p class="empty-message">Klik op emoji\'s om je verhaal te maken!</p>';
+    } else {
+        display.innerHTML = currentStory.map(e => `<span class="story-item">${e}</span>`).join('');
+    }
+}
+
+function clearEmojiStory() {
+    currentStory = [];
+    renderEmojiStory();
+    playClickSound();
+}
+
+function saveEmojiStory() {
+    if (currentStory.length === 0) {
+        alert('Maak eerst een verhaal!');
+        return;
+    }
+
+    const stories = JSON.parse(localStorage.getItem('joerieStories') || '[]');
+    stories.push({
+        story: [...currentStory],
+        date: Date.now()
+    });
+    localStorage.setItem('joerieStories', JSON.stringify(stories));
+
+    playSuccessSound();
+    addStars(2);
+    alert('Verhaal opgeslagen!');
+}
+
+function loadEmojiStories() {
+    // Verhalen worden lokaal opgeslagen
+}
+
+// ==========================================
+// FAN MAIL
+// ==========================================
+function sendFanMail() {
+    const name = document.getElementById('fanmail-name').value.trim();
+    const message = document.getElementById('fanmail-message').value.trim();
+
+    if (!name || !message) {
+        alert('Vul je naam en bericht in!');
+        return;
+    }
+
+    database.ref('fanmail').push({
+        name: name,
+        message: message,
+        timestamp: Date.now()
+    });
+
+    document.getElementById('fanmail-name').value = '';
+    document.getElementById('fanmail-message').value = '';
+    document.querySelector('.fanmail-form').classList.add('hidden');
+    document.getElementById('fanmail-sent').classList.remove('hidden');
+
+    playSuccessSound();
+    addStars(2);
+
+    setTimeout(() => {
+        document.querySelector('.fanmail-form').classList.remove('hidden');
+        document.getElementById('fanmail-sent').classList.add('hidden');
+    }, 3000);
+}
+
+// ==========================================
+// STEMMEN
+// ==========================================
+function loadVotingShows() {
+    const container = document.getElementById('voting-shows');
+    if (!container) return;
+
+    database.ref('shows').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (!data) {
+            container.innerHTML = '<p class="empty-message">Nog geen shows om op te stemmen</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        Object.keys(data).forEach(id => {
+            const show = data[id];
+            const div = document.createElement('div');
+            div.className = 'voting-item';
+
+            database.ref('votes/' + id).on('value', (voteSnap) => {
+                const votes = voteSnap.val() || 0;
+                div.innerHTML = `
+                    <span class="vote-name">${escapeHtml(show.name)}</span>
+                    <span class="vote-count">${votes} ❤️</span>
+                    <button class="vote-btn" onclick="voteForShow('${id}')">Stem!</button>
+                `;
+            });
+
+            container.appendChild(div);
+        });
+    });
+}
+
+function voteForShow(showId) {
+    const visitorId = getVisitorId();
+    const voteRef = database.ref('userVotes/' + visitorId + '/' + showId);
+
+    voteRef.once('value', (snapshot) => {
+        if (snapshot.val()) {
+            alert('Je hebt al op deze show gestemd!');
+            return;
+        }
+
+        voteRef.set(true);
+        database.ref('votes/' + showId).transaction((current) => (current || 0) + 1);
+        playSuccessSound();
+        addStars(1);
+    });
+}
+
+// ==========================================
+// FAN CLUB KAART
+// ==========================================
+function generateFanClubCard() {
+    const name = document.getElementById('fanclub-name-input').value.trim();
+    if (!name) {
+        alert('Vul je naam in!');
+        return;
+    }
+
+    document.getElementById('fanclub-name-display').textContent = name;
+    document.getElementById('fanclub-id').textContent = Math.floor(Math.random() * 900000 + 100000);
+
+    playSuccessSound();
+    addStars(2);
+}
+
+// ==========================================
+// DAGELIJKSE BELONING
+// ==========================================
+function loadDailyReward() {
+    const lastClaim = localStorage.getItem('joerieLastDailyClaim');
+    const today = new Date().toDateString();
+
+    if (lastClaim === today) {
+        document.getElementById('daily-status').textContent = 'Kom morgen terug voor meer sterren!';
+        document.getElementById('claim-daily-btn').disabled = true;
+        document.getElementById('claim-daily-btn').classList.add('claimed');
+    }
+}
+
+function claimDailyReward() {
+    const lastClaim = localStorage.getItem('joerieLastDailyClaim');
+    const today = new Date().toDateString();
+
+    if (lastClaim === today) {
+        alert('Je hebt vandaag al geclaimd!');
+        return;
+    }
+
+    // Track streak
+    const streak = parseInt(localStorage.getItem('joerieDailyStreak') || '0');
+    const lastDate = new Date(lastClaim || 0);
+    const todayDate = new Date();
+    const diffDays = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
+
+    let newStreak = diffDays === 1 ? streak + 1 : 1;
+    localStorage.setItem('joerieDailyStreak', newStreak);
+    localStorage.setItem('joerieLastDailyClaim', today);
+
+    // Bonus sterren bij streak
+    const bonus = Math.min(newStreak, 7);
+    const totalStars = 3 + bonus;
+
+    addStars(totalStars);
+
+    document.getElementById('daily-status').textContent = `Je kreeg ${totalStars} sterren! (${newStreak} dagen op rij!)`;
+    document.getElementById('claim-daily-btn').disabled = true;
+    document.getElementById('claim-daily-btn').classList.add('claimed');
+
+    playSuccessSound();
+    launchConfetti();
+
+    if (newStreak >= 7) {
+        unlockBadge('daily-7');
+    }
+
+    // Random sticker kans
+    if (Math.random() < 0.3) {
+        giveRandomSticker();
+    }
+}
+
+// ==========================================
+// BADGES
+// ==========================================
+const badgeList = [
+    'first-ticket', 'applause-10', 'wheel-spin', 'memory-win',
+    'quiz-perfect', 'daily-7', 'stars-100', 'vip'
+];
+
+function loadBadges() {
+    const unlockedBadges = JSON.parse(localStorage.getItem('joerieBadges') || '[]');
+
+    badgeList.forEach(badge => {
+        const el = document.querySelector(`.badge[data-badge="${badge}"]`);
+        if (el && unlockedBadges.includes(badge)) {
+            el.classList.remove('locked');
+            el.classList.add('unlocked');
+        }
+    });
+
+    document.getElementById('your-badges').textContent = unlockedBadges.length;
+}
+
+function unlockBadge(badgeId) {
+    const unlockedBadges = JSON.parse(localStorage.getItem('joerieBadges') || '[]');
+
+    if (unlockedBadges.includes(badgeId)) return;
+
+    unlockedBadges.push(badgeId);
+    localStorage.setItem('joerieBadges', JSON.stringify(unlockedBadges));
+
+    const el = document.querySelector(`.badge[data-badge="${badgeId}"]`);
+    if (el) {
+        el.classList.remove('locked');
+        el.classList.add('unlocked');
+    }
+
+    document.getElementById('your-badges').textContent = unlockedBadges.length;
+
+    // Badge aantal in Firebase voor leaderboard
+    const visitorId = getVisitorId();
+    database.ref('badges/' + visitorId).set(unlockedBadges.length);
+
+    playFanfare();
+    alert('Badge ontgrendeld: ' + el?.querySelector('.badge-name')?.textContent || badgeId);
+}
+
+// ==========================================
+// STICKERS
+// ==========================================
+function loadStickers() {
+    const collected = JSON.parse(localStorage.getItem('joerieStickers') || '[]');
+
+    collected.forEach(num => {
+        const slot = document.querySelector(`.sticker-slot[data-sticker="${num}"]`);
+        if (slot) {
+            slot.classList.add('collected');
+        }
+    });
+
+    document.getElementById('sticker-count').textContent = collected.length;
+}
+
+function giveRandomSticker() {
+    const collected = JSON.parse(localStorage.getItem('joerieStickers') || '[]');
+    const available = [];
+
+    for (let i = 1; i <= 12; i++) {
+        if (!collected.includes(i)) available.push(i);
+    }
+
+    if (available.length === 0) return;
+
+    const newSticker = available[Math.floor(Math.random() * available.length)];
+    collected.push(newSticker);
+    localStorage.setItem('joerieStickers', JSON.stringify(collected));
+
+    const slot = document.querySelector(`.sticker-slot[data-sticker="${newSticker}"]`);
+    if (slot) {
+        slot.classList.add('collected');
+        const emoji = slot.querySelector('span').textContent;
+        alert('Nieuwe sticker verzameld: ' + emoji);
+    }
+
+    document.getElementById('sticker-count').textContent = collected.length;
+}
+
+// ==========================================
+// COMPLIMENTEN
+// ==========================================
+const compliments = [
+    'Je bent super!',
+    'Wat ben jij slim!',
+    'Je lach is geweldig!',
+    'Je bent een ster!',
+    'Wat knap van jou!',
+    'Je bent de beste!',
+    'Jij maakt de wereld mooier!',
+    'Je bent fantastisch!',
+    'Wat ben jij leuk!',
+    'Je bent een held!',
+    'Iedereen houdt van jou!',
+    'Je bent briljant!',
+    'Wat een talent heb jij!',
+    'Je bent ongelooflijk!',
+    'De wereld is blij met jou!'
+];
+
+function generateCompliment() {
+    const random = compliments[Math.floor(Math.random() * compliments.length)];
+    document.getElementById('compliment-display').innerHTML = `<p class="compliment-text">${random}</p>`;
+    playSuccessSound();
+}
+
+// ==========================================
+// DANCE PARTY
+// ==========================================
+let dancePartyActive = false;
+let danceInterval = null;
+
+function toggleDanceParty() {
+    dancePartyActive = !dancePartyActive;
+    const overlay = document.getElementById('dance-party-overlay');
+
+    if (dancePartyActive) {
+        overlay.classList.remove('hidden');
+        startDanceParty();
+    } else {
+        overlay.classList.add('hidden');
+        stopDanceParty();
+    }
+}
+
+function startDanceParty() {
+    const container = document.getElementById('dancing-emojis');
+    const emojis = ['💃', '🕺', '🎉', '🎊', '✨', '🌟', '🎵', '🎶'];
+
+    danceInterval = setInterval(() => {
+        const emoji = document.createElement('div');
+        emoji.className = 'dancing-emoji';
+        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        emoji.style.left = Math.random() * 100 + '%';
+        emoji.style.animationDuration = (2 + Math.random() * 2) + 's';
+        container.appendChild(emoji);
+
+        setTimeout(() => emoji.remove(), 4000);
+    }, 300);
+
+    // Party music
+    playDanceMusic();
+}
+
+function stopDanceParty() {
+    clearInterval(danceInterval);
+    document.getElementById('dancing-emojis').innerHTML = '';
+}
+
+function playDanceMusic() {
+    // Simple beat
+    const beatPattern = [1, 0, 1, 0, 1, 0, 1, 0];
+    let beat = 0;
+
+    const musicInterval = setInterval(() => {
+        if (!dancePartyActive) {
+            clearInterval(musicInterval);
+            return;
+        }
+
+        if (beatPattern[beat % 8]) {
+            playKickDrum();
+        }
+        if ((beat + 2) % 4 === 0) {
+            playSnareDrum();
+        }
+        if (beat % 2 === 0) {
+            playHiHat();
+        }
+
+        beat++;
+    }, 250);
+}
+
+// ==========================================
+// CONFETTI KANON
+// ==========================================
+function fireConfettiCannon() {
+    launchConfetti();
+    launchConfetti();
+    setTimeout(launchConfetti, 200);
+    setTimeout(launchConfetti, 400);
+    playFanfare();
+}
+
+// ==========================================
+// POPCORN TELLER
+// ==========================================
+let popcornCount = 0;
+
+function eatPopcorn() {
+    popcornCount++;
+    document.getElementById('popcorn-count').textContent = popcornCount;
+    playClickSound();
+
+    // Animate
+    const btn = document.getElementById('eat-popcorn-btn');
+    btn.classList.add('eating');
+    setTimeout(() => btn.classList.remove('eating'), 200);
+
+    if (popcornCount % 10 === 0) {
+        addStars(1);
+    }
+}
+
+// ==========================================
+// GAME COUNT
+// ==========================================
+function incrementGameCount() {
+    const visitorId = getVisitorId();
+    database.ref('games/' + visitorId).transaction((current) => (current || 0) + 1);
+
+    database.ref('games/' + visitorId).once('value', (snapshot) => {
+        const el = document.getElementById('your-games');
+        if (el) el.textContent = snapshot.val() || 0;
+    });
+}
+
+function loadGameCount() {
+    const visitorId = getVisitorId();
+    database.ref('games/' + visitorId).on('value', (snapshot) => {
+        const el = document.getElementById('your-games');
+        if (el) el.textContent = snapshot.val() || 0;
+    });
 }

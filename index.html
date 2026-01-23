@@ -23,12 +23,10 @@
         <header>
             <div class="header-top">
                 <div class="user-area" id="user-area">
-                    <!-- Login knop (zichtbaar als niet ingelogd) -->
                     <button id="login-btn" class="login-btn">
                         <img src="https://www.google.com/favicon.ico" alt="G" class="google-icon">
                         <span>Inloggen</span>
                     </button>
-                    <!-- User info (zichtbaar als ingelogd) -->
                     <div id="user-info" class="user-info hidden">
                         <img id="user-photo" src="" alt="Foto" class="user-photo">
                         <span id="user-name">Naam</span>
@@ -38,354 +36,454 @@
             </div>
             <img src="logo.jfif" alt="Logo" class="header-logo">
             <h1>Joerie's Shows</h1>
-            <div class="earnings-display">
-                <span class="earnings-icon">💰</span>
-                <span class="earnings-label">Verdiend:</span>
-                <span class="earnings-amount"><span id="total-earnings">0</span> euro</span>
+            <div class="header-stats">
+                <div class="earnings-display">
+                    <span class="earnings-icon">💰</span>
+                    <span id="total-earnings">0</span> euro
+                </div>
+                <div class="stars-display">
+                    <span class="stars-icon">⭐</span>
+                    <span id="header-stars">0</span> sterren
+                </div>
             </div>
         </header>
 
-        <!-- Betalingen overzicht -->
-        <section id="payments-section">
-            <h2>Betalingen</h2>
-            <div id="payments-list">
-                <p class="empty-message">Nog geen betalingen</p>
-            </div>
-        </section>
-
-        <!-- Shows Sectie -->
-        <section id="shows-section">
-            <h2>Mijn Shows</h2>
-            <div id="shows-container">
-                <!-- Shows worden hier toegevoegd -->
-            </div>
-            <button id="add-show-btn" class="big-button">
-                <span class="plus">+</span>
-                <span>Nieuwe Show</span>
+        <!-- Tab Navigatie -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="shows">
+                <span class="tab-icon">🎭</span>
+                <span class="tab-text">Shows</span>
             </button>
-        </section>
-
-        <!-- Geluidjes Sectie -->
-        <section id="sound-section">
-            <h2>Geluidjes</h2>
-
-            <div class="sound-controls">
-                <!-- Opnemen -->
-                <div class="sound-box">
-                    <h3>Opnemen</h3>
-                    <button id="record-btn" class="round-button red">
-                        <span class="record-icon">&#9679;</span>
-                    </button>
-                    <p id="record-status">Klik om op te nemen</p>
-                </div>
-
-                <!-- Afspelen -->
-                <div class="sound-box">
-                    <h3>Afspelen</h3>
-                    <button id="play-btn" class="round-button blue" disabled>
-                        <span class="play-icon">&#9654;</span>
-                    </button>
-                    <p id="play-status">Neem eerst iets op!</p>
-                </div>
-            </div>
-
-            <!-- Grappige Effecten -->
-            <div class="effects-section">
-                <h3>Grappige Effecten!</h3>
-                <div class="effects-buttons">
-                    <button class="effect-btn" data-effect="chipmunk">
-                        🐿️ Chipmunk
-                    </button>
-                    <button class="effect-btn" data-effect="monster">
-                        👹 Monster
-                    </button>
-                    <button class="effect-btn" data-effect="robot">
-                        🤖 Robot
-                    </button>
-                    <button class="effect-btn" data-effect="echo">
-                        🔊 Echo
-                    </button>
-                    <button class="effect-btn" data-effect="alien">
-                        👽 Alien
-                    </button>
-                    <button class="effect-btn" data-effect="underwater">
-                        🐠 Onder water
-                    </button>
-                    <button class="effect-btn" data-effect="telephone">
-                        📞 Telefoon
-                    </button>
-                    <button class="effect-btn" data-effect="ghost">
-                        👻 Spook
-                    </button>
-                    <button class="effect-btn" data-effect="megaphone">
-                        📢 Megafoon
-                    </button>
-                    <button class="effect-btn" data-effect="wobble">
-                        🌀 Wiebelig
-                    </button>
-                </div>
-            </div>
-
-            <!-- Opgeslagen Geluidjes -->
-            <div class="saved-sounds">
-                <h3>Mijn Geluidjes</h3>
-                <div id="sounds-list">
-                    <p class="empty-message">Nog geen geluidjes opgeslagen</p>
-                </div>
-                <button id="save-sound-btn" class="big-button blue" disabled>
-                    Geluidje Opslaan
-                </button>
-            </div>
-        </section>
-
-        <!-- Geluidsbord Sectie -->
-        <section id="soundboard-section">
-            <h2>Geluidsbord</h2>
-            <p class="section-intro">Druk op de knoppen voor grappige geluiden!</p>
-            <div class="soundboard-grid">
-                <button class="soundboard-btn" data-sound="applause">
-                    <span class="sb-icon">👏</span>
-                    <span class="sb-text">Applaus</span>
-                </button>
-                <button class="soundboard-btn" data-sound="drumroll">
-                    <span class="sb-icon">🥁</span>
-                    <span class="sb-text">Tromgeroffel</span>
-                </button>
-                <button class="soundboard-btn" data-sound="tada">
-                    <span class="sb-icon">🎉</span>
-                    <span class="sb-text">Tada!</span>
-                </button>
-                <button class="soundboard-btn" data-sound="laugh">
-                    <span class="sb-icon">😂</span>
-                    <span class="sb-text">Lachen</span>
-                </button>
-                <button class="soundboard-btn" data-sound="boo">
-                    <span class="sb-icon">👎</span>
-                    <span class="sb-text">Booo!</span>
-                </button>
-                <button class="soundboard-btn" data-sound="wow">
-                    <span class="sb-icon">😮</span>
-                    <span class="sb-text">Wooow!</span>
-                </button>
-                <button class="soundboard-btn" data-sound="magic">
-                    <span class="sb-icon">✨</span>
-                    <span class="sb-text">Magie</span>
-                </button>
-                <button class="soundboard-btn" data-sound="fart">
-                    <span class="sb-icon">💨</span>
-                    <span class="sb-text">Prrrrt</span>
-                </button>
-                <button class="soundboard-btn" data-sound="bell">
-                    <span class="sb-icon">🔔</span>
-                    <span class="sb-text">Bel</span>
-                </button>
-                <button class="soundboard-btn" data-sound="horn">
-                    <span class="sb-icon">📯</span>
-                    <span class="sb-text">Toeter</span>
-                </button>
-                <button class="soundboard-btn" data-sound="whistle">
-                    <span class="sb-icon">🎵</span>
-                    <span class="sb-text">Fluitje</span>
-                </button>
-                <button class="soundboard-btn" data-sound="explosion">
-                    <span class="sb-icon">💥</span>
-                    <span class="sb-text">Boem!</span>
-                </button>
-            </div>
-        </section>
-
-        <!-- Applaus Knop -->
-        <section id="applause-section">
-            <h2>Geef Applaus!</h2>
-            <p class="section-intro">Klik zo vaak je wilt om applaus te geven!</p>
-            <div class="applause-counter">
-                <span id="applause-count">0</span> keer applaus!
-            </div>
-            <button id="big-applause-btn" class="mega-button">
-                <span class="mega-icon">👏</span>
-                <span class="mega-text">APPLAUS!</span>
+            <button class="tab-btn" data-tab="speelhoek">
+                <span class="tab-icon">🎮</span>
+                <span class="tab-text">Speelhoek</span>
             </button>
-            <div id="clap-effects"></div>
-        </section>
+            <button class="tab-btn" data-tab="spelletjes">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-text">Spelletjes</span>
+            </button>
+            <button class="tab-btn" data-tab="creatief">
+                <span class="tab-icon">🎨</span>
+                <span class="tab-text">Creatief</span>
+            </button>
+            <button class="tab-btn" data-tab="community">
+                <span class="tab-icon">👥</span>
+                <span class="tab-text">Community</span>
+            </button>
+            <button class="tab-btn" data-tab="mijnspullen">
+                <span class="tab-icon">🎒</span>
+                <span class="tab-text">Mijn Spullen</span>
+            </button>
+        </nav>
 
-        <!-- Show Countdown -->
-        <section id="countdown-section">
-            <h2>Volgende Show</h2>
-            <div class="countdown-setup" id="countdown-setup">
-                <p>Wanneer is de volgende show?</p>
-                <input type="datetime-local" id="show-datetime">
-                <input type="text" id="show-countdown-name" placeholder="Naam van de show">
-                <button id="set-countdown-btn" class="big-button">Start Aftellen!</button>
-            </div>
-            <div class="countdown-display hidden" id="countdown-display">
-                <h3 id="countdown-show-title">Show Naam</h3>
-                <div class="countdown-timer">
-                    <div class="countdown-unit">
-                        <span id="countdown-days">0</span>
-                        <label>Dagen</label>
+        <!-- ==================== TAB: SHOWS ==================== -->
+        <div class="tab-content active" id="tab-shows">
+            <!-- Countdown -->
+            <section id="countdown-section" class="mini-section">
+                <div class="countdown-setup" id="countdown-setup">
+                    <h3>⏰ Volgende Show</h3>
+                    <input type="datetime-local" id="show-datetime">
+                    <input type="text" id="show-countdown-name" placeholder="Naam van de show">
+                    <button id="set-countdown-btn" class="small-btn">Start Aftellen!</button>
+                </div>
+                <div class="countdown-display hidden" id="countdown-display">
+                    <h3 id="countdown-show-title">Show Naam</h3>
+                    <div class="countdown-timer">
+                        <div class="countdown-unit"><span id="countdown-days">0</span><label>Dagen</label></div>
+                        <div class="countdown-unit"><span id="countdown-hours">0</span><label>Uren</label></div>
+                        <div class="countdown-unit"><span id="countdown-minutes">0</span><label>Min</label></div>
+                        <div class="countdown-unit"><span id="countdown-seconds">0</span><label>Sec</label></div>
                     </div>
-                    <div class="countdown-unit">
-                        <span id="countdown-hours">0</span>
-                        <label>Uren</label>
+                    <button id="reset-countdown-btn" class="tiny-btn">Reset</button>
+                </div>
+            </section>
+
+            <!-- Shows -->
+            <section id="shows-section">
+                <h2>🎪 Mijn Shows</h2>
+                <div id="shows-container"></div>
+                <button id="add-show-btn" class="big-button">
+                    <span class="plus">+</span> Nieuwe Show
+                </button>
+            </section>
+
+            <!-- Betalingen -->
+            <section id="payments-section">
+                <h2>💵 Betalingen</h2>
+                <div id="payments-list">
+                    <p class="empty-message">Nog geen betalingen</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB: SPEELHOEK ==================== -->
+        <div class="tab-content" id="tab-speelhoek">
+            <!-- Geluidsbord -->
+            <section id="soundboard-section">
+                <h2>🔊 Geluidsbord</h2>
+                <div class="soundboard-grid">
+                    <button class="soundboard-btn" data-sound="applause"><span class="sb-icon">👏</span><span class="sb-text">Applaus</span></button>
+                    <button class="soundboard-btn" data-sound="drumroll"><span class="sb-icon">🥁</span><span class="sb-text">Tromgeroffel</span></button>
+                    <button class="soundboard-btn" data-sound="tada"><span class="sb-icon">🎉</span><span class="sb-text">Tada!</span></button>
+                    <button class="soundboard-btn" data-sound="laugh"><span class="sb-icon">😂</span><span class="sb-text">Lachen</span></button>
+                    <button class="soundboard-btn" data-sound="boo"><span class="sb-icon">👎</span><span class="sb-text">Booo!</span></button>
+                    <button class="soundboard-btn" data-sound="wow"><span class="sb-icon">😮</span><span class="sb-text">Wooow!</span></button>
+                    <button class="soundboard-btn" data-sound="magic"><span class="sb-icon">✨</span><span class="sb-text">Magie</span></button>
+                    <button class="soundboard-btn" data-sound="fart"><span class="sb-icon">💨</span><span class="sb-text">Prrrrt</span></button>
+                    <button class="soundboard-btn" data-sound="bell"><span class="sb-icon">🔔</span><span class="sb-text">Bel</span></button>
+                    <button class="soundboard-btn" data-sound="horn"><span class="sb-icon">📯</span><span class="sb-text">Toeter</span></button>
+                    <button class="soundboard-btn" data-sound="whistle"><span class="sb-icon">🎵</span><span class="sb-text">Fluitje</span></button>
+                    <button class="soundboard-btn" data-sound="explosion"><span class="sb-icon">💥</span><span class="sb-text">Boem!</span></button>
+                </div>
+            </section>
+
+            <!-- Applaus -->
+            <section id="applause-section">
+                <h2>👏 Geef Applaus!</h2>
+                <div class="applause-counter"><span id="applause-count">0</span> keer applaus!</div>
+                <button id="big-applause-btn" class="mega-button">
+                    <span class="mega-icon">👏</span>
+                    <span class="mega-text">APPLAUS!</span>
+                </button>
+                <div id="clap-effects"></div>
+            </section>
+
+            <!-- Confetti Kanon -->
+            <section id="confetti-section">
+                <h2>🎊 Confetti Kanon</h2>
+                <p class="section-intro">MEGA confetti explosie!</p>
+                <button id="confetti-cannon-btn" class="mega-button rainbow">
+                    <span class="mega-icon">🎊</span>
+                    <span class="mega-text">BOEM!</span>
+                </button>
+            </section>
+
+            <!-- Popcorn Teller -->
+            <section id="popcorn-section">
+                <h2>🍿 Popcorn Teller</h2>
+                <p class="section-intro">Hoeveel popcorn eet je tijdens de show?</p>
+                <div class="popcorn-display">
+                    <span id="popcorn-count">0</span> 🍿
+                </div>
+                <button id="eat-popcorn-btn" class="big-button yellow">Hap! 🍿</button>
+            </section>
+
+            <!-- Rad van Fortuin -->
+            <section id="wheel-section">
+                <h2>🎡 Rad van Fortuin</h2>
+                <div class="wheel-container">
+                    <div class="wheel-pointer">▼</div>
+                    <div class="wheel" id="fortune-wheel"></div>
+                </div>
+                <button id="spin-wheel-btn" class="big-button">Draai het Rad!</button>
+                <div id="wheel-result" class="wheel-result hidden"></div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB: SPELLETJES ==================== -->
+        <div class="tab-content" id="tab-spelletjes">
+            <!-- Memory -->
+            <section id="memory-section">
+                <h2>🧠 Memory</h2>
+                <p class="section-intro">Vind alle paren!</p>
+                <div class="memory-stats">
+                    <span>Zetten: <span id="memory-moves">0</span></span>
+                    <span>Score: <span id="memory-score">0</span></span>
+                </div>
+                <div class="memory-grid" id="memory-grid"></div>
+                <button id="memory-restart-btn" class="big-button">Nieuw Spel</button>
+            </section>
+
+            <!-- Quiz -->
+            <section id="quiz-section">
+                <h2>❓ Quiz</h2>
+                <p class="section-intro">Test je kennis!</p>
+                <div id="quiz-container">
+                    <div id="quiz-question" class="quiz-question">Klik op start!</div>
+                    <div id="quiz-answers" class="quiz-answers"></div>
+                    <div id="quiz-score" class="quiz-score">Score: <span id="quiz-points">0</span></div>
+                </div>
+                <button id="quiz-start-btn" class="big-button">Start Quiz!</button>
+            </section>
+
+            <!-- Balloon Pop -->
+            <section id="balloon-section">
+                <h2>🎈 Balloon Pop</h2>
+                <p class="section-intro">Prik de ballonnen!</p>
+                <div class="balloon-stats">
+                    <span>Score: <span id="balloon-score">0</span></span>
+                    <span>Tijd: <span id="balloon-time">30</span>s</span>
+                </div>
+                <div class="balloon-area" id="balloon-area"></div>
+                <button id="balloon-start-btn" class="big-button">Start!</button>
+            </section>
+
+            <!-- Whack-a-mole -->
+            <section id="whack-section">
+                <h2>🔨 Whack-a-Mole</h2>
+                <p class="section-intro">Tik op de mol!</p>
+                <div class="whack-stats">
+                    <span>Score: <span id="whack-score">0</span></span>
+                    <span>Tijd: <span id="whack-time">30</span>s</span>
+                </div>
+                <div class="whack-grid" id="whack-grid">
+                    <div class="whack-hole" data-hole="0"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="1"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="2"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="3"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="4"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="5"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="6"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="7"><div class="mole">🐹</div></div>
+                    <div class="whack-hole" data-hole="8"><div class="mole">🐹</div></div>
+                </div>
+                <button id="whack-start-btn" class="big-button">Start!</button>
+            </section>
+        </div>
+
+        <!-- ==================== TAB: CREATIEF ==================== -->
+        <div class="tab-content" id="tab-creatief">
+            <!-- Geluidjes Opnemen -->
+            <section id="sound-section">
+                <h2>🎤 Geluiden Opnemen</h2>
+                <div class="sound-controls">
+                    <div class="sound-box">
+                        <button id="record-btn" class="round-button red"><span>●</span></button>
+                        <p id="record-status">Klik om op te nemen</p>
                     </div>
-                    <div class="countdown-unit">
-                        <span id="countdown-minutes">0</span>
-                        <label>Minuten</label>
-                    </div>
-                    <div class="countdown-unit">
-                        <span id="countdown-seconds">0</span>
-                        <label>Seconden</label>
+                    <div class="sound-box">
+                        <button id="play-btn" class="round-button blue" disabled><span>▶</span></button>
+                        <p id="play-status">Neem eerst iets op!</p>
                     </div>
                 </div>
-                <button id="reset-countdown-btn" class="small-button">Andere Show</button>
-            </div>
-        </section>
-
-        <!-- Rad van Fortuin -->
-        <section id="wheel-section">
-            <h2>Rad van Fortuin</h2>
-            <p class="section-intro">Draai het rad en win een prijs!</p>
-            <div class="wheel-container">
-                <div class="wheel-pointer">▼</div>
-                <div class="wheel" id="fortune-wheel">
-                    <div class="wheel-segment" style="--i:0; --color:#ff4444;">🎫 Gratis Kaartje</div>
-                    <div class="wheel-segment" style="--i:1; --color:#2266cc;">⭐ 5 Sterren</div>
-                    <div class="wheel-segment" style="--i:2; --color:#22cc44;">🎉 Confetti!</div>
-                    <div class="wheel-segment" style="--i:3; --color:#ff9900;">👑 VIP Badge</div>
-                    <div class="wheel-segment" style="--i:4; --color:#9933ff;">🎵 Speciaal Geluid</div>
-                    <div class="wheel-segment" style="--i:5; --color:#ff66cc;">🌟 10 Sterren</div>
-                    <div class="wheel-segment" style="--i:6; --color:#00cccc;">🎭 Backstage Pass</div>
-                    <div class="wheel-segment" style="--i:7; --color:#ffcc00;">💎 Diamant!</div>
+                <div class="effects-section">
+                    <h3>Effecten</h3>
+                    <div class="effects-buttons">
+                        <button class="effect-btn" data-effect="chipmunk">🐿️ Chipmunk</button>
+                        <button class="effect-btn" data-effect="monster">👹 Monster</button>
+                        <button class="effect-btn" data-effect="robot">🤖 Robot</button>
+                        <button class="effect-btn" data-effect="echo">🔊 Echo</button>
+                        <button class="effect-btn" data-effect="ghost">👻 Spook</button>
+                        <button class="effect-btn" data-effect="alien">👽 Alien</button>
+                    </div>
                 </div>
-            </div>
-            <button id="spin-wheel-btn" class="big-button">Draai het Rad!</button>
-            <div id="wheel-result" class="wheel-result hidden"></div>
-        </section>
+                <button id="save-sound-btn" class="big-button blue" disabled>Opslaan</button>
+                <div id="sounds-list"></div>
+            </section>
 
-        <!-- Gastenboek -->
-        <section id="guestbook-section">
-            <h2>Gastenboek</h2>
-            <p class="section-intro">Laat een leuk berichtje achter!</p>
-            <div class="guestbook-form">
-                <input type="text" id="guest-name" placeholder="Je naam" maxlength="30">
-                <textarea id="guest-message" placeholder="Je berichtje..." maxlength="200"></textarea>
-                <div class="emoji-picker">
-                    <span class="emoji-btn" data-emoji="😊">😊</span>
-                    <span class="emoji-btn" data-emoji="🎉">🎉</span>
-                    <span class="emoji-btn" data-emoji="❤️">❤️</span>
-                    <span class="emoji-btn" data-emoji="⭐">⭐</span>
-                    <span class="emoji-btn" data-emoji="👏">👏</span>
-                    <span class="emoji-btn" data-emoji="🎭">🎭</span>
-                    <span class="emoji-btn" data-emoji="🎪">🎪</span>
-                    <span class="emoji-btn" data-emoji="🌟">🌟</span>
+            <!-- Muziek Maker -->
+            <section id="music-section">
+                <h2>🎹 Muziek Maker</h2>
+                <p class="section-intro">Maak je eigen beat!</p>
+                <div class="piano-keys" id="piano-keys">
+                    <button class="piano-key white" data-note="C">C</button>
+                    <button class="piano-key black" data-note="Cs">C#</button>
+                    <button class="piano-key white" data-note="D">D</button>
+                    <button class="piano-key black" data-note="Ds">D#</button>
+                    <button class="piano-key white" data-note="E">E</button>
+                    <button class="piano-key white" data-note="F">F</button>
+                    <button class="piano-key black" data-note="Fs">F#</button>
+                    <button class="piano-key white" data-note="G">G</button>
+                    <button class="piano-key black" data-note="Gs">G#</button>
+                    <button class="piano-key white" data-note="A">A</button>
+                    <button class="piano-key black" data-note="As">A#</button>
+                    <button class="piano-key white" data-note="B">B</button>
                 </div>
-                <button id="post-message-btn" class="big-button">Plaats Bericht!</button>
-            </div>
-            <div id="guestbook-messages">
-                <p class="empty-message">Nog geen berichten</p>
-            </div>
-        </section>
+                <div class="drum-pads" id="drum-pads">
+                    <button class="drum-pad" data-drum="kick">🥁 Kick</button>
+                    <button class="drum-pad" data-drum="snare">🪘 Snare</button>
+                    <button class="drum-pad" data-drum="hihat">🎵 Hi-Hat</button>
+                    <button class="drum-pad" data-drum="cymbal">💥 Cymbal</button>
+                </div>
+            </section>
 
-        <!-- Karakter Maker -->
-        <section id="character-section">
-            <h2>Maak je Karakter!</h2>
-            <p class="section-intro">Ontwerp je eigen showkarakter!</p>
-            <div class="character-builder">
-                <div class="character-preview" id="character-preview">
-                    <div class="char-hat" id="char-hat">🎩</div>
-                    <div class="char-face" id="char-face">😊</div>
-                    <div class="char-body" id="char-body">👔</div>
-                    <div class="char-accessory" id="char-accessory"></div>
-                </div>
-                <div class="character-options">
-                    <div class="option-group">
-                        <label>Hoofd</label>
-                        <div class="option-buttons" data-target="face">
-                            <button class="char-option" data-value="😊">😊</button>
-                            <button class="char-option" data-value="😎">😎</button>
-                            <button class="char-option" data-value="🤡">🤡</button>
-                            <button class="char-option" data-value="👽">👽</button>
-                            <button class="char-option" data-value="🤖">🤖</button>
-                            <button class="char-option" data-value="🦁">🦁</button>
-                            <button class="char-option" data-value="🐱">🐱</button>
-                            <button class="char-option" data-value="🦊">🦊</button>
+            <!-- Karakter Maker -->
+            <section id="character-section">
+                <h2>🦸 Karakter Maker</h2>
+                <div class="character-builder">
+                    <div class="character-preview" id="character-preview">
+                        <div class="char-hat" id="char-hat">🎩</div>
+                        <div class="char-face" id="char-face">😊</div>
+                        <div class="char-body" id="char-body">👔</div>
+                        <div class="char-accessory" id="char-accessory"></div>
+                    </div>
+                    <div class="character-options">
+                        <div class="option-group">
+                            <label>Hoofd</label>
+                            <div class="option-buttons" data-target="face">
+                                <button class="char-option" data-value="😊">😊</button>
+                                <button class="char-option" data-value="😎">😎</button>
+                                <button class="char-option" data-value="🤡">🤡</button>
+                                <button class="char-option" data-value="👽">👽</button>
+                                <button class="char-option" data-value="🤖">🤖</button>
+                                <button class="char-option" data-value="🦁">🦁</button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label>Hoedje</label>
+                            <div class="option-buttons" data-target="hat">
+                                <button class="char-option" data-value="🎩">🎩</button>
+                                <button class="char-option" data-value="👑">👑</button>
+                                <button class="char-option" data-value="🎀">🎀</button>
+                                <button class="char-option" data-value="🧢">🧢</button>
+                                <button class="char-option" data-value="">❌</button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label>Kleding</label>
+                            <div class="option-buttons" data-target="body">
+                                <button class="char-option" data-value="👔">👔</button>
+                                <button class="char-option" data-value="👕">👕</button>
+                                <button class="char-option" data-value="🦸">🦸</button>
+                                <button class="char-option" data-value="🧙">🧙</button>
+                            </div>
+                        </div>
+                        <div class="option-group">
+                            <label>Accessoire</label>
+                            <div class="option-buttons" data-target="accessory">
+                                <button class="char-option" data-value="🎸">🎸</button>
+                                <button class="char-option" data-value="🎤">🎤</button>
+                                <button class="char-option" data-value="🪄">🪄</button>
+                                <button class="char-option" data-value="">❌</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="option-group">
-                        <label>Hoedje</label>
-                        <div class="option-buttons" data-target="hat">
-                            <button class="char-option" data-value="🎩">🎩</button>
-                            <button class="char-option" data-value="👑">👑</button>
-                            <button class="char-option" data-value="🎀">🎀</button>
-                            <button class="char-option" data-value="🧢">🧢</button>
-                            <button class="char-option" data-value="🤠">🤠</button>
-                            <button class="char-option" data-value="⭐">⭐</button>
-                            <button class="char-option" data-value="">Geen</button>
-                        </div>
-                    </div>
-                    <div class="option-group">
-                        <label>Kleding</label>
-                        <div class="option-buttons" data-target="body">
-                            <button class="char-option" data-value="👔">👔</button>
-                            <button class="char-option" data-value="👕">👕</button>
-                            <button class="char-option" data-value="🥋">🥋</button>
-                            <button class="char-option" data-value="🦸">🦸</button>
-                            <button class="char-option" data-value="🧙">🧙</button>
-                            <button class="char-option" data-value="🎅">🎅</button>
-                        </div>
-                    </div>
-                    <div class="option-group">
-                        <label>Accessoire</label>
-                        <div class="option-buttons" data-target="accessory">
-                            <button class="char-option" data-value="🎸">🎸</button>
-                            <button class="char-option" data-value="🎤">🎤</button>
-                            <button class="char-option" data-value="🪄">🪄</button>
-                            <button class="char-option" data-value="⚔️">⚔️</button>
-                            <button class="char-option" data-value="🎺">🎺</button>
-                            <button class="char-option" data-value="">Geen</button>
-                        </div>
-                    </div>
                 </div>
-            </div>
-            <input type="text" id="character-name" placeholder="Naam van je karakter" maxlength="20">
-            <button id="save-character-btn" class="big-button blue">Karakter Opslaan!</button>
-            <div id="saved-characters">
-                <h3>Opgeslagen Karakters</h3>
+                <input type="text" id="character-name" placeholder="Naam karakter" maxlength="20">
+                <button id="save-character-btn" class="big-button blue">Opslaan!</button>
                 <div id="characters-list"></div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Hall of Fame -->
-        <section id="hall-of-fame-section">
-            <h2>Hall of Fame</h2>
-            <p class="section-intro">De beste fans van Joerie's Shows!</p>
-            <div class="hall-of-fame" id="hall-of-fame">
+            <!-- Emoji Verhaal -->
+            <section id="emoji-story-section">
+                <h2>📖 Emoji Verhaal</h2>
+                <p class="section-intro">Maak een verhaal met emoji's!</p>
+                <div class="emoji-story-picker">
+                    <span class="story-emoji" data-emoji="👦">👦</span>
+                    <span class="story-emoji" data-emoji="👧">👧</span>
+                    <span class="story-emoji" data-emoji="🏠">🏠</span>
+                    <span class="story-emoji" data-emoji="🌳">🌳</span>
+                    <span class="story-emoji" data-emoji="🐕">🐕</span>
+                    <span class="story-emoji" data-emoji="🚗">🚗</span>
+                    <span class="story-emoji" data-emoji="⭐">⭐</span>
+                    <span class="story-emoji" data-emoji="❤️">❤️</span>
+                    <span class="story-emoji" data-emoji="🎁">🎁</span>
+                    <span class="story-emoji" data-emoji="🎈">🎈</span>
+                    <span class="story-emoji" data-emoji="🌈">🌈</span>
+                    <span class="story-emoji" data-emoji="☀️">☀️</span>
+                    <span class="story-emoji" data-emoji="🌙">🌙</span>
+                    <span class="story-emoji" data-emoji="🎭">🎭</span>
+                    <span class="story-emoji" data-emoji="🎪">🎪</span>
+                    <span class="story-emoji" data-emoji="🎉">🎉</span>
+                </div>
+                <div class="emoji-story-display" id="emoji-story-display">
+                    <p class="empty-message">Klik op emoji's om je verhaal te maken!</p>
+                </div>
+                <div class="emoji-story-buttons">
+                    <button id="clear-story-btn" class="small-btn">Wissen</button>
+                    <button id="save-story-btn" class="small-btn green">Opslaan</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- ==================== TAB: COMMUNITY ==================== -->
+        <div class="tab-content" id="tab-community">
+            <!-- Gastenboek -->
+            <section id="guestbook-section">
+                <h2>📔 Gastenboek</h2>
+                <div class="guestbook-form">
+                    <input type="text" id="guest-name" placeholder="Je naam" maxlength="30">
+                    <textarea id="guest-message" placeholder="Je berichtje..." maxlength="200"></textarea>
+                    <div class="emoji-picker">
+                        <span class="emoji-btn" data-emoji="😊">😊</span>
+                        <span class="emoji-btn" data-emoji="🎉">🎉</span>
+                        <span class="emoji-btn" data-emoji="❤️">❤️</span>
+                        <span class="emoji-btn" data-emoji="⭐">⭐</span>
+                        <span class="emoji-btn" data-emoji="👏">👏</span>
+                        <span class="emoji-btn" data-emoji="🎭">🎭</span>
+                    </div>
+                    <button id="post-message-btn" class="big-button">Plaats Bericht!</button>
+                </div>
+                <div id="guestbook-messages"></div>
+            </section>
+
+            <!-- Fan Mail -->
+            <section id="fanmail-section">
+                <h2>💌 Fan Mail</h2>
+                <p class="section-intro">Stuur een berichtje naar Joerie!</p>
+                <div class="fanmail-form">
+                    <input type="text" id="fanmail-name" placeholder="Je naam" maxlength="30">
+                    <textarea id="fanmail-message" placeholder="Je bericht aan Joerie..." maxlength="500"></textarea>
+                    <button id="send-fanmail-btn" class="big-button pink">Verstuur! 💌</button>
+                </div>
+                <div id="fanmail-sent" class="hidden">
+                    <p class="success-msg">💌 Je bericht is verstuurd! Joerie leest het snel!</p>
+                </div>
+            </section>
+
+            <!-- Stemmen -->
+            <section id="voting-section">
+                <h2>🗳️ Stem op je Favoriet!</h2>
+                <p class="section-intro">Welke show vind jij het leukst?</p>
+                <div id="voting-shows"></div>
+            </section>
+
+            <!-- Hall of Fame -->
+            <section id="hall-of-fame-section">
+                <h2>🏆 Hall of Fame</h2>
                 <div class="fame-podium">
                     <div class="podium-spot second" id="podium-2">
                         <div class="podium-avatar">🥈</div>
                         <div class="podium-name">-</div>
                         <div class="podium-stars">0 ⭐</div>
-                        <div class="podium-base">2</div>
                     </div>
                     <div class="podium-spot first" id="podium-1">
                         <div class="podium-avatar">🥇</div>
                         <div class="podium-name">-</div>
                         <div class="podium-stars">0 ⭐</div>
-                        <div class="podium-base">1</div>
                     </div>
                     <div class="podium-spot third" id="podium-3">
                         <div class="podium-avatar">🥉</div>
                         <div class="podium-name">-</div>
                         <div class="podium-stars">0 ⭐</div>
-                        <div class="podium-base">3</div>
                     </div>
                 </div>
-                <div class="fame-list" id="fame-list">
-                    <!-- Andere fans komen hier -->
+                <div class="fame-list" id="fame-list"></div>
+            </section>
+
+            <!-- Fan Club Kaart -->
+            <section id="fanclub-section">
+                <h2>🎫 Fan Club Kaart</h2>
+                <p class="section-intro">Maak je eigen lidmaatschapskaart!</p>
+                <div class="fanclub-card" id="fanclub-card">
+                    <div class="fanclub-header">JOERIE'S SHOWS FAN CLUB</div>
+                    <div class="fanclub-photo">😊</div>
+                    <div class="fanclub-name" id="fanclub-name-display">Jouw Naam</div>
+                    <div class="fanclub-member">Officieel Lid</div>
+                    <div class="fanclub-id">ID: <span id="fanclub-id">000000</span></div>
                 </div>
-            </div>
-            <div class="your-stats">
-                <h3>Jouw Statistieken</h3>
+                <input type="text" id="fanclub-name-input" placeholder="Je naam" maxlength="20">
+                <button id="generate-fanclub-btn" class="big-button">Maak Kaart!</button>
+            </section>
+        </div>
+
+        <!-- ==================== TAB: MIJN SPULLEN ==================== -->
+        <div class="tab-content" id="tab-mijnspullen">
+            <!-- Dagelijkse Beloning -->
+            <section id="daily-reward-section">
+                <h2>🎁 Dagelijkse Beloning</h2>
+                <div id="daily-reward-container">
+                    <button id="claim-daily-btn" class="mega-button gift">
+                        <span class="mega-icon">🎁</span>
+                        <span class="mega-text">Claim!</span>
+                    </button>
+                    <p id="daily-status">Klik om je dagelijkse sterren te krijgen!</p>
+                </div>
+            </section>
+
+            <!-- Statistieken -->
+            <section id="stats-section">
+                <h2>📊 Mijn Statistieken</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
                         <span class="stat-icon">⭐</span>
@@ -402,9 +500,88 @@
                         <span class="stat-value" id="your-badges">0</span>
                         <span class="stat-label">Badges</span>
                     </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">🎮</span>
+                        <span class="stat-value" id="your-games">0</span>
+                        <span class="stat-label">Spelletjes</span>
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <!-- Badges -->
+            <section id="badges-section">
+                <h2>🏅 Mijn Badges</h2>
+                <div class="badges-grid" id="badges-grid">
+                    <div class="badge locked" data-badge="first-ticket" title="Koop je eerste kaartje">
+                        <span class="badge-icon">🎫</span>
+                        <span class="badge-name">Eerste Kaartje</span>
+                    </div>
+                    <div class="badge locked" data-badge="applause-10" title="Geef 10x applaus">
+                        <span class="badge-icon">👏</span>
+                        <span class="badge-name">Applaus Fan</span>
+                    </div>
+                    <div class="badge locked" data-badge="wheel-spin" title="Draai het rad">
+                        <span class="badge-icon">🎡</span>
+                        <span class="badge-name">Geluksvogel</span>
+                    </div>
+                    <div class="badge locked" data-badge="memory-win" title="Win memory">
+                        <span class="badge-icon">🧠</span>
+                        <span class="badge-name">Memory Master</span>
+                    </div>
+                    <div class="badge locked" data-badge="quiz-perfect" title="Quiz 100% goed">
+                        <span class="badge-icon">🎓</span>
+                        <span class="badge-name">Quiz Kampioen</span>
+                    </div>
+                    <div class="badge locked" data-badge="daily-7" title="7 dagen op rij">
+                        <span class="badge-icon">📅</span>
+                        <span class="badge-name">Trouwe Fan</span>
+                    </div>
+                    <div class="badge locked" data-badge="stars-100" title="100 sterren">
+                        <span class="badge-icon">💫</span>
+                        <span class="badge-name">Superster</span>
+                    </div>
+                    <div class="badge locked" data-badge="vip" title="VIP status">
+                        <span class="badge-icon">👑</span>
+                        <span class="badge-name">VIP</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sticker Album -->
+            <section id="sticker-section">
+                <h2>🏷️ Sticker Album</h2>
+                <p class="section-intro">Verzamel alle stickers!</p>
+                <div class="sticker-album" id="sticker-album">
+                    <div class="sticker-slot" data-sticker="1"><span>🎭</span></div>
+                    <div class="sticker-slot" data-sticker="2"><span>🎪</span></div>
+                    <div class="sticker-slot" data-sticker="3"><span>🎨</span></div>
+                    <div class="sticker-slot" data-sticker="4"><span>🎵</span></div>
+                    <div class="sticker-slot" data-sticker="5"><span>⭐</span></div>
+                    <div class="sticker-slot" data-sticker="6"><span>🌟</span></div>
+                    <div class="sticker-slot" data-sticker="7"><span>🎁</span></div>
+                    <div class="sticker-slot" data-sticker="8"><span>🎈</span></div>
+                    <div class="sticker-slot" data-sticker="9"><span>🎉</span></div>
+                    <div class="sticker-slot" data-sticker="10"><span>🏆</span></div>
+                    <div class="sticker-slot" data-sticker="11"><span>💎</span></div>
+                    <div class="sticker-slot" data-sticker="12"><span>👑</span></div>
+                </div>
+                <p class="sticker-count">Verzameld: <span id="sticker-count">0</span>/12</p>
+            </section>
+
+            <!-- Complimenten -->
+            <section id="compliment-section">
+                <h2>💝 Complimenten Generator</h2>
+                <div class="compliment-display" id="compliment-display">
+                    <p>Klik voor een compliment!</p>
+                </div>
+                <button id="compliment-btn" class="big-button pink">Nieuw Compliment!</button>
+            </section>
+        </div>
+
+        <!-- Dance Party Button (Fixed) -->
+        <button id="dance-party-btn" class="dance-party-toggle" title="Dance Party!">
+            💃
+        </button>
 
         <!-- Spookmodus Toggle -->
         <div id="spooky-toggle" class="mode-toggle">
@@ -419,37 +596,40 @@
         </footer>
     </div>
 
+    <!-- Dance Party Overlay -->
+    <div id="dance-party-overlay" class="hidden">
+        <div class="disco-lights"></div>
+        <div class="dancing-emojis" id="dancing-emojis"></div>
+        <button id="stop-party-btn" class="stop-party-btn">Stop Party</button>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
     <!-- Modal voor nieuwe show -->
     <div id="show-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn">&times;</span>
-            <h2>Nieuwe Show Toevoegen</h2>
+            <h2>Nieuwe Show</h2>
             <form id="show-form">
-                <label for="show-name">Naam van de show:</label>
-                <input type="text" id="show-name" required placeholder="Bijv. Kist">
-
-                <label for="show-description">Beschrijving:</label>
-                <textarea id="show-description" placeholder="Waar gaat de show over?"></textarea>
-
-                <label>Foto voor de show:</label>
+                <input type="text" id="show-name" required placeholder="Naam van de show">
+                <textarea id="show-description" placeholder="Beschrijving"></textarea>
                 <div class="image-buttons">
                     <button type="button" id="take-photo-btn" class="photo-btn camera-btn">
                         <span class="photo-btn-icon">📸</span>
-                        <span class="photo-btn-text">Foto maken</span>
+                        <span class="photo-btn-text">Foto</span>
                     </button>
                     <button type="button" id="choose-photo-btn" class="photo-btn gallery-btn">
                         <span class="photo-btn-icon">🖼️</span>
-                        <span class="photo-btn-text">Foto kiezen</span>
+                        <span class="photo-btn-text">Kies</span>
                     </button>
                 </div>
                 <input type="file" id="show-image-camera" accept="image/*" capture="environment" hidden>
                 <input type="file" id="show-image-gallery" accept="image/*" hidden>
-                <div class="image-preview-area" id="image-preview-area">
+                <div class="image-preview-area">
                     <img id="image-preview" class="image-preview hidden" alt="Preview">
                     <button type="button" id="remove-image-btn" class="remove-image-btn hidden">&times;</button>
                 </div>
-
-                <button type="submit" class="big-button">Show Toevoegen!</button>
+                <button type="submit" class="big-button">Toevoegen!</button>
             </form>
         </div>
     </div>
@@ -458,60 +638,38 @@
     <div id="payment-modal" class="modal hidden">
         <div class="modal-content payment-content">
             <span class="close-btn">&times;</span>
-
-            <!-- Stap 1: Kies betaalmethode -->
             <div id="payment-step-1" class="payment-step">
                 <h2>Afrekenen</h2>
                 <div class="payment-summary">
                     <p>Kaartje voor: <strong id="payment-show-name">Show</strong></p>
-                    <p class="payment-total">Totaal: <span id="payment-amount">5</span> euro</p>
+                    <p class="payment-total">Totaal: <span id="payment-amount">1</span> euro</p>
                 </div>
-                <h3>Kies je betaalmethode:</h3>
                 <div class="payment-methods">
-                    <button class="payment-method-btn" data-method="apple-pay">
-                        <span class="payment-icon"></span>
-                        <span>Apple Pay</span>
-                    </button>
-                    <button class="payment-method-btn" data-method="google-pay">
-                        <span class="payment-icon">G</span>
-                        <span>Google Pay</span>
-                    </button>
-                    <button class="payment-method-btn" data-method="ideal">
-                        <span class="payment-icon ideal-icon">iDEAL</span>
-                        <span>iDEAL</span>
-                    </button>
-                    <button class="payment-method-btn" data-method="creditcard">
-                        <span class="payment-icon">💳</span>
-                        <span>Creditcard</span>
-                    </button>
+                    <button class="payment-method-btn" data-method="apple-pay"><span>🍎</span>Apple Pay</button>
+                    <button class="payment-method-btn" data-method="google-pay"><span>G</span>Google Pay</button>
+                    <button class="payment-method-btn" data-method="ideal"><span>🏦</span>iDEAL</button>
+                    <button class="payment-method-btn" data-method="creditcard"><span>💳</span>Creditcard</button>
                 </div>
             </div>
-
-            <!-- Stap 2: Verwerken -->
             <div id="payment-step-2" class="payment-step hidden">
                 <div class="payment-processing">
                     <div class="spinner"></div>
                     <h2>Betaling verwerken...</h2>
-                    <p id="processing-text">Even geduld alsjeblieft</p>
+                    <p id="processing-text">Even geduld</p>
                 </div>
             </div>
-
-            <!-- Stap 3: Gelukt! -->
             <div id="payment-step-3" class="payment-step hidden">
                 <div class="payment-success">
                     <div class="success-checkmark">✓</div>
-                    <h2>Betaling Gelukt!</h2>
-                    <p>Bedankt voor je aankoop!</p>
-                    <button id="show-ticket-btn" class="big-button">
-                        Bekijk je Kaartje!
-                    </button>
+                    <h2>Gelukt!</h2>
+                    <button id="show-ticket-btn" class="big-button">Bekijk Kaartje!</button>
                 </div>
                 <div id="confetti-container"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal voor kaartje bekijken -->
+    <!-- Modal voor kaartje -->
     <div id="ticket-modal" class="modal hidden">
         <div class="modal-content ticket-content">
             <span class="close-btn">&times;</span>
@@ -519,15 +677,12 @@
             <div class="ticket-display">
                 <img src="kist.jfif" alt="Kaartje" class="ticket-image">
                 <div class="ticket-info">
-                    <h3 id="ticket-show-name">Show Naam</h3>
+                    <h3 id="ticket-show-name">Show</h3>
                     <p>Toegang voor 1 persoon</p>
-                    <p class="ticket-price">Prijs: <span id="ticket-price-display">5</span> euro</p>
                     <p class="ticket-status">BETAALD ✓</p>
                 </div>
             </div>
-            <button id="print-ticket-btn" class="big-button">
-                Print Kaartje!
-            </button>
+            <button id="print-ticket-btn" class="big-button">Print!</button>
         </div>
     </div>
 
@@ -536,15 +691,14 @@
         <div class="modal-content scratch-content">
             <span class="close-btn">&times;</span>
             <h2>Kraskaart!</h2>
-            <p>Kras om je prijs te zien!</p>
             <div class="scratch-card" id="scratch-card">
                 <canvas id="scratch-canvas" width="280" height="180"></canvas>
                 <div class="scratch-prize" id="scratch-prize">
                     <span class="prize-emoji">🎁</span>
-                    <span class="prize-text">Je prijs komt hier!</span>
+                    <span class="prize-text">Kras!</span>
                 </div>
             </div>
-            <button id="claim-scratch-btn" class="big-button hidden">Prijs Claimen!</button>
+            <button id="claim-scratch-btn" class="big-button hidden">Claim!</button>
         </div>
     </div>
 
