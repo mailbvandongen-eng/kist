@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joerie's Shows - Koop je Kaartjes!</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 <body>
     <!-- Splash Screen met Logo -->
@@ -17,6 +21,21 @@
     <div id="main-content" class="hidden">
         <!-- Header -->
         <header>
+            <div class="header-top">
+                <div class="user-area" id="user-area">
+                    <!-- Login knop (zichtbaar als niet ingelogd) -->
+                    <button id="login-btn" class="login-btn">
+                        <img src="https://www.google.com/favicon.ico" alt="G" class="google-icon">
+                        <span>Inloggen</span>
+                    </button>
+                    <!-- User info (zichtbaar als ingelogd) -->
+                    <div id="user-info" class="user-info hidden">
+                        <img id="user-photo" src="" alt="Foto" class="user-photo">
+                        <span id="user-name">Naam</span>
+                        <button id="logout-btn" class="logout-btn">Uitloggen</button>
+                    </div>
+                </div>
+            </div>
             <img src="logo.jfif" alt="Logo" class="header-logo">
             <h1>Joerie's Shows</h1>
             <div class="earnings-display">
@@ -25,6 +44,14 @@
                 <span class="earnings-amount"><span id="total-earnings">0</span> euro</span>
             </div>
         </header>
+
+        <!-- Betalingen overzicht -->
+        <section id="payments-section">
+            <h2>Betalingen</h2>
+            <div id="payments-list">
+                <p class="empty-message">Nog geen betalingen</p>
+            </div>
+        </section>
 
         <!-- Shows Sectie -->
         <section id="shows-section">

@@ -1,6 +1,24 @@
 // ==========================================
-// JOERIE'S SHOWS - JAVASCRIPT
+// JOERIE'S SHOWS - JAVASCRIPT MET FIREBASE
 // ==========================================
+
+// ==========================================
+// FIREBASE CONFIGURATIE
+// ==========================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBWBfyXl7qSt0N-1j0CGCxMl6j25ofIobM",
+    authDomain: "joerie-shows.firebaseapp.com",
+    databaseURL: "https://joerie-shows-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "joerie-shows",
+    storageBucket: "joerie-shows.firebasestorage.app",
+    messagingSenderId: "712172161062",
+    appId: "1:712172161062:web:68a9ec9c45b38a9d1d3ee7"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const database = firebase.database();
 
 // ==========================================
 // SPLASH SCREEN
@@ -25,34 +43,153 @@ document.addEventListener('DOMContentLoaded', function() {
 // APP INITIALISATIE
 // ==========================================
 function initApp() {
-    loadShows();
+    setupAuthListener();
+    loadShowsFromFirebase();
+    loadEarningsFromFirebase();
     loadSounds();
-    loadEarnings();
     setupEventListeners();
 }
 
 // ==========================================
-// VERDIENSTEN BIJHOUDEN
+// GOOGLE LOGIN / AUTHENTICATIE
+// ==========================================
+let currentUser = null;
+
+function setupAuthListener() {
+    auth.onAuthStateChanged(function(user) {
+        currentUser = user;
+        updateUserUI(user);
+    });
+}
+
+function loginWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            playSuccessSound();
+        })
+        .catch((error) => {
+            console.error('Login error:', error);
+            alert('Inloggen mislukt. Probeer opnieuw!');
+        });
+}
+
+function logout() {
+    auth.signOut()
+        .then(() => {
+            playClickSound();
+        })
+        .catch((error) => {
+            console.error('Logout error:', error);
+        });
+}
+
+function updateUserUI(user) {
+    const loginBtn = document.getElementById('login-btn');
+    const userInfo = document.getElementById('user-info');
+    const userName = document.getElementById('user-name');
+    const userPhoto = document.getElementById('user-photo');
+
+    if (user) {
+        // Gebruiker is ingelogd
+        loginBtn.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        userName.textContent = user.displayName || 'Gebruiker';
+        userPhoto.src = user.photoURL || 'logo.jfif';
+    } else {
+        // Gebruiker is niet ingelogd
+        loginBtn.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+    }
+}
+
+// ==========================================
+// VERDIENSTEN EN BETALINGEN BIJHOUDEN (FIREBASE)
 // ==========================================
 const TICKET_PRICE = 1; // Alle kaartjes kosten 1 euro
+const ADMIN_PASSWORD = '123'; // Wachtwoord voor shows toevoegen
 let totalEarnings = 0;
+let payments = [];
 
-function loadEarnings() {
-    const saved = localStorage.getItem('joerieEarnings');
-    if (saved) {
-        totalEarnings = parseInt(saved) || 0;
+function loadEarningsFromFirebase() {
+    const earningsRef = database.ref('earnings');
+    earningsRef.on('value', (snapshot) => {
+        totalEarnings = snapshot.val() || 0;
+        updateEarningsDisplay();
+    });
+
+    // Laad ook de betalingen
+    const paymentsRef = database.ref('payments');
+    paymentsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            payments = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+            })).sort((a, b) => b.timestamp - a.timestamp); // Nieuwste eerst
+        } else {
+            payments = [];
+        }
+        renderPayments();
+    });
+}
+
+function addPayment(showName, buyerName) {
+    // Voeg betaling toe aan database
+    const paymentsRef = database.ref('payments');
+    paymentsRef.push({
+        showName: showName,
+        buyerName: buyerName,
+        amount: TICKET_PRICE,
+        timestamp: Date.now(),
+        claimed: false
+    });
+
+    // Update totaal
+    const earningsRef = database.ref('earnings');
+    earningsRef.transaction((current) => {
+        return (current || 0) + TICKET_PRICE;
+    });
+}
+
+function claimPayment(paymentId) {
+    database.ref('payments/' + paymentId + '/claimed').set(true);
+    playSuccessSound();
+}
+
+function renderPayments() {
+    const list = document.getElementById('payments-list');
+
+    if (payments.length === 0) {
+        list.innerHTML = '<p class="empty-message">Nog geen betalingen</p>';
+        return;
     }
-    updateEarningsDisplay();
-}
 
-function saveEarnings() {
-    localStorage.setItem('joerieEarnings', totalEarnings.toString());
-}
+    list.innerHTML = '';
+    payments.forEach(payment => {
+        const item = document.createElement('div');
+        item.className = 'payment-item' + (payment.claimed ? ' claimed' : '');
 
-function addEarnings(amount) {
-    totalEarnings += amount;
-    saveEarnings();
-    updateEarningsDisplay();
+        const date = new Date(payment.timestamp);
+        const timeStr = date.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+        const dateStr = date.toLocaleDateString('nl-NL');
+
+        item.innerHTML = `
+            <div class="payment-info">
+                <span class="payment-buyer">${escapeHtml(payment.buyerName)}</span>
+                <span class="payment-show">kocht kaartje voor: ${escapeHtml(payment.showName)}</span>
+                <span class="payment-time">${dateStr} ${timeStr}</span>
+            </div>
+            <div class="payment-amount">
+                <span>${payment.amount} euro</span>
+                ${payment.claimed
+                    ? '<span class="claimed-badge">Opgehaald</span>'
+                    : `<button class="claim-btn" onclick="claimPayment('${payment.id}')">Ophalen</button>`
+                }
+            </div>
+        `;
+        list.appendChild(item);
+    });
 }
 
 function updateEarningsDisplay() {
@@ -100,29 +237,38 @@ function playSuccessSound() {
 }
 
 // ==========================================
-// SHOWS BEHEER
+// SHOWS BEHEER (FIREBASE)
 // ==========================================
 let shows = [];
 
-function loadShows() {
-    const savedShows = localStorage.getItem('joerieShows');
-    if (savedShows) {
-        shows = JSON.parse(savedShows);
-    } else {
-        // Standaard show: Kist
-        shows = [{
-            id: 1,
-            name: 'Kist',
-            description: 'Een spannende show met een mysterieuze kist!',
-            image: 'kist.jfif'
-        }];
-        saveShows();
-    }
-    renderShows();
+function loadShowsFromFirebase() {
+    const showsRef = database.ref('shows');
+
+    showsRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            // Converteer object naar array
+            shows = Object.keys(data).map(key => ({
+                id: key,
+                ...data[key]
+            }));
+        } else {
+            // Geen shows, maak standaard show
+            shows = [];
+            addDefaultShow();
+        }
+        renderShows();
+    });
 }
 
-function saveShows() {
-    localStorage.setItem('joerieShows', JSON.stringify(shows));
+function addDefaultShow() {
+    const showsRef = database.ref('shows');
+    showsRef.push({
+        name: 'Kist',
+        description: 'Een spannende show met een mysterieuze kist!',
+        image: 'kist.jfif',
+        createdAt: Date.now()
+    });
 }
 
 function renderShows() {
@@ -142,35 +288,40 @@ function renderShows() {
         }
 
         card.innerHTML = `
-            <button class="delete-btn" onclick="deleteShow(${show.id})">&times;</button>
+            <button class="delete-btn" onclick="deleteShow('${show.id}')">&times;</button>
             ${imageHtml}
             <h3>${escapeHtml(show.name)}</h3>
             <p>${escapeHtml(show.description)}</p>
             <p class="price">${TICKET_PRICE} euro</p>
-            <button class="buy-btn" onclick="buyTicket(${show.id})">Koop Kaartje!</button>
+            <button class="buy-btn" onclick="buyTicket('${show.id}')">Koop Kaartje!</button>
         `;
         container.appendChild(card);
     });
 }
 
 function addShow(name, description, image) {
-    const newShow = {
-        id: Date.now(),
+    // Vraag om wachtwoord
+    const password = prompt('Voer het geheime wachtwoord in om een show toe te voegen:');
+
+    if (password !== ADMIN_PASSWORD) {
+        alert('Verkeerd wachtwoord! Alleen Joerie mag shows toevoegen.');
+        return false;
+    }
+
+    const showsRef = database.ref('shows');
+    showsRef.push({
         name: name,
         description: description || 'Een geweldige show!',
-        image: image || null
-    };
-    shows.push(newShow);
-    saveShows();
-    renderShows();
+        image: image || null,
+        createdAt: Date.now()
+    });
     playSuccessSound();
+    return true;
 }
 
 function deleteShow(id) {
     if (confirm('Weet je zeker dat je deze show wilt verwijderen?')) {
-        shows = shows.filter(show => show.id !== id);
-        saveShows();
-        renderShows();
+        database.ref('shows/' + id).remove();
         playClickSound();
     }
 }
@@ -198,6 +349,13 @@ function buyTicket(id) {
 }
 
 function processPayment(method) {
+    // Vraag naam van koper
+    const buyerName = prompt('Wat is je naam?');
+    if (!buyerName) {
+        alert('Je moet je naam invullen!');
+        return;
+    }
+
     // Ga naar stap 2 (verwerken)
     document.getElementById('payment-step-1').classList.add('hidden');
     document.getElementById('payment-step-2').classList.remove('hidden');
@@ -229,8 +387,8 @@ function processPayment(method) {
         document.getElementById('payment-step-2').classList.add('hidden');
         document.getElementById('payment-step-3').classList.remove('hidden');
 
-        // Voeg verdiensten toe!
-        addEarnings(TICKET_PRICE);
+        // Voeg betaling toe met naam!
+        addPayment(currentPaymentShow.name, buyerName);
 
         // Start confetti!
         launchConfetti();
@@ -471,7 +629,7 @@ function selectEffect(effect) {
 }
 
 // ==========================================
-// GELUIDJES OPSLAAN
+// GELUIDJES OPSLAAN (lokaal)
 // ==========================================
 let savedSounds = [];
 
@@ -571,6 +729,12 @@ function deleteSavedSound(index) {
 // EVENT LISTENERS
 // ==========================================
 function setupEventListeners() {
+    // Login knop
+    document.getElementById('login-btn').addEventListener('click', loginWithGoogle);
+
+    // Logout knop
+    document.getElementById('logout-btn').addEventListener('click', logout);
+
     // Opneem knop
     document.getElementById('record-btn').addEventListener('click', function() {
         if (mediaRecorder && mediaRecorder.state === 'recording') {
