@@ -670,23 +670,51 @@ section h3 {
 
 .memory-card {
     aspect-ratio: 1;
-    background: linear-gradient(135deg, #2266cc 0%, #1155aa 100%);
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.memory-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.4s;
+    transform-style: preserve-3d;
+}
+
+.memory-card.flipped .memory-card-inner {
+    transform: rotateY(180deg);
+}
+
+.memory-card-front, .memory-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2em;
-    cursor: pointer;
-    transition: transform 0.3s;
 }
 
-.memory-card.flipped {
+.memory-card-front {
+    background: linear-gradient(135deg, #2266cc 0%, #1155aa 100%);
+    color: white;
+    font-weight: bold;
+}
+
+.memory-card-back {
     background: white;
     border: 3px solid #2266cc;
+    transform: rotateY(180deg);
 }
 
-.memory-card.matched {
+.memory-card.matched .memory-card-back {
     background: linear-gradient(135deg, #22cc44 0%, #11aa33 100%);
+    border-color: #11aa33;
 }
 
 /* ==========================================
@@ -758,6 +786,11 @@ section h3 {
     gap: 10px;
     max-width: 300px;
     margin: 0 auto 15px;
+    position: relative;
+}
+
+.balloon-area {
+    position: relative;
 }
 
 .whack-hole {
@@ -765,20 +798,62 @@ section h3 {
     background: linear-gradient(to bottom, #8B4513 0%, #654321 100%);
     border-radius: 50%;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    box-shadow: inset 0 5px 15px rgba(0,0,0,0.5);
 }
 
 .mole {
-    font-size: 2em;
+    font-size: 2.2em;
     transform: translateY(100%);
-    transition: transform 0.2s;
+    transition: transform 0.15s ease-out;
 }
 
-.whack-hole.active .mole { transform: translateY(0); }
+.mole.visible {
+    transform: translateY(20%);
+}
+
+.mole.hit {
+    transform: translateY(20%) scale(0.8);
+    filter: brightness(1.5);
+}
+
+.game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.game-over-text {
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+}
+
+.game-over {
+    text-align: center;
+    padding: 30px;
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #cc0000;
+    background: linear-gradient(135deg, #fff 0%, #ffe6e6 100%);
+    border-radius: 10px;
+    cursor: pointer;
+}
 
 /* ==========================================
    SOUND RECORDING
@@ -1410,6 +1485,48 @@ body.spooky-mode .tab-btn {
 
 body.spooky-mode .tab-btn.active {
     background: linear-gradient(135deg, #6b4ba3 0%, #2d1b4e 100%);
+}
+
+body.spooky-mode p,
+body.spooky-mode span,
+body.spooky-mode label,
+body.spooky-mode .section-intro {
+    color: #e0e0e0 !important;
+}
+
+body.spooky-mode input,
+body.spooky-mode textarea {
+    background: #2d1b4e;
+    color: #fff;
+    border-color: #6b4ba3;
+}
+
+body.spooky-mode input::placeholder,
+body.spooky-mode textarea::placeholder {
+    color: #888;
+}
+
+body.spooky-mode .stat-label,
+body.spooky-mode .badge-name,
+body.spooky-mode .empty-message {
+    color: #b388ff !important;
+}
+
+body.spooky-mode .quiz-answer-btn {
+    background: #2d1b4e;
+    color: #e0e0e0;
+    border-color: #6b4ba3;
+}
+
+body.spooky-mode .voting-item,
+body.spooky-mode .guest-message,
+body.spooky-mode .payment-item {
+    background: rgba(45,27,78,0.8);
+    color: #e0e0e0;
+}
+
+body.spooky-mode .fanclub-card {
+    background: linear-gradient(135deg, #2d1b4e 0%, #6b4ba3 100%);
 }
 
 /* ==========================================

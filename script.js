@@ -215,43 +215,111 @@ function updateEarningsDisplay() {
 }
 
 // ==========================================
-// GELUIDJES VOOR DE WEBSITE
+// GELUIDJES VOOR DE WEBSITE - VERBETERDE VERSIE
 // ==========================================
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
+// Helper: Maak reverb effect
+function createReverb(duration = 1) {
+    const sampleRate = audioContext.sampleRate;
+    const length = sampleRate * duration;
+    const impulse = audioContext.createBuffer(2, length, sampleRate);
+
+    for (let channel = 0; channel < 2; channel++) {
+        const data = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2);
+        }
+    }
+
+    const convolver = audioContext.createConvolver();
+    convolver.buffer = impulse;
+    return convolver;
+}
+
+// Helper: Speel noot met harmonics (voor piano-achtig geluid)
+function playNoteWithHarmonics(freq, startTime, duration, volume = 0.15) {
+    const harmonics = [1, 2, 3, 4, 5];
+    const harmonicVolumes = [1, 0.5, 0.25, 0.125, 0.0625];
+
+    harmonics.forEach((h, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.value = freq * h;
+
+        gain.gain.setValueAtTime(volume * harmonicVolumes[i], startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    });
+}
+
 function playClickSound() {
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+    filter.type = 'bandpass';
+    filter.frequency.value = 2000;
+    filter.Q.value = 1;
 
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1200, audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.05);
 
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.08);
+
+    // Extra "pop" geluid
+    const pop = audioContext.createOscillator();
+    const popGain = audioContext.createGain();
+    pop.type = 'sine';
+    pop.frequency.value = 400;
+    popGain.gain.setValueAtTime(0.15, audioContext.currentTime);
+    popGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
+    pop.connect(popGain);
+    popGain.connect(audioContext.destination);
+    pop.start();
+    pop.stop(audioContext.currentTime + 0.03);
 }
 
 function playSuccessSound() {
-    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+    // Vrolijke oplopende akkoorden met shimmer
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    const now = audioContext.currentTime;
+
     notes.forEach((freq, i) => {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        oscillator.frequency.value = freq;
-        oscillator.type = 'sine';
-        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.1);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.1 + 0.3);
-
-        oscillator.start(audioContext.currentTime + i * 0.1);
-        oscillator.stop(audioContext.currentTime + i * 0.1 + 0.3);
+        playNoteWithHarmonics(freq, now + i * 0.08, 0.5, 0.12);
     });
+
+    // Sparkle effect erbij
+    for (let i = 0; i < 5; i++) {
+        setTimeout(() => {
+            const sparkle = audioContext.createOscillator();
+            const sparkleGain = audioContext.createGain();
+            sparkle.type = 'sine';
+            sparkle.frequency.value = 2000 + Math.random() * 2000;
+            sparkleGain.gain.setValueAtTime(0.05, audioContext.currentTime);
+            sparkleGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            sparkle.connect(sparkleGain);
+            sparkleGain.connect(audioContext.destination);
+            sparkle.start();
+            sparkle.stop(audioContext.currentTime + 0.1);
+        }, i * 60);
+    }
 }
 
 // ==========================================
@@ -1273,194 +1341,552 @@ function playSoundboardSound(soundName) {
 }
 
 function playApplauseSound() {
-    for (let i = 0; i < 20; i++) {
+    // Realistischer applaus met meerdere noise layers
+    const duration = 1.5;
+    const now = audioContext.currentTime;
+
+    // Laag 1: Basis ruis (handgeklap massa)
+    for (let layer = 0; layer < 3; layer++) {
+        const bufferSize = audioContext.sampleRate * duration;
+        const buffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+
+        for (let ch = 0; ch < 2; ch++) {
+            const data = buffer.getChannelData(ch);
+            for (let i = 0; i < bufferSize; i++) {
+                // Random claps met variatie
+                const envelope = Math.sin(Math.PI * i / bufferSize);
+                const randomBurst = Math.random() < 0.1 ? Math.random() * 2 : Math.random() * 0.5;
+                data[i] = (Math.random() * 2 - 1) * envelope * randomBurst;
+            }
+        }
+
+        const source = audioContext.createBufferSource();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+
+        source.buffer = buffer;
+        filter.type = 'bandpass';
+        filter.frequency.value = 1500 + layer * 500;
+        filter.Q.value = 0.5;
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.3);
+        gain.gain.linearRampToValueAtTime(0.1, now + duration);
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+        source.start(now + layer * 0.05);
+    }
+
+    // Laag 2: Individuele klappen
+    for (let i = 0; i < 15; i++) {
         setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.value = 200 + Math.random() * 400;
-            gain.gain.setValueAtTime(0.05, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.1);
-        }, i * 50);
+            const clapBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.03, audioContext.sampleRate);
+            const clapData = clapBuffer.getChannelData(0);
+            for (let j = 0; j < clapData.length; j++) {
+                clapData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / clapData.length, 3);
+            }
+            const clapSource = audioContext.createBufferSource();
+            const clapGain = audioContext.createGain();
+            const clapFilter = audioContext.createBiquadFilter();
+            clapSource.buffer = clapBuffer;
+            clapFilter.type = 'highpass';
+            clapFilter.frequency.value = 800;
+            clapGain.gain.value = 0.2 + Math.random() * 0.1;
+            clapSource.connect(clapFilter);
+            clapFilter.connect(clapGain);
+            clapGain.connect(audioContext.destination);
+            clapSource.start();
+        }, Math.random() * 1200);
     }
 }
 
 function playDrumroll() {
-    for (let i = 0; i < 30; i++) {
-        setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'triangle';
-            osc.frequency.value = 150 + Math.random() * 50;
-            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.05);
-        }, i * 30);
+    const duration = 1.5;
+    const now = audioContext.currentTime;
+    const hits = 40;
+
+    for (let i = 0; i < hits; i++) {
+        const time = now + (i / hits) * duration;
+        const volume = 0.05 + (i / hits) * 0.15; // Crescendo
+
+        // Snare-achtige hit
+        const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.05, audioContext.sampleRate);
+        const noiseData = noiseBuffer.getChannelData(0);
+        for (let j = 0; j < noiseData.length; j++) {
+            noiseData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / noiseData.length, 2);
+        }
+
+        const source = audioContext.createBufferSource();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+
+        source.buffer = noiseBuffer;
+        filter.type = 'bandpass';
+        filter.frequency.value = 3000 + Math.random() * 1000;
+        filter.Q.value = 1;
+        gain.gain.value = volume;
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+        source.start(time);
+
+        // Toon component (snare body)
+        const tone = audioContext.createOscillator();
+        const toneGain = audioContext.createGain();
+        tone.type = 'triangle';
+        tone.frequency.value = 180 + Math.random() * 20;
+        toneGain.gain.setValueAtTime(volume * 0.5, time);
+        toneGain.gain.exponentialRampToValueAtTime(0.001, time + 0.04);
+        tone.connect(toneGain);
+        toneGain.connect(audioContext.destination);
+        tone.start(time);
+        tone.stop(time + 0.04);
     }
 }
 
 function playFanfare() {
-    const notes = [523, 659, 784, 1047];
-    notes.forEach((freq, i) => {
-        setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'square';
-            osc.frequency.value = freq;
-            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.3);
-        }, i * 150);
+    const now = audioContext.currentTime;
+    // Trompet-achtige fanfare
+    const melody = [
+        { note: 523, time: 0, dur: 0.15 },
+        { note: 523, time: 0.15, dur: 0.15 },
+        { note: 659, time: 0.3, dur: 0.15 },
+        { note: 784, time: 0.45, dur: 0.3 },
+        { note: 659, time: 0.8, dur: 0.15 },
+        { note: 784, time: 0.95, dur: 0.5 },
+    ];
+
+    melody.forEach(({ note, time, dur }) => {
+        // Basis toon
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.value = note;
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(note * 4, now + time);
+        filter.frequency.linearRampToValueAtTime(note * 2, now + time + dur);
+
+        gain.gain.setValueAtTime(0, now + time);
+        gain.gain.linearRampToValueAtTime(0.2, now + time + 0.02);
+        gain.gain.setValueAtTime(0.15, now + time + dur - 0.05);
+        gain.gain.linearRampToValueAtTime(0.001, now + time + dur);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now + time);
+        osc.stop(now + time + dur);
+
+        // Harmonics voor rijkere klank
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.type = 'square';
+        osc2.frequency.value = note * 2;
+        gain2.gain.setValueAtTime(0.05, now + time);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + time + dur);
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        osc2.start(now + time);
+        osc2.stop(now + time + dur);
     });
 }
 
 function playLaughSound() {
-    for (let i = 0; i < 8; i++) {
-        setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = 300 + (i % 2 === 0 ? 100 : 0);
-            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.1);
-        }, i * 80);
+    const now = audioContext.currentTime;
+    // "Ha ha ha" geluid
+    const haCount = 6;
+
+    for (let i = 0; i < haCount; i++) {
+        const time = now + i * 0.12;
+        const pitch = 350 - (i % 2) * 50 + Math.random() * 30;
+
+        // "H" geluid (breath)
+        const breathBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.03, audioContext.sampleRate);
+        const breathData = breathBuffer.getChannelData(0);
+        for (let j = 0; j < breathData.length; j++) {
+            breathData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / breathData.length, 2) * 0.3;
+        }
+        const breathSource = audioContext.createBufferSource();
+        const breathGain = audioContext.createGain();
+        const breathFilter = audioContext.createBiquadFilter();
+        breathSource.buffer = breathBuffer;
+        breathFilter.type = 'highpass';
+        breathFilter.frequency.value = 2000;
+        breathGain.gain.value = 0.15;
+        breathSource.connect(breathFilter);
+        breathFilter.connect(breathGain);
+        breathGain.connect(audioContext.destination);
+        breathSource.start(time);
+
+        // "A" geluid (voiced)
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(pitch, time + 0.02);
+        osc.frequency.linearRampToValueAtTime(pitch * 0.9, time + 0.1);
+        gain.gain.setValueAtTime(0.15, time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(time + 0.02);
+        osc.stop(time + 0.12);
     }
 }
 
 function playBooSound() {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(200, audioContext.currentTime);
-    osc.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 1);
-    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 1);
-}
+    const now = audioContext.currentTime;
+    // Meerstemmig "boooo"
+    const voices = 5;
 
-function playWowSound() {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(300, audioContext.currentTime);
-    osc.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.5);
-    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.6);
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.6);
-}
+    for (let v = 0; v < voices; v++) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
 
-function playMagicSound() {
-    for (let i = 0; i < 10; i++) {
-        setTimeout(() => {
-            const osc = audioContext.createOscillator();
-            const gain = audioContext.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = 800 + i * 100 + Math.random() * 200;
-            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
-            osc.connect(gain);
-            gain.connect(audioContext.destination);
-            osc.start();
-            osc.stop(audioContext.currentTime + 0.2);
-        }, i * 50);
+        const baseFreq = 120 + v * 15 + Math.random() * 10;
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.linearRampToValueAtTime(baseFreq * 0.7, now + 1.2);
+
+        filter.type = 'lowpass';
+        filter.frequency.value = 800;
+        filter.Q.value = 2;
+
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.08, now + 0.1);
+        gain.gain.setValueAtTime(0.08, now + 0.8);
+        gain.gain.linearRampToValueAtTime(0.001, now + 1.2);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now + v * 0.05);
+        osc.stop(now + 1.3);
     }
 }
 
-function playFartSound() {
+function playWowSound() {
+    const now = audioContext.currentTime;
+    // Stijgend "wooow" met formanten
     const osc = audioContext.createOscillator();
     const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
     osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(100, audioContext.currentTime);
-    osc.frequency.linearRampToValueAtTime(50, audioContext.currentTime + 0.3);
-    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
-    osc.connect(gain);
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(250, now + 0.3);
+    osc.frequency.exponentialRampToValueAtTime(300, now + 0.5);
+    osc.frequency.exponentialRampToValueAtTime(200, now + 0.8);
+
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(400, now);
+    filter.frequency.linearRampToValueAtTime(1200, now + 0.3);
+    filter.frequency.linearRampToValueAtTime(600, now + 0.8);
+    filter.Q.value = 3;
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.25, now + 0.1);
+    gain.gain.linearRampToValueAtTime(0.001, now + 0.8);
+
+    osc.connect(filter);
+    filter.connect(gain);
     gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.3);
+    osc.start(now);
+    osc.stop(now + 0.9);
 }
 
-function playBellSound() {
-    [880, 1100].forEach((freq, i) => {
+function playMagicSound() {
+    const now = audioContext.currentTime;
+    // Magische sparkles met glockenspiel-achtige tonen
+    const notes = [1047, 1319, 1568, 2093, 1760, 2349, 2637, 3136]; // Hoge magische tonen
+
+    for (let i = 0; i < 15; i++) {
+        const time = now + i * 0.08 + Math.random() * 0.05;
+        const note = notes[Math.floor(Math.random() * notes.length)];
+
+        // Glockenspiel-achtige toon
         const osc = audioContext.createOscillator();
         const gain = audioContext.createGain();
         osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.2);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + i * 0.2 + 0.5);
+        osc.frequency.value = note * (0.98 + Math.random() * 0.04);
+        gain.gain.setValueAtTime(0.08, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
         osc.connect(gain);
         gain.connect(audioContext.destination);
-        osc.start(audioContext.currentTime + i * 0.2);
-        osc.stop(audioContext.currentTime + i * 0.2 + 0.5);
+        osc.start(time);
+        osc.stop(time + 0.5);
+
+        // Extra harmonic
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.value = note * 2;
+        gain2.gain.setValueAtTime(0.03, time);
+        gain2.gain.exponentialRampToValueAtTime(0.001, time + 0.2);
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        osc2.start(time);
+        osc2.stop(time + 0.3);
+    }
+
+    // Shimmer ruis
+    const shimmerBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 1, audioContext.sampleRate);
+    const shimmerData = shimmerBuffer.getChannelData(0);
+    for (let i = 0; i < shimmerData.length; i++) {
+        shimmerData[i] = (Math.random() * 2 - 1) * 0.02 * (1 - i / shimmerData.length);
+    }
+    const shimmer = audioContext.createBufferSource();
+    const shimmerFilter = audioContext.createBiquadFilter();
+    const shimmerGain = audioContext.createGain();
+    shimmer.buffer = shimmerBuffer;
+    shimmerFilter.type = 'highpass';
+    shimmerFilter.frequency.value = 8000;
+    shimmerGain.gain.value = 0.5;
+    shimmer.connect(shimmerFilter);
+    shimmerFilter.connect(shimmerGain);
+    shimmerGain.connect(audioContext.destination);
+    shimmer.start(now);
+}
+
+function playFartSound() {
+    const now = audioContext.currentTime;
+    // Grappiger "prrrrt" geluid
+    const duration = 0.4 + Math.random() * 0.2;
+
+    const osc = audioContext.createOscillator();
+    const lfo = audioContext.createOscillator();
+    const lfoGain = audioContext.createGain();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+
+    // Hoofdtoon met trillingen
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(80 + Math.random() * 30, now);
+    osc.frequency.linearRampToValueAtTime(40, now + duration);
+
+    // LFO voor het "flapperen"
+    lfo.type = 'square';
+    lfo.frequency.setValueAtTime(25, now);
+    lfo.frequency.linearRampToValueAtTime(15, now + duration);
+    lfoGain.gain.value = 30;
+    lfo.connect(lfoGain);
+    lfoGain.connect(osc.frequency);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 400;
+    filter.Q.value = 5;
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.linearRampToValueAtTime(0.001, now + duration);
+
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start(now);
+    lfo.start(now);
+    osc.stop(now + duration);
+    lfo.stop(now + duration);
+}
+
+function playBellSound() {
+    const now = audioContext.currentTime;
+    // Kerkklok-achtig geluid met overtonen
+    const fundamental = 440;
+    const harmonics = [1, 2, 2.4, 3, 4.5, 5.33, 6.5, 8];
+    const volumes = [1, 0.6, 0.4, 0.25, 0.2, 0.15, 0.1, 0.05];
+
+    // Twee slagen
+    [0, 0.5].forEach(offset => {
+        harmonics.forEach((h, i) => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = fundamental * h;
+            gain.gain.setValueAtTime(volumes[i] * 0.1, now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 2);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start(now + offset);
+            osc.stop(now + offset + 2);
+        });
+
+        // Strike attack
+        const strikeBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.01, audioContext.sampleRate);
+        const strikeData = strikeBuffer.getChannelData(0);
+        for (let i = 0; i < strikeData.length; i++) {
+            strikeData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / strikeData.length, 4);
+        }
+        const strike = audioContext.createBufferSource();
+        const strikeGain = audioContext.createGain();
+        const strikeFilter = audioContext.createBiquadFilter();
+        strike.buffer = strikeBuffer;
+        strikeFilter.type = 'highpass';
+        strikeFilter.frequency.value = 2000;
+        strikeGain.gain.value = 0.3;
+        strike.connect(strikeFilter);
+        strikeFilter.connect(strikeGain);
+        strikeGain.connect(audioContext.destination);
+        strike.start(now + offset);
     });
 }
 
 function playHornSound() {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.value = 220;
-    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.8);
+    const now = audioContext.currentTime;
+    // Auto toeter "tuut tuut!"
+    const pattern = [
+        { start: 0, dur: 0.25 },
+        { start: 0.35, dur: 0.4 }
+    ];
+
+    pattern.forEach(({ start, dur }) => {
+        const osc = audioContext.createOscillator();
+        const osc2 = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        const filter = audioContext.createBiquadFilter();
+
+        osc.type = 'sawtooth';
+        osc.frequency.value = 310;
+        osc2.type = 'sawtooth';
+        osc2.frequency.value = 392;
+
+        filter.type = 'lowpass';
+        filter.frequency.value = 1500;
+
+        gain.gain.setValueAtTime(0, now + start);
+        gain.gain.linearRampToValueAtTime(0.2, now + start + 0.02);
+        gain.gain.setValueAtTime(0.2, now + start + dur - 0.02);
+        gain.gain.linearRampToValueAtTime(0.001, now + start + dur);
+
+        osc.connect(filter);
+        osc2.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now + start);
+        osc2.start(now + start);
+        osc.stop(now + start + dur);
+        osc2.stop(now + start + dur);
+    });
 }
 
 function playWhistleSound() {
+    const now = audioContext.currentTime;
+    // Scheidsrechter fluitje
     const osc = audioContext.createOscillator();
+    const osc2 = audioContext.createOscillator();
     const gain = audioContext.createGain();
+
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(1000, audioContext.currentTime);
-    osc.frequency.linearRampToValueAtTime(1400, audioContext.currentTime + 0.2);
-    osc.frequency.linearRampToValueAtTime(1000, audioContext.currentTime + 0.4);
-    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+    osc2.type = 'sine';
+
+    // Twee tonen die licht variëren
+    osc.frequency.setValueAtTime(2800, now);
+    osc.frequency.setValueAtTime(2850, now + 0.1);
+    osc.frequency.setValueAtTime(2800, now + 0.2);
+
+    osc2.frequency.setValueAtTime(2400, now);
+    osc2.frequency.setValueAtTime(2450, now + 0.1);
+    osc2.frequency.setValueAtTime(2400, now + 0.2);
+
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.02);
+    gain.gain.setValueAtTime(0.15, now + 0.5);
+    gain.gain.linearRampToValueAtTime(0.001, now + 0.6);
+
     osc.connect(gain);
+    osc2.connect(gain);
     gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.5);
+
+    osc.start(now);
+    osc2.start(now);
+    osc.stop(now + 0.6);
+    osc2.stop(now + 0.6);
+
+    // Breath/air component
+    const breathBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.6, audioContext.sampleRate);
+    const breathData = breathBuffer.getChannelData(0);
+    for (let i = 0; i < breathData.length; i++) {
+        const env = i < breathData.length * 0.1 ? i / (breathData.length * 0.1) : 1 - (i - breathData.length * 0.1) / (breathData.length * 0.9);
+        breathData[i] = (Math.random() * 2 - 1) * env * 0.1;
+    }
+    const breath = audioContext.createBufferSource();
+    const breathFilter = audioContext.createBiquadFilter();
+    const breathGain = audioContext.createGain();
+    breath.buffer = breathBuffer;
+    breathFilter.type = 'bandpass';
+    breathFilter.frequency.value = 4000;
+    breathFilter.Q.value = 1;
+    breathGain.gain.value = 0.5;
+    breath.connect(breathFilter);
+    breathFilter.connect(breathGain);
+    breathGain.connect(audioContext.destination);
+    breath.start(now);
 }
 
 function playExplosionSound() {
-    const bufferSize = audioContext.sampleRate * 0.5;
-    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    const now = audioContext.currentTime;
+    const duration = 1;
+
+    // Lage dreun
+    const boom = audioContext.createOscillator();
+    const boomGain = audioContext.createGain();
+    boom.type = 'sine';
+    boom.frequency.setValueAtTime(100, now);
+    boom.frequency.exponentialRampToValueAtTime(30, now + 0.3);
+    boomGain.gain.setValueAtTime(0.5, now);
+    boomGain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+    boom.connect(boomGain);
+    boomGain.connect(audioContext.destination);
+    boom.start(now);
+    boom.stop(now + 0.5);
+
+    // Noise burst
+    const bufferSize = audioContext.sampleRate * duration;
+    const buffer = audioContext.createBuffer(2, bufferSize, audioContext.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        const data = buffer.getChannelData(ch);
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+        }
     }
+
     const source = audioContext.createBufferSource();
     const gain = audioContext.createGain();
     const filter = audioContext.createBiquadFilter();
     source.buffer = buffer;
     filter.type = 'lowpass';
-    filter.frequency.value = 500;
-    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+    filter.frequency.setValueAtTime(3000, now);
+    filter.frequency.exponentialRampToValueAtTime(200, now + duration);
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
     source.connect(filter);
     filter.connect(gain);
     gain.connect(audioContext.destination);
-    source.start();
+    source.start(now);
+
+    // Debris/crackle
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            const crackle = audioContext.createOscillator();
+            const crackleGain = audioContext.createGain();
+            crackle.type = 'sawtooth';
+            crackle.frequency.value = 100 + Math.random() * 200;
+            crackleGain.gain.setValueAtTime(0.05, audioContext.currentTime);
+            crackleGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+            crackle.connect(crackleGain);
+            crackleGain.connect(audioContext.destination);
+            crackle.start();
+            crackle.stop(audioContext.currentTime + 0.05);
+        }, 100 + Math.random() * 500);
+    }
 }
 
 // ==========================================
@@ -2229,6 +2655,12 @@ let balloonSpawnInterval = null;
 let balloonActive = false;
 
 function startBalloonGame() {
+    // Stop als er al een spel loopt
+    if (balloonActive) {
+        endBalloonGame();
+        return;
+    }
+
     const area = document.getElementById('balloon-area');
     if (!area) return;
 
@@ -2238,6 +2670,7 @@ function startBalloonGame() {
 
     document.getElementById('balloon-score').textContent = '0';
     document.getElementById('balloon-time').textContent = '30';
+    document.getElementById('balloon-start-btn').textContent = 'Stop!';
     area.innerHTML = '';
 
     // Spawn balloons
@@ -2245,8 +2678,11 @@ function startBalloonGame() {
 
     // Timer
     balloonInterval = setInterval(() => {
+        if (!balloonActive) return;
+
         balloonTime--;
-        document.getElementById('balloon-time').textContent = balloonTime;
+        const timeEl = document.getElementById('balloon-time');
+        if (timeEl) timeEl.textContent = Math.max(0, balloonTime);
 
         if (balloonTime <= 0) {
             endBalloonGame();
@@ -2260,15 +2696,22 @@ function spawnBalloon() {
     if (!balloonActive) return;
 
     const area = document.getElementById('balloon-area');
+    if (!area) return;
+
     const balloon = document.createElement('div');
     balloon.className = 'balloon';
 
-    const colors = ['🎈', '🔴', '🟡', '🟢', '🔵', '🟣'];
-    balloon.textContent = colors[Math.floor(Math.random() * colors.length)];
+    // Alleen echte ballonnen!
+    const balloonColors = ['🎈', '🩷', '💙', '💚', '💛', '🩵', '💜', '🧡'];
+    balloon.textContent = balloonColors[Math.floor(Math.random() * balloonColors.length)];
     balloon.style.left = Math.random() * 80 + 10 + '%';
     balloon.style.animationDuration = (2 + Math.random() * 2) + 's';
 
     balloon.addEventListener('click', () => popBalloon(balloon));
+    balloon.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        popBalloon(balloon);
+    });
     area.appendChild(balloon);
 
     // Remove after animation
@@ -2279,25 +2722,59 @@ function spawnBalloon() {
 
 function popBalloon(balloon) {
     if (!balloonActive) return;
+    if (balloon.classList.contains('popped')) return;
 
     balloon.classList.add('popped');
     balloonScore += 10;
     document.getElementById('balloon-score').textContent = balloonScore;
-    playClickSound();
+
+    // Pop geluid
+    const pop = audioContext.createOscillator();
+    const popGain = audioContext.createGain();
+    pop.type = 'sine';
+    pop.frequency.setValueAtTime(800, audioContext.currentTime);
+    pop.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.05);
+    popGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    popGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+    pop.connect(popGain);
+    popGain.connect(audioContext.destination);
+    pop.start();
+    pop.stop(audioContext.currentTime + 0.05);
 
     setTimeout(() => balloon.remove(), 200);
 }
 
 function endBalloonGame() {
     balloonActive = false;
-    clearInterval(balloonInterval);
-    clearInterval(balloonSpawnInterval);
 
-    document.getElementById('balloon-area').innerHTML = `<div class="game-over">Game Over! Score: ${balloonScore}</div>`;
+    if (balloonInterval) {
+        clearInterval(balloonInterval);
+        balloonInterval = null;
+    }
+    if (balloonSpawnInterval) {
+        clearInterval(balloonSpawnInterval);
+        balloonSpawnInterval = null;
+    }
 
-    addStars(Math.floor(balloonScore / 20));
-    incrementGameCount();
-    playFanfare();
+    const startBtn = document.getElementById('balloon-start-btn');
+    if (startBtn) startBtn.textContent = 'Start!';
+
+    const area = document.getElementById('balloon-area');
+    if (area && balloonScore > 0) {
+        const gameOverDiv = document.createElement('div');
+        gameOverDiv.className = 'game-over';
+        gameOverDiv.textContent = `Game Over! Score: ${balloonScore} - Klik om opnieuw te spelen`;
+        gameOverDiv.addEventListener('click', () => {
+            gameOverDiv.remove();
+            startBalloonGame();
+        });
+        area.innerHTML = '';
+        area.appendChild(gameOverDiv);
+
+        addStars(Math.floor(balloonScore / 20));
+        incrementGameCount();
+        playFanfare();
+    }
 }
 
 // ==========================================
@@ -2310,23 +2787,36 @@ let whackMoleInterval = null;
 let whackActive = false;
 
 function startWhackGame() {
+    // Stop als er al een spel loopt
+    if (whackActive) {
+        endWhackGame();
+        return;
+    }
+
     whackScore = 0;
     whackTime = 30;
     whackActive = true;
 
     document.getElementById('whack-score').textContent = '0';
     document.getElementById('whack-time').textContent = '30';
+    document.getElementById('whack-start-btn').textContent = 'Stop!';
 
     // Hide all moles
-    document.querySelectorAll('.mole').forEach(m => m.classList.remove('visible'));
+    document.querySelectorAll('.mole').forEach(m => {
+        m.classList.remove('visible');
+        m.classList.remove('hit');
+    });
 
     // Show random moles
-    whackMoleInterval = setInterval(showRandomMole, 800);
+    whackMoleInterval = setInterval(showRandomMole, 700);
 
     // Timer
     whackInterval = setInterval(() => {
+        if (!whackActive) return;
+
         whackTime--;
-        document.getElementById('whack-time').textContent = whackTime;
+        const timeEl = document.getElementById('whack-time');
+        if (timeEl) timeEl.textContent = Math.max(0, whackTime);
 
         if (whackTime <= 0) {
             endWhackGame();
@@ -2343,23 +2833,40 @@ function showRandomMole() {
     const randomIndex = Math.floor(Math.random() * moles.length);
     const mole = moles[randomIndex];
 
-    mole.classList.add('visible');
+    // Alleen tonen als niet al zichtbaar
+    if (!mole.classList.contains('visible')) {
+        mole.classList.add('visible');
 
-    setTimeout(() => {
-        mole.classList.remove('visible');
-    }, 600 + Math.random() * 400);
+        setTimeout(() => {
+            if (whackActive) {
+                mole.classList.remove('visible');
+            }
+        }, 500 + Math.random() * 500);
+    }
 }
 
 function whackMole(hole) {
     if (!whackActive) return;
 
     const mole = hole.querySelector('.mole');
-    if (mole.classList.contains('visible')) {
+    if (mole && mole.classList.contains('visible')) {
         mole.classList.remove('visible');
         mole.classList.add('hit');
         whackScore += 10;
         document.getElementById('whack-score').textContent = whackScore;
-        playClickSound();
+
+        // Whack geluid
+        const whack = audioContext.createOscillator();
+        const whackGain = audioContext.createGain();
+        whack.type = 'triangle';
+        whack.frequency.setValueAtTime(300, audioContext.currentTime);
+        whack.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.1);
+        whackGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        whackGain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+        whack.connect(whackGain);
+        whackGain.connect(audioContext.destination);
+        whack.start();
+        whack.stop(audioContext.currentTime + 0.1);
 
         setTimeout(() => mole.classList.remove('hit'), 200);
     }
@@ -2367,14 +2874,44 @@ function whackMole(hole) {
 
 function endWhackGame() {
     whackActive = false;
-    clearInterval(whackInterval);
-    clearInterval(whackMoleInterval);
 
-    document.querySelectorAll('.mole').forEach(m => m.classList.remove('visible'));
+    if (whackInterval) {
+        clearInterval(whackInterval);
+        whackInterval = null;
+    }
+    if (whackMoleInterval) {
+        clearInterval(whackMoleInterval);
+        whackMoleInterval = null;
+    }
 
-    alert('Game Over! Score: ' + whackScore);
-    addStars(Math.floor(whackScore / 20));
-    incrementGameCount();
+    const startBtn = document.getElementById('whack-start-btn');
+    if (startBtn) startBtn.textContent = 'Start!';
+
+    // Hide all moles
+    document.querySelectorAll('.mole').forEach(m => {
+        m.classList.remove('visible');
+        m.classList.remove('hit');
+    });
+
+    if (whackScore > 0) {
+        playFanfare();
+        addStars(Math.floor(whackScore / 20));
+        incrementGameCount();
+
+        // Toon score in het speelveld
+        const grid = document.getElementById('whack-grid');
+        if (grid) {
+            const gameOver = document.createElement('div');
+            gameOver.className = 'game-over-overlay';
+            gameOver.innerHTML = `<div class="game-over-text">Score: ${whackScore}!</div>`;
+            gameOver.addEventListener('click', () => gameOver.remove());
+            grid.appendChild(gameOver);
+
+            setTimeout(() => {
+                if (gameOver.parentNode) gameOver.remove();
+            }, 3000);
+        }
+    }
 }
 
 // ==========================================
@@ -2423,88 +2960,175 @@ function playDrumSound(drum) {
 }
 
 function playKickDrum() {
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
+    const now = audioContext.currentTime;
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(150, audioContext.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(40, audioContext.currentTime + 0.1);
-    gain.gain.setValueAtTime(1, audioContext.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    // Sub bass
+    const sub = audioContext.createOscillator();
+    const subGain = audioContext.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(150, now);
+    sub.frequency.exponentialRampToValueAtTime(40, now + 0.15);
+    subGain.gain.setValueAtTime(0.8, now);
+    subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+    sub.connect(subGain);
+    subGain.connect(audioContext.destination);
+    sub.start(now);
+    sub.stop(now + 0.3);
 
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-    osc.start();
-    osc.stop(audioContext.currentTime + 0.3);
+    // Click/attack
+    const click = audioContext.createOscillator();
+    const clickGain = audioContext.createGain();
+    click.type = 'sine';
+    click.frequency.setValueAtTime(1000, now);
+    click.frequency.exponentialRampToValueAtTime(200, now + 0.02);
+    clickGain.gain.setValueAtTime(0.4, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+    click.connect(clickGain);
+    clickGain.connect(audioContext.destination);
+    click.start(now);
+    click.stop(now + 0.05);
+
+    // Punch
+    const punch = audioContext.createOscillator();
+    const punchGain = audioContext.createGain();
+    punch.type = 'triangle';
+    punch.frequency.setValueAtTime(80, now);
+    punch.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+    punchGain.gain.setValueAtTime(0.5, now);
+    punchGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    punch.connect(punchGain);
+    punchGain.connect(audioContext.destination);
+    punch.start(now);
+    punch.stop(now + 0.15);
 }
 
 function playSnareDrum() {
-    const bufferSize = audioContext.sampleRate * 0.2;
-    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    const now = audioContext.currentTime;
+
+    // Snare body (toon)
+    const body = audioContext.createOscillator();
+    const bodyGain = audioContext.createGain();
+    body.type = 'triangle';
+    body.frequency.setValueAtTime(200, now);
+    body.frequency.exponentialRampToValueAtTime(120, now + 0.05);
+    bodyGain.gain.setValueAtTime(0.4, now);
+    bodyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+    body.connect(bodyGain);
+    bodyGain.connect(audioContext.destination);
+    body.start(now);
+    body.stop(now + 0.1);
+
+    // Snare wires (noise)
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.15, audioContext.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) {
+        noiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseData.length, 2);
     }
 
-    const source = audioContext.createBufferSource();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-
-    source.buffer = buffer;
-    filter.type = 'highpass';
-    filter.frequency.value = 1000;
-    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioContext.destination);
-    source.start();
+    const noise = audioContext.createBufferSource();
+    const noiseGain = audioContext.createGain();
+    const noiseFilter = audioContext.createBiquadFilter();
+    noise.buffer = noiseBuffer;
+    noiseFilter.type = 'bandpass';
+    noiseFilter.frequency.value = 4000;
+    noiseFilter.Q.value = 1;
+    noiseGain.gain.setValueAtTime(0.5, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+    noise.start(now);
 }
 
 function playHiHat() {
-    const bufferSize = audioContext.sampleRate * 0.05;
-    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+    const now = audioContext.currentTime;
+
+    // Metallic component (multiple high frequencies)
+    const freqs = [4000, 6000, 8000, 10000];
+    freqs.forEach(freq => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'square';
+        osc.frequency.value = freq + Math.random() * 500;
+        gain.gain.setValueAtTime(0.03, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+    });
+
+    // Noise
+    const noiseBuffer = audioContext.createBuffer(1, audioContext.sampleRate * 0.05, audioContext.sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseData.length; i++) {
+        noiseData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / noiseData.length, 4);
     }
 
-    const source = audioContext.createBufferSource();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
-
-    source.buffer = buffer;
-    filter.type = 'highpass';
-    filter.frequency.value = 5000;
-    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioContext.destination);
-    source.start();
+    const noise = audioContext.createBufferSource();
+    const noiseGain = audioContext.createGain();
+    const noiseFilter = audioContext.createBiquadFilter();
+    noise.buffer = noiseBuffer;
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 7000;
+    noiseGain.gain.setValueAtTime(0.3, now);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+    noise.start(now);
 }
 
 function playCymbal() {
-    const bufferSize = audioContext.sampleRate * 0.5;
-    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 1.5);
+    const now = audioContext.currentTime;
+
+    // Multiple metallic frequencies
+    const freqs = [300, 450, 600, 800, 1200, 2000, 3000, 5000, 7000];
+    freqs.forEach(freq => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq * (0.98 + Math.random() * 0.04);
+        gain.gain.setValueAtTime(0.02, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(now);
+        osc.stop(now + 1.5);
+    });
+
+    // Crash noise
+    const noiseBuffer = audioContext.createBuffer(2, audioContext.sampleRate * 1.5, audioContext.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+        const data = noiseBuffer.getChannelData(ch);
+        for (let i = 0; i < data.length; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 1.2);
+        }
     }
 
-    const source = audioContext.createBufferSource();
-    const gain = audioContext.createGain();
-    const filter = audioContext.createBiquadFilter();
+    const noise = audioContext.createBufferSource();
+    const noiseGain = audioContext.createGain();
+    const noiseFilter = audioContext.createBiquadFilter();
+    noise.buffer = noiseBuffer;
+    noiseFilter.type = 'highpass';
+    noiseFilter.frequency.value = 5000;
+    noiseGain.gain.setValueAtTime(0.25, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+    noise.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(audioContext.destination);
+    noise.start(now);
 
-    source.buffer = buffer;
-    filter.type = 'highpass';
-    filter.frequency.value = 3000;
-    gain.gain.setValueAtTime(0.4, audioContext.currentTime);
-
-    source.connect(filter);
-    filter.connect(gain);
-    gain.connect(audioContext.destination);
-    source.start();
+    // Attack transient
+    const attack = audioContext.createOscillator();
+    const attackGain = audioContext.createGain();
+    attack.type = 'sawtooth';
+    attack.frequency.value = 200;
+    attackGain.gain.setValueAtTime(0.2, now);
+    attackGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    attack.connect(attackGain);
+    attackGain.connect(audioContext.destination);
+    attack.start(now);
+    attack.stop(now + 0.02);
 }
 
 // ==========================================
