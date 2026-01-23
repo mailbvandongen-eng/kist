@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joerie's Shows - Koop je Kaartjes!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Splash Screen met Logo -->
+    <div id="splash-screen">
+        <img src="logo.jfif" alt="Joerie's Shows Logo" id="splash-logo">
+        <div class="loading-text">Laden...</div>
+    </div>
+
+    <!-- Hoofdpagina -->
+    <div id="main-content" class="hidden">
+        <!-- Header -->
+        <header>
+            <img src="logo.jfif" alt="Logo" class="header-logo">
+            <h1>Joerie's Shows</h1>
+        </header>
+
+        <!-- Shows Sectie -->
+        <section id="shows-section">
+            <h2>Mijn Shows</h2>
+            <div id="shows-container">
+                <!-- Shows worden hier toegevoegd -->
+            </div>
+            <button id="add-show-btn" class="big-button">
+                <span class="plus">+</span>
+                <span>Nieuwe Show</span>
+            </button>
+        </section>
+
+        <!-- Geluidjes Sectie -->
+        <section id="sound-section">
+            <h2>Geluidjes</h2>
+
+            <div class="sound-controls">
+                <!-- Opnemen -->
+                <div class="sound-box">
+                    <h3>Opnemen</h3>
+                    <button id="record-btn" class="round-button red">
+                        <span class="record-icon">&#9679;</span>
+                    </button>
+                    <p id="record-status">Klik om op te nemen</p>
+                </div>
+
+                <!-- Afspelen -->
+                <div class="sound-box">
+                    <h3>Afspelen</h3>
+                    <button id="play-btn" class="round-button blue" disabled>
+                        <span class="play-icon">&#9654;</span>
+                    </button>
+                    <p id="play-status">Neem eerst iets op!</p>
+                </div>
+            </div>
+
+            <!-- Grappige Effecten -->
+            <div class="effects-section">
+                <h3>Grappige Effecten!</h3>
+                <div class="effects-buttons">
+                    <button class="effect-btn" data-effect="chipmunk">
+                        Chipmunk (Hoog)
+                    </button>
+                    <button class="effect-btn" data-effect="monster">
+                        Monster (Laag)
+                    </button>
+                    <button class="effect-btn" data-effect="robot">
+                        Robot
+                    </button>
+                    <button class="effect-btn" data-effect="echo">
+                        Echo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Opgeslagen Geluidjes -->
+            <div class="saved-sounds">
+                <h3>Mijn Geluidjes</h3>
+                <div id="sounds-list">
+                    <p class="empty-message">Nog geen geluidjes opgeslagen</p>
+                </div>
+                <button id="save-sound-btn" class="big-button blue" disabled>
+                    Geluidje Opslaan
+                </button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Joerie's Shows &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- Modal voor nieuwe show -->
+    <div id="show-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>Nieuwe Show Toevoegen</h2>
+            <form id="show-form">
+                <label for="show-name">Naam van de show:</label>
+                <input type="text" id="show-name" required placeholder="Bijv. Kist">
+
+                <label for="show-description">Beschrijving:</label>
+                <textarea id="show-description" placeholder="Waar gaat de show over?"></textarea>
+
+                <label for="show-price">Prijs (in euro's):</label>
+                <input type="number" id="show-price" min="0" value="5">
+
+                <button type="submit" class="big-button">Show Toevoegen!</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal voor kaartje kopen -->
+    <div id="ticket-modal" class="modal hidden">
+        <div class="modal-content ticket-content">
+            <span class="close-btn">&times;</span>
+            <h2>Je Kaartje!</h2>
+            <div class="ticket-display">
+                <img src="kist.jfif" alt="Kaartje" class="ticket-image">
+                <div class="ticket-info">
+                    <h3 id="ticket-show-name">Show Naam</h3>
+                    <p>Toegang voor 1 persoon</p>
+                    <p class="ticket-price">Prijs: <span id="ticket-price-display">5</span> euro</p>
+                </div>
+            </div>
+            <button id="print-ticket-btn" class="big-button">
+                Print Kaartje!
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
