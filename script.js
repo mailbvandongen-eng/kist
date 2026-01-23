@@ -47,6 +47,13 @@ function initApp() {
     loadShowsFromFirebase();
     loadEarningsFromFirebase();
     loadSounds();
+    loadApplauseCount();
+    loadCountdown();
+    loadGuestbook();
+    loadHallOfFame();
+    loadSpookyMode();
+    renderSavedCharacters();
+    updateYourStats();
     setupEventListeners();
 }
 
@@ -390,11 +397,23 @@ function processPayment(method) {
         // Voeg betaling toe met naam!
         addPayment(currentPaymentShow.name, buyerName);
 
+        // Tel ticket voor stats
+        const visitorId = getVisitorId();
+        database.ref('tickets/' + visitorId).transaction((current) => (current || 0) + 1);
+
+        // Geef sterren voor aankoop
+        addStars(3);
+
         // Start confetti!
         launchConfetti();
 
         // Speel succes geluid
         playPaymentSuccessSound();
+
+        // Toon kraskaart na 2 seconden
+        setTimeout(() => {
+            showScratchCard();
+        }, 2000);
     }, 2500);
 }
 
@@ -987,6 +1006,71 @@ function setupEventListeners() {
             audioContext.resume();
         }
     }, { once: true });
+
+    // ==========================================
+    // GELUIDSBORD EVENT LISTENERS
+    // ==========================================
+    document.querySelectorAll('.soundboard-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const sound = this.dataset.sound;
+            playSoundboardSound(sound);
+        });
+    });
+
+    // ==========================================
+    // APPLAUS KNOP EVENT LISTENER
+    // ==========================================
+    document.getElementById('big-applause-btn').addEventListener('click', addApplause);
+
+    // ==========================================
+    // COUNTDOWN EVENT LISTENERS
+    // ==========================================
+    document.getElementById('set-countdown-btn').addEventListener('click', setCountdown);
+    document.getElementById('reset-countdown-btn').addEventListener('click', resetCountdown);
+
+    // ==========================================
+    // RAD VAN FORTUIN EVENT LISTENER
+    // ==========================================
+    document.getElementById('spin-wheel-btn').addEventListener('click', spinWheel);
+
+    // ==========================================
+    // GASTENBOEK EVENT LISTENERS
+    // ==========================================
+    document.getElementById('post-message-btn').addEventListener('click', postGuestbookMessage);
+
+    // Emoji picker
+    document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const emoji = this.dataset.emoji;
+            const textarea = document.getElementById('guest-message');
+            textarea.value += emoji;
+            textarea.focus();
+        });
+    });
+
+    // ==========================================
+    // KARAKTER MAKER EVENT LISTENERS
+    // ==========================================
+    document.querySelectorAll('.option-buttons').forEach(group => {
+        const target = group.dataset.target;
+        group.querySelectorAll('.char-option').forEach(btn => {
+            btn.addEventListener('click', function() {
+                selectCharacterOption(target, this.dataset.value);
+            });
+        });
+    });
+
+    document.getElementById('save-character-btn').addEventListener('click', saveCharacter);
+
+    // ==========================================
+    // SPOOKMODUS EVENT LISTENER
+    // ==========================================
+    document.getElementById('toggle-spooky-btn').addEventListener('click', toggleSpookyMode);
+
+    // ==========================================
+    // KRASKAART EVENT LISTENER
+    // ==========================================
+    document.getElementById('claim-scratch-btn').addEventListener('click', claimScratchPrize);
 }
 
 // ==========================================
@@ -996,4 +1080,745 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// ==========================================
+// GELUIDSBORD
+// ==========================================
+const soundboardSounds = {
+    applause: { notes: [400, 450, 500, 550, 600, 650], duration: 0.8, type: 'noise' },
+    drumroll: { notes: [200], duration: 1.5, type: 'drum' },
+    tada: { notes: [523, 659, 784, 1047], duration: 0.6, type: 'fanfare' },
+    laugh: { notes: [300, 350, 300, 380, 300, 400], duration: 0.8, type: 'haha' },
+    boo: { notes: [150, 140, 130, 120], duration: 1, type: 'boo' },
+    wow: { notes: [300, 400, 500, 600, 700], duration: 0.8, type: 'wow' },
+    magic: { notes: [800, 900, 1000, 1100, 1200, 1300], duration: 1, type: 'sparkle' },
+    fart: { notes: [80, 90, 70, 100, 60], duration: 0.5, type: 'fart' },
+    bell: { notes: [880, 1100], duration: 0.8, type: 'bell' },
+    horn: { notes: [220, 277, 330], duration: 0.6, type: 'horn' },
+    whistle: { notes: [1000, 1200, 1400, 1200, 1000], duration: 0.8, type: 'whistle' },
+    explosion: { notes: [60, 50, 40, 30], duration: 1.2, type: 'boom' }
+};
+
+function playSoundboardSound(soundName) {
+    const sound = soundboardSounds[soundName];
+    if (!sound) return;
+
+    switch(sound.type) {
+        case 'noise':
+            playApplauseSound();
+            break;
+        case 'drum':
+            playDrumroll();
+            break;
+        case 'fanfare':
+            playFanfare();
+            break;
+        case 'haha':
+            playLaughSound();
+            break;
+        case 'boo':
+            playBooSound();
+            break;
+        case 'wow':
+            playWowSound();
+            break;
+        case 'sparkle':
+            playMagicSound();
+            break;
+        case 'fart':
+            playFartSound();
+            break;
+        case 'bell':
+            playBellSound();
+            break;
+        case 'horn':
+            playHornSound();
+            break;
+        case 'whistle':
+            playWhistleSound();
+            break;
+        case 'boom':
+            playExplosionSound();
+            break;
+    }
+}
+
+function playApplauseSound() {
+    for (let i = 0; i < 20; i++) {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.value = 200 + Math.random() * 400;
+            gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.1);
+        }, i * 50);
+    }
+}
+
+function playDrumroll() {
+    for (let i = 0; i < 30; i++) {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = 150 + Math.random() * 50;
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.05);
+        }, i * 30);
+    }
+}
+
+function playFanfare() {
+    const notes = [523, 659, 784, 1047];
+    notes.forEach((freq, i) => {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'square';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.3);
+        }, i * 150);
+    });
+}
+
+function playLaughSound() {
+    for (let i = 0; i < 8; i++) {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = 300 + (i % 2 === 0 ? 100 : 0);
+            gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.1);
+        }, i * 80);
+    }
+}
+
+function playBooSound() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, audioContext.currentTime);
+    osc.frequency.linearRampToValueAtTime(100, audioContext.currentTime + 1);
+    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 1);
+}
+
+function playWowSound() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(300, audioContext.currentTime);
+    osc.frequency.linearRampToValueAtTime(800, audioContext.currentTime + 0.5);
+    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.6);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.6);
+}
+
+function playMagicSound() {
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = 800 + i * 100 + Math.random() * 200;
+            gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.2);
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+            osc.start();
+            osc.stop(audioContext.currentTime + 0.2);
+        }, i * 50);
+    }
+}
+
+function playFartSound() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, audioContext.currentTime);
+    osc.frequency.linearRampToValueAtTime(50, audioContext.currentTime + 0.3);
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.3);
+}
+
+function playBellSound() {
+    [880, 1100].forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, audioContext.currentTime + i * 0.2);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + i * 0.2 + 0.5);
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start(audioContext.currentTime + i * 0.2);
+        osc.stop(audioContext.currentTime + i * 0.2 + 0.5);
+    });
+}
+
+function playHornSound() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.value = 220;
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.8);
+}
+
+function playWhistleSound() {
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1000, audioContext.currentTime);
+    osc.frequency.linearRampToValueAtTime(1400, audioContext.currentTime + 0.2);
+    osc.frequency.linearRampToValueAtTime(1000, audioContext.currentTime + 0.4);
+    gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.5);
+}
+
+function playExplosionSound() {
+    const bufferSize = audioContext.sampleRate * 0.5;
+    const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2);
+    }
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+    const filter = audioContext.createBiquadFilter();
+    source.buffer = buffer;
+    filter.type = 'lowpass';
+    filter.frequency.value = 500;
+    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(audioContext.destination);
+    source.start();
+}
+
+// ==========================================
+// APPLAUS KNOP
+// ==========================================
+let applauseCount = 0;
+
+function loadApplauseCount() {
+    const ref = database.ref('applause');
+    ref.on('value', (snapshot) => {
+        applauseCount = snapshot.val() || 0;
+        document.getElementById('applause-count').textContent = applauseCount;
+    });
+}
+
+function addApplause() {
+    database.ref('applause').transaction((current) => (current || 0) + 1);
+    playApplauseSound();
+    createClapEffect();
+    launchConfetti();
+}
+
+function createClapEffect() {
+    const container = document.getElementById('clap-effects');
+    const emoji = document.createElement('div');
+    emoji.className = 'clap-emoji';
+    emoji.textContent = ['👏', '🎉', '⭐', '❤️'][Math.floor(Math.random() * 4)];
+    emoji.style.left = Math.random() * 80 + 10 + '%';
+    container.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 1000);
+}
+
+// ==========================================
+// COUNTDOWN TIMER
+// ==========================================
+let countdownInterval = null;
+
+function loadCountdown() {
+    const ref = database.ref('countdown');
+    ref.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.targetTime > Date.now()) {
+            document.getElementById('countdown-setup').classList.add('hidden');
+            document.getElementById('countdown-display').classList.remove('hidden');
+            document.getElementById('countdown-show-title').textContent = data.showName;
+            startCountdown(data.targetTime);
+        } else {
+            document.getElementById('countdown-setup').classList.remove('hidden');
+            document.getElementById('countdown-display').classList.add('hidden');
+            if (countdownInterval) clearInterval(countdownInterval);
+        }
+    });
+}
+
+function setCountdown() {
+    const datetime = document.getElementById('show-datetime').value;
+    const showName = document.getElementById('show-countdown-name').value || 'Volgende Show';
+
+    if (!datetime) {
+        alert('Kies een datum en tijd!');
+        return;
+    }
+
+    const targetTime = new Date(datetime).getTime();
+    if (targetTime <= Date.now()) {
+        alert('Kies een moment in de toekomst!');
+        return;
+    }
+
+    database.ref('countdown').set({
+        targetTime: targetTime,
+        showName: showName
+    });
+
+    playSuccessSound();
+}
+
+function startCountdown(targetTime) {
+    if (countdownInterval) clearInterval(countdownInterval);
+
+    function updateDisplay() {
+        const now = Date.now();
+        const diff = targetTime - now;
+
+        if (diff <= 0) {
+            document.getElementById('countdown-days').textContent = '0';
+            document.getElementById('countdown-hours').textContent = '0';
+            document.getElementById('countdown-minutes').textContent = '0';
+            document.getElementById('countdown-seconds').textContent = '0';
+            clearInterval(countdownInterval);
+            launchConfetti();
+            playFanfare();
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById('countdown-days').textContent = days;
+        document.getElementById('countdown-hours').textContent = hours;
+        document.getElementById('countdown-minutes').textContent = minutes;
+        document.getElementById('countdown-seconds').textContent = seconds;
+    }
+
+    updateDisplay();
+    countdownInterval = setInterval(updateDisplay, 1000);
+}
+
+function resetCountdown() {
+    database.ref('countdown').remove();
+}
+
+// ==========================================
+// RAD VAN FORTUIN
+// ==========================================
+const wheelPrizes = [
+    { text: 'Gratis Kaartje!', emoji: '🎫', stars: 0 },
+    { text: '5 Sterren!', emoji: '⭐', stars: 5 },
+    { text: 'Confetti!', emoji: '🎉', stars: 0 },
+    { text: 'VIP Badge!', emoji: '👑', stars: 3 },
+    { text: 'Speciaal Geluid!', emoji: '🎵', stars: 2 },
+    { text: '10 Sterren!', emoji: '🌟', stars: 10 },
+    { text: 'Backstage Pass!', emoji: '🎭', stars: 5 },
+    { text: 'Diamant!', emoji: '💎', stars: 15 }
+];
+
+let isSpinning = false;
+
+function spinWheel() {
+    if (isSpinning) return;
+    isSpinning = true;
+
+    const wheel = document.getElementById('fortune-wheel');
+    const resultDiv = document.getElementById('wheel-result');
+    resultDiv.classList.add('hidden');
+
+    // Random hoek (minimaal 5 volledige rotaties + random positie)
+    const spins = 5 + Math.random() * 3;
+    const segmentAngle = 360 / 8;
+    const prizeIndex = Math.floor(Math.random() * 8);
+    const targetAngle = spins * 360 + (360 - prizeIndex * segmentAngle - segmentAngle / 2);
+
+    wheel.style.transform = `rotate(${targetAngle}deg)`;
+
+    playDrumroll();
+
+    setTimeout(() => {
+        const prize = wheelPrizes[prizeIndex];
+        resultDiv.innerHTML = `${prize.emoji} ${prize.text}`;
+        resultDiv.classList.remove('hidden');
+        playFanfare();
+        launchConfetti();
+
+        // Voeg sterren toe
+        if (prize.stars > 0) {
+            addStars(prize.stars);
+        }
+
+        isSpinning = false;
+    }, 4000);
+}
+
+// ==========================================
+// STERREN SYSTEEM
+// ==========================================
+function addStars(amount) {
+    const visitorId = getVisitorId();
+    const ref = database.ref('stars/' + visitorId);
+    ref.transaction((current) => (current || 0) + amount);
+    updateYourStats();
+}
+
+function getVisitorId() {
+    let id = localStorage.getItem('joerieVisitorId');
+    if (!id) {
+        id = 'visitor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('joerieVisitorId', id);
+    }
+    return id;
+}
+
+function updateYourStats() {
+    const visitorId = getVisitorId();
+
+    database.ref('stars/' + visitorId).on('value', (snapshot) => {
+        document.getElementById('your-stars').textContent = snapshot.val() || 0;
+    });
+
+    database.ref('tickets/' + visitorId).on('value', (snapshot) => {
+        document.getElementById('your-tickets').textContent = snapshot.val() || 0;
+    });
+
+    database.ref('badges/' + visitorId).on('value', (snapshot) => {
+        document.getElementById('your-badges').textContent = snapshot.val() || 0;
+    });
+}
+
+function loadHallOfFame() {
+    const ref = database.ref('stars');
+    ref.orderByValue().limitToLast(10).on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        const sorted = Object.entries(data)
+            .map(([id, stars]) => ({ id, stars }))
+            .sort((a, b) => b.stars - a.stars);
+
+        // Update podium
+        updatePodium(sorted);
+
+        // Update list
+        updateFameList(sorted.slice(3));
+    });
+}
+
+function updatePodium(sorted) {
+    for (let i = 0; i < 3; i++) {
+        const spot = document.getElementById('podium-' + (i + 1));
+        if (sorted[i]) {
+            const name = sorted[i].id.startsWith('visitor_') ? 'Fan #' + sorted[i].id.slice(-4) : sorted[i].id;
+            spot.querySelector('.podium-name').textContent = name;
+            spot.querySelector('.podium-stars').textContent = sorted[i].stars + ' ⭐';
+        }
+    }
+}
+
+function updateFameList(others) {
+    const list = document.getElementById('fame-list');
+    list.innerHTML = '';
+
+    others.forEach((item, index) => {
+        const name = item.id.startsWith('visitor_') ? 'Fan #' + item.id.slice(-4) : item.id;
+        const div = document.createElement('div');
+        div.className = 'fame-item';
+        div.innerHTML = `
+            <span class="fame-rank">${index + 4}</span>
+            <span class="fame-name">${escapeHtml(name)}</span>
+            <span class="fame-stars">${item.stars} ⭐</span>
+        `;
+        list.appendChild(div);
+    });
+}
+
+// ==========================================
+// GASTENBOEK
+// ==========================================
+function loadGuestbook() {
+    const ref = database.ref('guestbook');
+    ref.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
+        const data = snapshot.val();
+        const container = document.getElementById('guestbook-messages');
+
+        if (!data) {
+            container.innerHTML = '<p class="empty-message">Nog geen berichten</p>';
+            return;
+        }
+
+        const messages = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
+        container.innerHTML = '';
+
+        messages.forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'guest-message';
+            const date = new Date(msg.timestamp);
+            div.innerHTML = `
+                <div class="guest-header">
+                    <span class="guest-name">${escapeHtml(msg.name)}</span>
+                    <span class="guest-time">${date.toLocaleDateString('nl-NL')}</span>
+                </div>
+                <div class="guest-text">${escapeHtml(msg.message)}</div>
+            `;
+            container.appendChild(div);
+        });
+    });
+}
+
+function postGuestbookMessage() {
+    const name = document.getElementById('guest-name').value.trim();
+    const message = document.getElementById('guest-message').value.trim();
+
+    if (!name || !message) {
+        alert('Vul je naam en bericht in!');
+        return;
+    }
+
+    database.ref('guestbook').push({
+        name: name,
+        message: message,
+        timestamp: Date.now()
+    });
+
+    document.getElementById('guest-name').value = '';
+    document.getElementById('guest-message').value = '';
+
+    playSuccessSound();
+    addStars(1); // 1 ster voor gastenboek bericht
+}
+
+// ==========================================
+// KARAKTER MAKER
+// ==========================================
+let currentCharacter = {
+    hat: '🎩',
+    face: '😊',
+    body: '👔',
+    accessory: ''
+};
+
+function updateCharacterPreview() {
+    document.getElementById('char-hat').textContent = currentCharacter.hat;
+    document.getElementById('char-face').textContent = currentCharacter.face;
+    document.getElementById('char-body').textContent = currentCharacter.body;
+    document.getElementById('char-accessory').textContent = currentCharacter.accessory;
+}
+
+function selectCharacterOption(target, value) {
+    currentCharacter[target] = value;
+    updateCharacterPreview();
+    playClickSound();
+
+    // Update active state
+    document.querySelectorAll(`.option-buttons[data-target="${target}"] .char-option`).forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === value);
+    });
+}
+
+function saveCharacter() {
+    const name = document.getElementById('character-name').value.trim();
+    if (!name) {
+        alert('Geef je karakter een naam!');
+        return;
+    }
+
+    const characters = JSON.parse(localStorage.getItem('joerieCharacters') || '[]');
+    characters.push({
+        name: name,
+        ...currentCharacter
+    });
+    localStorage.setItem('joerieCharacters', JSON.stringify(characters));
+
+    document.getElementById('character-name').value = '';
+    renderSavedCharacters();
+    playSuccessSound();
+    addStars(2); // 2 sterren voor karakter maken
+}
+
+function renderSavedCharacters() {
+    const characters = JSON.parse(localStorage.getItem('joerieCharacters') || '[]');
+    const container = document.getElementById('characters-list');
+
+    if (characters.length === 0) {
+        container.innerHTML = '<p class="empty-message">Nog geen karakters opgeslagen</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+    characters.forEach((char, index) => {
+        const div = document.createElement('div');
+        div.className = 'saved-character';
+        div.innerHTML = `
+            <div class="saved-char-display">
+                ${char.hat} ${char.face} ${char.body} ${char.accessory}
+            </div>
+            <div class="saved-char-name">${escapeHtml(char.name)}</div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// ==========================================
+// SPOOKMODUS
+// ==========================================
+function toggleSpookyMode() {
+    document.body.classList.toggle('spooky-mode');
+    const isSpooky = document.body.classList.contains('spooky-mode');
+    localStorage.setItem('joerieSpookyMode', isSpooky);
+
+    if (isSpooky) {
+        playBooSound();
+    } else {
+        playSuccessSound();
+    }
+}
+
+function loadSpookyMode() {
+    const isSpooky = localStorage.getItem('joerieSpookyMode') === 'true';
+    if (isSpooky) {
+        document.body.classList.add('spooky-mode');
+    }
+}
+
+// ==========================================
+// KRASKAART
+// ==========================================
+const scratchPrizes = [
+    { emoji: '⭐', text: '3 Sterren!', stars: 3 },
+    { emoji: '🎉', text: 'Extra Confetti!', stars: 0 },
+    { emoji: '👑', text: 'VIP Status!', stars: 5 },
+    { emoji: '🌟', text: '10 Sterren!', stars: 10 },
+    { emoji: '💎', text: 'Diamant!', stars: 15 },
+    { emoji: '🎭', text: 'Bonus Show!', stars: 2 }
+];
+
+let scratchPrize = null;
+
+function initScratchCard() {
+    const canvas = document.getElementById('scratch-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Kies random prijs
+    scratchPrize = scratchPrizes[Math.floor(Math.random() * scratchPrizes.length)];
+    document.getElementById('scratch-prize').innerHTML = `
+        <span class="prize-emoji">${scratchPrize.emoji}</span>
+        <span class="prize-text">${scratchPrize.text}</span>
+    `;
+
+    // Teken krasklaag
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Voeg patroon toe
+    ctx.fillStyle = '#ff4444';
+    ctx.font = '20px Arial';
+    for (let y = 20; y < canvas.height; y += 40) {
+        for (let x = 10; x < canvas.width; x += 50) {
+            ctx.fillText('🎁', x, y);
+        }
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 24px Comic Sans MS';
+    ctx.textAlign = 'center';
+    ctx.fillText('KRAS HIER!', canvas.width/2, canvas.height/2);
+
+    let isDrawing = false;
+    let scratched = 0;
+    const totalPixels = canvas.width * canvas.height;
+
+    function scratch(x, y) {
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Check hoeveel gekrast is
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let transparent = 0;
+        for (let i = 3; i < imageData.data.length; i += 4) {
+            if (imageData.data[i] === 0) transparent++;
+        }
+        scratched = transparent / (totalPixels);
+
+        if (scratched > 0.5) {
+            // Prijs gewonnen!
+            document.getElementById('claim-scratch-btn').classList.remove('hidden');
+            canvas.style.opacity = '0';
+        }
+    }
+
+    function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = (e.clientX || e.touches[0].clientX) - rect.left;
+        const y = (e.clientY || e.touches[0].clientY) - rect.top;
+        return { x, y };
+    }
+
+    canvas.addEventListener('mousedown', (e) => { isDrawing = true; scratch(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('mousemove', (e) => { if (isDrawing) scratch(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; scratch(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (isDrawing) scratch(getPos(e).x, getPos(e).y); });
+    canvas.addEventListener('touchend', () => isDrawing = false);
+}
+
+function claimScratchPrize() {
+    if (scratchPrize && scratchPrize.stars > 0) {
+        addStars(scratchPrize.stars);
+    }
+    launchConfetti();
+    playSuccessSound();
+    document.getElementById('scratch-modal').classList.add('hidden');
+}
+
+function showScratchCard() {
+    document.getElementById('scratch-modal').classList.remove('hidden');
+    document.getElementById('claim-scratch-btn').classList.add('hidden');
+    document.getElementById('scratch-canvas').style.opacity = '1';
+    initScratchCard();
 }

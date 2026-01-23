@@ -138,6 +138,281 @@
             </div>
         </section>
 
+        <!-- Geluidsbord Sectie -->
+        <section id="soundboard-section">
+            <h2>Geluidsbord</h2>
+            <p class="section-intro">Druk op de knoppen voor grappige geluiden!</p>
+            <div class="soundboard-grid">
+                <button class="soundboard-btn" data-sound="applause">
+                    <span class="sb-icon">👏</span>
+                    <span class="sb-text">Applaus</span>
+                </button>
+                <button class="soundboard-btn" data-sound="drumroll">
+                    <span class="sb-icon">🥁</span>
+                    <span class="sb-text">Tromgeroffel</span>
+                </button>
+                <button class="soundboard-btn" data-sound="tada">
+                    <span class="sb-icon">🎉</span>
+                    <span class="sb-text">Tada!</span>
+                </button>
+                <button class="soundboard-btn" data-sound="laugh">
+                    <span class="sb-icon">😂</span>
+                    <span class="sb-text">Lachen</span>
+                </button>
+                <button class="soundboard-btn" data-sound="boo">
+                    <span class="sb-icon">👎</span>
+                    <span class="sb-text">Booo!</span>
+                </button>
+                <button class="soundboard-btn" data-sound="wow">
+                    <span class="sb-icon">😮</span>
+                    <span class="sb-text">Wooow!</span>
+                </button>
+                <button class="soundboard-btn" data-sound="magic">
+                    <span class="sb-icon">✨</span>
+                    <span class="sb-text">Magie</span>
+                </button>
+                <button class="soundboard-btn" data-sound="fart">
+                    <span class="sb-icon">💨</span>
+                    <span class="sb-text">Prrrrt</span>
+                </button>
+                <button class="soundboard-btn" data-sound="bell">
+                    <span class="sb-icon">🔔</span>
+                    <span class="sb-text">Bel</span>
+                </button>
+                <button class="soundboard-btn" data-sound="horn">
+                    <span class="sb-icon">📯</span>
+                    <span class="sb-text">Toeter</span>
+                </button>
+                <button class="soundboard-btn" data-sound="whistle">
+                    <span class="sb-icon">🎵</span>
+                    <span class="sb-text">Fluitje</span>
+                </button>
+                <button class="soundboard-btn" data-sound="explosion">
+                    <span class="sb-icon">💥</span>
+                    <span class="sb-text">Boem!</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Applaus Knop -->
+        <section id="applause-section">
+            <h2>Geef Applaus!</h2>
+            <p class="section-intro">Klik zo vaak je wilt om applaus te geven!</p>
+            <div class="applause-counter">
+                <span id="applause-count">0</span> keer applaus!
+            </div>
+            <button id="big-applause-btn" class="mega-button">
+                <span class="mega-icon">👏</span>
+                <span class="mega-text">APPLAUS!</span>
+            </button>
+            <div id="clap-effects"></div>
+        </section>
+
+        <!-- Show Countdown -->
+        <section id="countdown-section">
+            <h2>Volgende Show</h2>
+            <div class="countdown-setup" id="countdown-setup">
+                <p>Wanneer is de volgende show?</p>
+                <input type="datetime-local" id="show-datetime">
+                <input type="text" id="show-countdown-name" placeholder="Naam van de show">
+                <button id="set-countdown-btn" class="big-button">Start Aftellen!</button>
+            </div>
+            <div class="countdown-display hidden" id="countdown-display">
+                <h3 id="countdown-show-title">Show Naam</h3>
+                <div class="countdown-timer">
+                    <div class="countdown-unit">
+                        <span id="countdown-days">0</span>
+                        <label>Dagen</label>
+                    </div>
+                    <div class="countdown-unit">
+                        <span id="countdown-hours">0</span>
+                        <label>Uren</label>
+                    </div>
+                    <div class="countdown-unit">
+                        <span id="countdown-minutes">0</span>
+                        <label>Minuten</label>
+                    </div>
+                    <div class="countdown-unit">
+                        <span id="countdown-seconds">0</span>
+                        <label>Seconden</label>
+                    </div>
+                </div>
+                <button id="reset-countdown-btn" class="small-button">Andere Show</button>
+            </div>
+        </section>
+
+        <!-- Rad van Fortuin -->
+        <section id="wheel-section">
+            <h2>Rad van Fortuin</h2>
+            <p class="section-intro">Draai het rad en win een prijs!</p>
+            <div class="wheel-container">
+                <div class="wheel-pointer">▼</div>
+                <div class="wheel" id="fortune-wheel">
+                    <div class="wheel-segment" style="--i:0; --color:#ff4444;">🎫 Gratis Kaartje</div>
+                    <div class="wheel-segment" style="--i:1; --color:#2266cc;">⭐ 5 Sterren</div>
+                    <div class="wheel-segment" style="--i:2; --color:#22cc44;">🎉 Confetti!</div>
+                    <div class="wheel-segment" style="--i:3; --color:#ff9900;">👑 VIP Badge</div>
+                    <div class="wheel-segment" style="--i:4; --color:#9933ff;">🎵 Speciaal Geluid</div>
+                    <div class="wheel-segment" style="--i:5; --color:#ff66cc;">🌟 10 Sterren</div>
+                    <div class="wheel-segment" style="--i:6; --color:#00cccc;">🎭 Backstage Pass</div>
+                    <div class="wheel-segment" style="--i:7; --color:#ffcc00;">💎 Diamant!</div>
+                </div>
+            </div>
+            <button id="spin-wheel-btn" class="big-button">Draai het Rad!</button>
+            <div id="wheel-result" class="wheel-result hidden"></div>
+        </section>
+
+        <!-- Gastenboek -->
+        <section id="guestbook-section">
+            <h2>Gastenboek</h2>
+            <p class="section-intro">Laat een leuk berichtje achter!</p>
+            <div class="guestbook-form">
+                <input type="text" id="guest-name" placeholder="Je naam" maxlength="30">
+                <textarea id="guest-message" placeholder="Je berichtje..." maxlength="200"></textarea>
+                <div class="emoji-picker">
+                    <span class="emoji-btn" data-emoji="😊">😊</span>
+                    <span class="emoji-btn" data-emoji="🎉">🎉</span>
+                    <span class="emoji-btn" data-emoji="❤️">❤️</span>
+                    <span class="emoji-btn" data-emoji="⭐">⭐</span>
+                    <span class="emoji-btn" data-emoji="👏">👏</span>
+                    <span class="emoji-btn" data-emoji="🎭">🎭</span>
+                    <span class="emoji-btn" data-emoji="🎪">🎪</span>
+                    <span class="emoji-btn" data-emoji="🌟">🌟</span>
+                </div>
+                <button id="post-message-btn" class="big-button">Plaats Bericht!</button>
+            </div>
+            <div id="guestbook-messages">
+                <p class="empty-message">Nog geen berichten</p>
+            </div>
+        </section>
+
+        <!-- Karakter Maker -->
+        <section id="character-section">
+            <h2>Maak je Karakter!</h2>
+            <p class="section-intro">Ontwerp je eigen showkarakter!</p>
+            <div class="character-builder">
+                <div class="character-preview" id="character-preview">
+                    <div class="char-hat" id="char-hat">🎩</div>
+                    <div class="char-face" id="char-face">😊</div>
+                    <div class="char-body" id="char-body">👔</div>
+                    <div class="char-accessory" id="char-accessory"></div>
+                </div>
+                <div class="character-options">
+                    <div class="option-group">
+                        <label>Hoofd</label>
+                        <div class="option-buttons" data-target="face">
+                            <button class="char-option" data-value="😊">😊</button>
+                            <button class="char-option" data-value="😎">😎</button>
+                            <button class="char-option" data-value="🤡">🤡</button>
+                            <button class="char-option" data-value="👽">👽</button>
+                            <button class="char-option" data-value="🤖">🤖</button>
+                            <button class="char-option" data-value="🦁">🦁</button>
+                            <button class="char-option" data-value="🐱">🐱</button>
+                            <button class="char-option" data-value="🦊">🦊</button>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <label>Hoedje</label>
+                        <div class="option-buttons" data-target="hat">
+                            <button class="char-option" data-value="🎩">🎩</button>
+                            <button class="char-option" data-value="👑">👑</button>
+                            <button class="char-option" data-value="🎀">🎀</button>
+                            <button class="char-option" data-value="🧢">🧢</button>
+                            <button class="char-option" data-value="🤠">🤠</button>
+                            <button class="char-option" data-value="⭐">⭐</button>
+                            <button class="char-option" data-value="">Geen</button>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <label>Kleding</label>
+                        <div class="option-buttons" data-target="body">
+                            <button class="char-option" data-value="👔">👔</button>
+                            <button class="char-option" data-value="👕">👕</button>
+                            <button class="char-option" data-value="🥋">🥋</button>
+                            <button class="char-option" data-value="🦸">🦸</button>
+                            <button class="char-option" data-value="🧙">🧙</button>
+                            <button class="char-option" data-value="🎅">🎅</button>
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <label>Accessoire</label>
+                        <div class="option-buttons" data-target="accessory">
+                            <button class="char-option" data-value="🎸">🎸</button>
+                            <button class="char-option" data-value="🎤">🎤</button>
+                            <button class="char-option" data-value="🪄">🪄</button>
+                            <button class="char-option" data-value="⚔️">⚔️</button>
+                            <button class="char-option" data-value="🎺">🎺</button>
+                            <button class="char-option" data-value="">Geen</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="text" id="character-name" placeholder="Naam van je karakter" maxlength="20">
+            <button id="save-character-btn" class="big-button blue">Karakter Opslaan!</button>
+            <div id="saved-characters">
+                <h3>Opgeslagen Karakters</h3>
+                <div id="characters-list"></div>
+            </div>
+        </section>
+
+        <!-- Hall of Fame -->
+        <section id="hall-of-fame-section">
+            <h2>Hall of Fame</h2>
+            <p class="section-intro">De beste fans van Joerie's Shows!</p>
+            <div class="hall-of-fame" id="hall-of-fame">
+                <div class="fame-podium">
+                    <div class="podium-spot second" id="podium-2">
+                        <div class="podium-avatar">🥈</div>
+                        <div class="podium-name">-</div>
+                        <div class="podium-stars">0 ⭐</div>
+                        <div class="podium-base">2</div>
+                    </div>
+                    <div class="podium-spot first" id="podium-1">
+                        <div class="podium-avatar">🥇</div>
+                        <div class="podium-name">-</div>
+                        <div class="podium-stars">0 ⭐</div>
+                        <div class="podium-base">1</div>
+                    </div>
+                    <div class="podium-spot third" id="podium-3">
+                        <div class="podium-avatar">🥉</div>
+                        <div class="podium-name">-</div>
+                        <div class="podium-stars">0 ⭐</div>
+                        <div class="podium-base">3</div>
+                    </div>
+                </div>
+                <div class="fame-list" id="fame-list">
+                    <!-- Andere fans komen hier -->
+                </div>
+            </div>
+            <div class="your-stats">
+                <h3>Jouw Statistieken</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-value" id="your-stars">0</span>
+                        <span class="stat-label">Sterren</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">🎫</span>
+                        <span class="stat-value" id="your-tickets">0</span>
+                        <span class="stat-label">Kaartjes</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-icon">🏆</span>
+                        <span class="stat-value" id="your-badges">0</span>
+                        <span class="stat-label">Badges</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spookmodus Toggle -->
+        <div id="spooky-toggle" class="mode-toggle">
+            <button id="toggle-spooky-btn" title="Spookmodus">
+                <span class="mode-icon">🌙</span>
+            </button>
+        </div>
+
         <!-- Footer -->
         <footer>
             <p>Joerie's Shows &copy; 2026</p>
@@ -253,6 +528,23 @@
             <button id="print-ticket-btn" class="big-button">
                 Print Kaartje!
             </button>
+        </div>
+    </div>
+
+    <!-- Kraskaart Modal -->
+    <div id="scratch-modal" class="modal hidden">
+        <div class="modal-content scratch-content">
+            <span class="close-btn">&times;</span>
+            <h2>Kraskaart!</h2>
+            <p>Kras om je prijs te zien!</p>
+            <div class="scratch-card" id="scratch-card">
+                <canvas id="scratch-canvas" width="280" height="180"></canvas>
+                <div class="scratch-prize" id="scratch-prize">
+                    <span class="prize-emoji">🎁</span>
+                    <span class="prize-text">Je prijs komt hier!</span>
+                </div>
+            </div>
+            <button id="claim-scratch-btn" class="big-button hidden">Prijs Claimen!</button>
         </div>
     </div>
 
