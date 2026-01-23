@@ -27,7 +27,36 @@ document.addEventListener('DOMContentLoaded', function() {
 function initApp() {
     loadShows();
     loadSounds();
+    loadEarnings();
     setupEventListeners();
+}
+
+// ==========================================
+// VERDIENSTEN BIJHOUDEN
+// ==========================================
+const TICKET_PRICE = 1; // Alle kaartjes kosten 1 euro
+let totalEarnings = 0;
+
+function loadEarnings() {
+    const saved = localStorage.getItem('joerieEarnings');
+    if (saved) {
+        totalEarnings = parseInt(saved) || 0;
+    }
+    updateEarningsDisplay();
+}
+
+function saveEarnings() {
+    localStorage.setItem('joerieEarnings', totalEarnings.toString());
+}
+
+function addEarnings(amount) {
+    totalEarnings += amount;
+    saveEarnings();
+    updateEarningsDisplay();
+}
+
+function updateEarningsDisplay() {
+    document.getElementById('total-earnings').textContent = totalEarnings;
 }
 
 // ==========================================
@@ -85,7 +114,6 @@ function loadShows() {
             id: 1,
             name: 'Kist',
             description: 'Een spannende show met een mysterieuze kist!',
-            price: 5,
             image: 'kist.jfif'
         }];
         saveShows();
@@ -118,19 +146,18 @@ function renderShows() {
             ${imageHtml}
             <h3>${escapeHtml(show.name)}</h3>
             <p>${escapeHtml(show.description)}</p>
-            <p class="price">${show.price} euro</p>
+            <p class="price">${TICKET_PRICE} euro</p>
             <button class="buy-btn" onclick="buyTicket(${show.id})">Koop Kaartje!</button>
         `;
         container.appendChild(card);
     });
 }
 
-function addShow(name, description, price, image) {
+function addShow(name, description, image) {
     const newShow = {
         id: Date.now(),
         name: name,
         description: description || 'Een geweldige show!',
-        price: price || 5,
         image: image || null
     };
     shows.push(newShow);
@@ -162,7 +189,7 @@ function buyTicket(id) {
 
         // Vul de betaalgegevens in
         document.getElementById('payment-show-name').textContent = show.name;
-        document.getElementById('payment-amount').textContent = show.price;
+        document.getElementById('payment-amount').textContent = TICKET_PRICE;
 
         // Toon het betaalscherm
         document.getElementById('payment-modal').classList.remove('hidden');
@@ -202,6 +229,9 @@ function processPayment(method) {
         document.getElementById('payment-step-2').classList.add('hidden');
         document.getElementById('payment-step-3').classList.remove('hidden');
 
+        // Voeg verdiensten toe!
+        addEarnings(TICKET_PRICE);
+
         // Start confetti!
         launchConfetti();
 
@@ -227,7 +257,7 @@ function showTicketAfterPayment() {
     // Vul kaartje in
     if (currentPaymentShow) {
         document.getElementById('ticket-show-name').textContent = currentPaymentShow.name;
-        document.getElementById('ticket-price-display').textContent = currentPaymentShow.price;
+        document.getElementById('ticket-price-display').textContent = TICKET_PRICE;
 
         const ticketImage = document.querySelector('.ticket-image');
         if (currentPaymentShow.image) {
@@ -611,10 +641,9 @@ function setupEventListeners() {
         e.preventDefault();
         const name = document.getElementById('show-name').value;
         const description = document.getElementById('show-description').value;
-        const price = parseInt(document.getElementById('show-price').value) || 5;
         const image = imagePreview.src && !imagePreview.classList.contains('hidden') ? imagePreview.src : null;
 
-        addShow(name, description, price, image);
+        addShow(name, description, image);
         document.getElementById('show-modal').classList.add('hidden');
 
         // Reset formulier inclusief afbeelding

@@ -19,6 +19,11 @@
         <header>
             <img src="logo.jfif" alt="Logo" class="header-logo">
             <h1>Joerie's Shows</h1>
+            <div class="earnings-display">
+                <span class="earnings-icon">💰</span>
+                <span class="earnings-label">Verdiend:</span>
+                <span class="earnings-amount"><span id="total-earnings">0</span> euro</span>
+            </div>
         </header>
 
         <!-- Shows Sectie -->
@@ -105,9 +110,6 @@
 
                 <label for="show-description">Beschrijving:</label>
                 <textarea id="show-description" placeholder="Waar gaat de show over?"></textarea>
-
-                <label for="show-price">Prijs (in euro's):</label>
-                <input type="number" id="show-price" min="0" value="5">
 
                 <label>Plaatje voor de show:</label>
                 <div class="image-upload-area" id="image-upload-area">
