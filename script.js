@@ -66,6 +66,7 @@ function initApp() {
     try { loadStickers(); } catch(e) { console.error('Stickers laden mislukt:', e); }
     try { loadEmojiStories(); } catch(e) { console.error('Emoji stories laden mislukt:', e); }
     try { updateHeaderStars(); } catch(e) { console.error('Header stars mislukt:', e); }
+    try { initBeatSequencer(); } catch(e) { console.error('Beat sequencer init mislukt:', e); }
 }
 
 // ==========================================
@@ -3565,5 +3566,171 @@ function loadGameCount() {
     database.ref('games/' + visitorId).on('value', (snapshot) => {
         const el = document.getElementById('your-games');
         if (el) el.textContent = snapshot.val() || 0;
+    });
+}
+
+// ==========================================
+// BEAT SEQUENCER
+// ==========================================
+let beatSequence = {
+    kick: new Array(16).fill(false),
+    snare: new Array(16).fill(false),
+    hihat: new Array(16).fill(false),
+    cymbal: new Array(16).fill(false)
+};
+
+let beatPlaying = false;
+let beatStep = 0;
+let beatInterval = null;
+let beatTempo = 120; // BPM
+
+function initBeatSequencer() {
+    // Step click handlers
+    document.querySelectorAll('.seq-step').forEach(step => {
+        step.addEventListener('click', () => toggleStep(step));
+    });
+
+    // Play/Stop buttons
+    const playBtn = document.getElementById('beat-play-btn');
+    const stopBtn = document.getElementById('beat-stop-btn');
+    if (playBtn) playBtn.addEventListener('click', playBeat);
+    if (stopBtn) stopBtn.addEventListener('click', stopBeat);
+
+    // Tempo slider
+    const tempoSlider = document.getElementById('tempo-slider');
+    if (tempoSlider) {
+        tempoSlider.addEventListener('input', (e) => {
+            beatTempo = parseInt(e.target.value);
+            document.getElementById('tempo-display').textContent = beatTempo + ' BPM';
+
+            // Update interval als beat speelt
+            if (beatPlaying) {
+                stopBeat();
+                playBeat();
+            }
+        });
+    }
+
+    // Preset buttons
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => loadPreset(btn.dataset.preset));
+    });
+}
+
+function toggleStep(stepEl) {
+    const row = stepEl.parentElement;
+    const drum = row.dataset.drum;
+    const stepIndex = parseInt(stepEl.dataset.step);
+
+    beatSequence[drum][stepIndex] = !beatSequence[drum][stepIndex];
+    stepEl.classList.toggle('active');
+
+    playClickSound();
+}
+
+function playBeat() {
+    if (beatPlaying) return;
+
+    beatPlaying = true;
+    beatStep = 0;
+
+    const playBtn = document.getElementById('beat-play-btn');
+    if (playBtn) playBtn.textContent = '▶️ Playing...';
+
+    // Interval berekenen: 60000ms / BPM / 4 (voor 16th notes)
+    const intervalMs = 60000 / beatTempo / 4;
+
+    beatInterval = setInterval(() => {
+        // Verwijder playing class van vorige step
+        document.querySelectorAll('.seq-step.playing').forEach(s => s.classList.remove('playing'));
+
+        // Speel alle actieve drums voor deze step
+        Object.keys(beatSequence).forEach(drum => {
+            if (beatSequence[drum][beatStep]) {
+                playDrumSound(drum);
+            }
+
+            // Highlight huidige step
+            const stepEl = document.querySelector(`.seq-steps[data-drum="${drum}"] .seq-step[data-step="${beatStep}"]`);
+            if (stepEl) stepEl.classList.add('playing');
+        });
+
+        // Volgende step
+        beatStep = (beatStep + 1) % 16;
+    }, intervalMs);
+}
+
+function stopBeat() {
+    beatPlaying = false;
+
+    if (beatInterval) {
+        clearInterval(beatInterval);
+        beatInterval = null;
+    }
+
+    const playBtn = document.getElementById('beat-play-btn');
+    if (playBtn) playBtn.textContent = '▶️ Play';
+
+    // Verwijder alle playing highlights
+    document.querySelectorAll('.seq-step.playing').forEach(s => s.classList.remove('playing'));
+}
+
+function loadPreset(presetName) {
+    // Reset alle steps
+    Object.keys(beatSequence).forEach(drum => {
+        beatSequence[drum].fill(false);
+    });
+
+    // Presets
+    const presets = {
+        basic: {
+            kick:  [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+            snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+            hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+            cymbal:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        },
+        rock: {
+            kick:  [1,0,0,0, 0,0,1,0, 1,0,0,0, 0,0,1,0],
+            snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+            hihat: [1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1],
+            cymbal:[1,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        },
+        disco: {
+            kick:  [1,0,0,0, 1,0,0,0, 1,0,0,0, 1,0,0,0],
+            snare: [0,0,0,0, 1,0,0,0, 0,0,0,0, 1,0,0,0],
+            hihat: [1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0],
+            cymbal:[1,0,0,0, 0,0,0,0, 1,0,0,0, 0,0,0,0]
+        },
+        clear: {
+            kick:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+            snare: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+            hihat: [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0],
+            cymbal:[0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0]
+        }
+    };
+
+    const preset = presets[presetName];
+    if (!preset) return;
+
+    // Laad preset
+    Object.keys(preset).forEach(drum => {
+        preset[drum].forEach((val, i) => {
+            beatSequence[drum][i] = val === 1;
+        });
+    });
+
+    // Update UI
+    updateSequencerUI();
+    playClickSound();
+}
+
+function updateSequencerUI() {
+    Object.keys(beatSequence).forEach(drum => {
+        beatSequence[drum].forEach((active, i) => {
+            const stepEl = document.querySelector(`.seq-steps[data-drum="${drum}"] .seq-step[data-step="${i}"]`);
+            if (stepEl) {
+                stepEl.classList.toggle('active', active);
+            }
+        });
     });
 }

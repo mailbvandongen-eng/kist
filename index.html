@@ -275,6 +275,121 @@
             <section id="music-section">
                 <h2>🎹 Muziek Maker</h2>
                 <p class="section-intro">Maak je eigen beat!</p>
+
+                <!-- Beat Sequencer -->
+                <div class="beat-sequencer">
+                    <h3>🥁 Beat Machine</h3>
+                    <div class="beat-controls">
+                        <button id="beat-play-btn" class="beat-btn play">▶️ Play</button>
+                        <button id="beat-stop-btn" class="beat-btn stop">⏹️ Stop</button>
+                        <div class="tempo-control">
+                            <label>Tempo:</label>
+                            <input type="range" id="tempo-slider" min="60" max="180" value="120">
+                            <span id="tempo-display">120 BPM</span>
+                        </div>
+                    </div>
+
+                    <div class="sequencer-grid" id="sequencer-grid">
+                        <!-- Kick -->
+                        <div class="seq-row">
+                            <span class="seq-label">🥁 Kick</span>
+                            <div class="seq-steps" data-drum="kick">
+                                <div class="seq-step beat-1" data-step="0"></div>
+                                <div class="seq-step" data-step="1"></div>
+                                <div class="seq-step" data-step="2"></div>
+                                <div class="seq-step" data-step="3"></div>
+                                <div class="seq-step beat-1" data-step="4"></div>
+                                <div class="seq-step" data-step="5"></div>
+                                <div class="seq-step" data-step="6"></div>
+                                <div class="seq-step" data-step="7"></div>
+                                <div class="seq-step beat-1" data-step="8"></div>
+                                <div class="seq-step" data-step="9"></div>
+                                <div class="seq-step" data-step="10"></div>
+                                <div class="seq-step" data-step="11"></div>
+                                <div class="seq-step beat-1" data-step="12"></div>
+                                <div class="seq-step" data-step="13"></div>
+                                <div class="seq-step" data-step="14"></div>
+                                <div class="seq-step" data-step="15"></div>
+                            </div>
+                        </div>
+                        <!-- Snare -->
+                        <div class="seq-row">
+                            <span class="seq-label">🪘 Snare</span>
+                            <div class="seq-steps" data-drum="snare">
+                                <div class="seq-step beat-1" data-step="0"></div>
+                                <div class="seq-step" data-step="1"></div>
+                                <div class="seq-step" data-step="2"></div>
+                                <div class="seq-step" data-step="3"></div>
+                                <div class="seq-step beat-1" data-step="4"></div>
+                                <div class="seq-step" data-step="5"></div>
+                                <div class="seq-step" data-step="6"></div>
+                                <div class="seq-step" data-step="7"></div>
+                                <div class="seq-step beat-1" data-step="8"></div>
+                                <div class="seq-step" data-step="9"></div>
+                                <div class="seq-step" data-step="10"></div>
+                                <div class="seq-step" data-step="11"></div>
+                                <div class="seq-step beat-1" data-step="12"></div>
+                                <div class="seq-step" data-step="13"></div>
+                                <div class="seq-step" data-step="14"></div>
+                                <div class="seq-step" data-step="15"></div>
+                            </div>
+                        </div>
+                        <!-- Hi-Hat -->
+                        <div class="seq-row">
+                            <span class="seq-label">🎵 Hi-Hat</span>
+                            <div class="seq-steps" data-drum="hihat">
+                                <div class="seq-step beat-1" data-step="0"></div>
+                                <div class="seq-step" data-step="1"></div>
+                                <div class="seq-step" data-step="2"></div>
+                                <div class="seq-step" data-step="3"></div>
+                                <div class="seq-step beat-1" data-step="4"></div>
+                                <div class="seq-step" data-step="5"></div>
+                                <div class="seq-step" data-step="6"></div>
+                                <div class="seq-step" data-step="7"></div>
+                                <div class="seq-step beat-1" data-step="8"></div>
+                                <div class="seq-step" data-step="9"></div>
+                                <div class="seq-step" data-step="10"></div>
+                                <div class="seq-step" data-step="11"></div>
+                                <div class="seq-step beat-1" data-step="12"></div>
+                                <div class="seq-step" data-step="13"></div>
+                                <div class="seq-step" data-step="14"></div>
+                                <div class="seq-step" data-step="15"></div>
+                            </div>
+                        </div>
+                        <!-- Cymbal -->
+                        <div class="seq-row">
+                            <span class="seq-label">💥 Cymbal</span>
+                            <div class="seq-steps" data-drum="cymbal">
+                                <div class="seq-step beat-1" data-step="0"></div>
+                                <div class="seq-step" data-step="1"></div>
+                                <div class="seq-step" data-step="2"></div>
+                                <div class="seq-step" data-step="3"></div>
+                                <div class="seq-step beat-1" data-step="4"></div>
+                                <div class="seq-step" data-step="5"></div>
+                                <div class="seq-step" data-step="6"></div>
+                                <div class="seq-step" data-step="7"></div>
+                                <div class="seq-step beat-1" data-step="8"></div>
+                                <div class="seq-step" data-step="9"></div>
+                                <div class="seq-step" data-step="10"></div>
+                                <div class="seq-step" data-step="11"></div>
+                                <div class="seq-step beat-1" data-step="12"></div>
+                                <div class="seq-step" data-step="13"></div>
+                                <div class="seq-step" data-step="14"></div>
+                                <div class="seq-step" data-step="15"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="preset-beats">
+                        <button class="preset-btn" data-preset="basic">Basic Beat</button>
+                        <button class="preset-btn" data-preset="rock">Rock</button>
+                        <button class="preset-btn" data-preset="disco">Disco</button>
+                        <button class="preset-btn" data-preset="clear">Wissen</button>
+                    </div>
+                </div>
+
+                <!-- Piano -->
+                <h3>🎹 Piano</h3>
                 <div class="piano-keys" id="piano-keys">
                     <button class="piano-key white" data-note="C">C</button>
                     <button class="piano-key black" data-note="Cs">C#</button>
@@ -289,6 +404,9 @@
                     <button class="piano-key black" data-note="As">A#</button>
                     <button class="piano-key white" data-note="B">B</button>
                 </div>
+
+                <!-- Losse Drum Pads -->
+                <h3>🥁 Drum Pads</h3>
                 <div class="drum-pads" id="drum-pads">
                     <button class="drum-pad" data-drum="kick">🥁 Kick</button>
                     <button class="drum-pad" data-drum="snare">🪘 Snare</button>
@@ -305,7 +423,7 @@
                         <div class="char-hat" id="char-hat">🎩</div>
                         <div class="char-face" id="char-face">😊</div>
                         <div class="char-body" id="char-body">👔</div>
-                        <div class="char-accessory" id="char-accessory"></div>
+                        <div class="char-accessory" id="char-accessory">🎸</div>
                     </div>
                     <div class="character-options">
                         <div class="option-group">
@@ -334,8 +452,10 @@
                             <div class="option-buttons" data-target="body">
                                 <button class="char-option" data-value="👔">👔</button>
                                 <button class="char-option" data-value="👕">👕</button>
-                                <button class="char-option" data-value="🦸">🦸</button>
-                                <button class="char-option" data-value="🧙">🧙</button>
+                                <button class="char-option" data-value="🥋">🥋</button>
+                                <button class="char-option" data-value="👗">👗</button>
+                                <button class="char-option" data-value="🧥">🧥</button>
+                                <button class="char-option" data-value="👚">👚</button>
                             </div>
                         </div>
                         <div class="option-group">
@@ -344,6 +464,8 @@
                                 <button class="char-option" data-value="🎸">🎸</button>
                                 <button class="char-option" data-value="🎤">🎤</button>
                                 <button class="char-option" data-value="🪄">🪄</button>
+                                <button class="char-option" data-value="⚔️">⚔️</button>
+                                <button class="char-option" data-value="🛡️">🛡️</button>
                                 <button class="char-option" data-value="">❌</button>
                             </div>
                         </div>
