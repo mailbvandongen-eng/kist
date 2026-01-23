@@ -807,7 +807,12 @@ function setupEventListeners() {
         const description = document.getElementById('show-description').value;
         const image = imagePreview.src && !imagePreview.classList.contains('hidden') ? imagePreview.src : null;
 
-        addShow(name, description, image);
+        // Alleen doorgaan als wachtwoord correct is
+        const success = addShow(name, description, image);
+        if (!success) {
+            return; // Stop als wachtwoord fout is
+        }
+
         document.getElementById('show-modal').classList.add('hidden');
 
         // Reset formulier inclusief afbeelding
