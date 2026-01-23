@@ -85,7 +85,8 @@ function loadShows() {
             id: 1,
             name: 'Kist',
             description: 'Een spannende show met een mysterieuze kist!',
-            price: 5
+            price: 5,
+            image: 'kist.jfif'
         }];
         saveShows();
     }
@@ -103,8 +104,18 @@ function renderShows() {
     shows.forEach(show => {
         const card = document.createElement('div');
         card.className = 'show-card';
+
+        // Maak de afbeelding HTML
+        let imageHtml;
+        if (show.image) {
+            imageHtml = `<img src="${show.image}" alt="${escapeHtml(show.name)}" class="show-card-image">`;
+        } else {
+            imageHtml = `<div class="show-card-no-image">🎭</div>`;
+        }
+
         card.innerHTML = `
             <button class="delete-btn" onclick="deleteShow(${show.id})">&times;</button>
+            ${imageHtml}
             <h3>${escapeHtml(show.name)}</h3>
             <p>${escapeHtml(show.description)}</p>
             <p class="price">${show.price} euro</p>
@@ -114,12 +125,13 @@ function renderShows() {
     });
 }
 
-function addShow(name, description, price) {
+function addShow(name, description, price, image) {
     const newShow = {
         id: Date.now(),
         name: name,
         description: description || 'Een geweldige show!',
-        price: price || 5
+        price: price || 5,
+        image: image || null
     };
     shows.push(newShow);
     saveShows();
@@ -141,6 +153,15 @@ function buyTicket(id) {
     if (show) {
         document.getElementById('ticket-show-name').textContent = show.name;
         document.getElementById('ticket-price-display').textContent = show.price;
+
+        // Toon de afbeelding van de show op het kaartje
+        const ticketImage = document.querySelector('.ticket-image');
+        if (show.image) {
+            ticketImage.src = show.image;
+        } else {
+            ticketImage.src = 'kist.jfif'; // Fallback
+        }
+
         document.getElementById('ticket-modal').classList.remove('hidden');
         playSuccessSound();
     }
@@ -427,16 +448,61 @@ function setupEventListeners() {
         playClickSound();
     });
 
+    // Image upload area
+    const imageUploadArea = document.getElementById('image-upload-area');
+    const imageInput = document.getElementById('show-image');
+    const imagePreview = document.getElementById('image-preview');
+    const uploadPlaceholder = document.getElementById('upload-placeholder');
+    const removeImageBtn = document.getElementById('remove-image-btn');
+
+    imageUploadArea.addEventListener('click', function(e) {
+        if (e.target !== removeImageBtn) {
+            imageInput.click();
+        }
+    });
+
+    imageInput.addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                uploadPlaceholder.classList.add('hidden');
+                removeImageBtn.classList.remove('hidden');
+            };
+            reader.readAsDataURL(this.files[0]);
+            playClickSound();
+        }
+    });
+
+    removeImageBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        imageInput.value = '';
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        uploadPlaceholder.classList.remove('hidden');
+        removeImageBtn.classList.add('hidden');
+        playClickSound();
+    });
+
     // Show formulier
     document.getElementById('show-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const name = document.getElementById('show-name').value;
         const description = document.getElementById('show-description').value;
         const price = parseInt(document.getElementById('show-price').value) || 5;
+        const image = imagePreview.src && !imagePreview.classList.contains('hidden') ? imagePreview.src : null;
 
-        addShow(name, description, price);
+        addShow(name, description, price, image);
         document.getElementById('show-modal').classList.add('hidden');
+
+        // Reset formulier inclusief afbeelding
         this.reset();
+        imageInput.value = '';
+        imagePreview.src = '';
+        imagePreview.classList.add('hidden');
+        uploadPlaceholder.classList.remove('hidden');
+        removeImageBtn.classList.add('hidden');
     });
 
     // Print kaartje knop

@@ -149,6 +149,28 @@ section h2 {
     overflow: hidden;
 }
 
+.show-card-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border: 3px solid #ffcccc;
+}
+
+.show-card-no-image {
+    width: 100%;
+    height: 150px;
+    background: linear-gradient(135deg, #ffcccc 0%, #ffe6e6 100%);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3em;
+    border: 3px dashed #ff4444;
+}
+
 .show-card:hover {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2);
@@ -565,6 +587,75 @@ form input:focus, form textarea:focus {
 form textarea {
     resize: vertical;
     min-height: 80px;
+}
+
+/* Image Upload */
+.image-upload-area {
+    width: 100%;
+    height: 180px;
+    border: 3px dashed #2266cc;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #e6f0ff 0%, #f0f5ff 100%);
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.image-upload-area:hover {
+    border-color: #ff4444;
+    background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%);
+}
+
+.upload-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #666;
+}
+
+.upload-icon {
+    font-size: 3em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.upload-placeholder p {
+    margin: 0;
+    font-size: 1em;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #ff4444;
+    color: white;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+    z-index: 10;
+}
+
+.remove-image-btn:hover {
+    transform: scale(1.1);
+    background: #cc0000;
 }
 
 /* Ticket Modal */

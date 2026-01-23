@@ -109,6 +109,17 @@
                 <label for="show-price">Prijs (in euro's):</label>
                 <input type="number" id="show-price" min="0" value="5">
 
+                <label>Plaatje voor de show:</label>
+                <div class="image-upload-area" id="image-upload-area">
+                    <input type="file" id="show-image" accept="image/*" hidden>
+                    <div class="upload-placeholder" id="upload-placeholder">
+                        <span class="upload-icon">📷</span>
+                        <p>Klik om een plaatje te kiezen</p>
+                    </div>
+                    <img id="image-preview" class="image-preview hidden" alt="Preview">
+                    <button type="button" id="remove-image-btn" class="remove-image-btn hidden">&times;</button>
+                </div>
+
                 <button type="submit" class="big-button">Show Toevoegen!</button>
             </form>
         </div>
