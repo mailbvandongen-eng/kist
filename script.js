@@ -148,23 +148,144 @@ function deleteShow(id) {
     }
 }
 
+let currentPaymentShow = null;
+
 function buyTicket(id) {
     const show = shows.find(s => s.id === id);
     if (show) {
-        document.getElementById('ticket-show-name').textContent = show.name;
-        document.getElementById('ticket-price-display').textContent = show.price;
+        currentPaymentShow = show;
 
-        // Toon de afbeelding van de show op het kaartje
-        const ticketImage = document.querySelector('.ticket-image');
-        if (show.image) {
-            ticketImage.src = show.image;
-        } else {
-            ticketImage.src = 'kist.jfif'; // Fallback
-        }
+        // Reset naar stap 1
+        document.getElementById('payment-step-1').classList.remove('hidden');
+        document.getElementById('payment-step-2').classList.add('hidden');
+        document.getElementById('payment-step-3').classList.add('hidden');
 
-        document.getElementById('ticket-modal').classList.remove('hidden');
-        playSuccessSound();
+        // Vul de betaalgegevens in
+        document.getElementById('payment-show-name').textContent = show.name;
+        document.getElementById('payment-amount').textContent = show.price;
+
+        // Toon het betaalscherm
+        document.getElementById('payment-modal').classList.remove('hidden');
+        playClickSound();
     }
+}
+
+function processPayment(method) {
+    // Ga naar stap 2 (verwerken)
+    document.getElementById('payment-step-1').classList.add('hidden');
+    document.getElementById('payment-step-2').classList.remove('hidden');
+
+    const processingText = document.getElementById('processing-text');
+    const messages = [
+        'Verbinden met ' + getMethodName(method) + '...',
+        'Betaling verifiëren...',
+        'Transactie verwerken...',
+        'Bijna klaar...'
+    ];
+
+    let messageIndex = 0;
+    processingText.textContent = messages[0];
+
+    // Simuleer verwerking met wisselende berichten
+    const messageInterval = setInterval(() => {
+        messageIndex++;
+        if (messageIndex < messages.length) {
+            processingText.textContent = messages[messageIndex];
+        }
+    }, 600);
+
+    // Na 2.5 seconden: succes!
+    setTimeout(() => {
+        clearInterval(messageInterval);
+
+        // Ga naar stap 3 (succes)
+        document.getElementById('payment-step-2').classList.add('hidden');
+        document.getElementById('payment-step-3').classList.remove('hidden');
+
+        // Start confetti!
+        launchConfetti();
+
+        // Speel succes geluid
+        playPaymentSuccessSound();
+    }, 2500);
+}
+
+function getMethodName(method) {
+    const names = {
+        'apple-pay': 'Apple Pay',
+        'google-pay': 'Google Pay',
+        'ideal': 'iDEAL',
+        'creditcard': 'Creditcard'
+    };
+    return names[method] || method;
+}
+
+function showTicketAfterPayment() {
+    // Sluit betaalmodal
+    document.getElementById('payment-modal').classList.add('hidden');
+
+    // Vul kaartje in
+    if (currentPaymentShow) {
+        document.getElementById('ticket-show-name').textContent = currentPaymentShow.name;
+        document.getElementById('ticket-price-display').textContent = currentPaymentShow.price;
+
+        const ticketImage = document.querySelector('.ticket-image');
+        if (currentPaymentShow.image) {
+            ticketImage.src = currentPaymentShow.image;
+        } else {
+            ticketImage.src = 'kist.jfif';
+        }
+    }
+
+    // Toon kaartje
+    document.getElementById('ticket-modal').classList.remove('hidden');
+    playSuccessSound();
+}
+
+function launchConfetti() {
+    const container = document.getElementById('confetti-container');
+    container.innerHTML = '';
+
+    const colors = ['#ff4444', '#2266cc', '#ffcc00', '#22cc44', '#ff66cc', '#44ccff'];
+    const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+
+    for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 2 + 's';
+        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+        confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+        confetti.style.fontSize = (10 + Math.random() * 20) + 'px';
+        confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+        container.appendChild(confetti);
+    }
+
+    // Verwijder confetti na 5 seconden
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 5000);
+}
+
+function playPaymentSuccessSound() {
+    // Speciaal vrolijk geluid voor betaling
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.frequency.value = freq;
+        oscillator.type = 'sine';
+        gainNode.gain.setValueAtTime(0.25, audioContext.currentTime + i * 0.15);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + i * 0.15 + 0.4);
+
+        oscillator.start(audioContext.currentTime + i * 0.15);
+        oscillator.stop(audioContext.currentTime + i * 0.15 + 0.4);
+    });
 }
 
 // ==========================================
@@ -509,6 +630,20 @@ function setupEventListeners() {
     document.getElementById('print-ticket-btn').addEventListener('click', function() {
         window.print();
         playSuccessSound();
+    });
+
+    // Betaalmethode knoppen
+    document.querySelectorAll('.payment-method-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const method = this.dataset.method;
+            playClickSound();
+            processPayment(method);
+        });
+    });
+
+    // Bekijk kaartje knop (na betaling)
+    document.getElementById('show-ticket-btn').addEventListener('click', function() {
+        showTicketAfterPayment();
     });
 
     // Sluit modals

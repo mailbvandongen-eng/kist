@@ -689,6 +689,200 @@ form textarea {
     margin-top: 10px;
 }
 
+.ticket-status {
+    background: #22cc44;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+/* Payment Modal */
+.payment-content {
+    max-width: 450px;
+}
+
+.payment-step {
+    text-align: center;
+}
+
+.payment-summary {
+    background: linear-gradient(135deg, #f0f5ff 0%, #e6f0ff 100%);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid #2266cc;
+}
+
+.payment-summary p {
+    margin: 5px 0;
+}
+
+.payment-total {
+    font-size: 1.4em;
+    color: #cc0000;
+    font-weight: bold;
+}
+
+.payment-content h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.payment-method-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 20px 15px;
+    border: 3px solid #ddd;
+    border-radius: 15px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-size: 1em;
+}
+
+.payment-method-btn:hover {
+    border-color: #2266cc;
+    background: linear-gradient(135deg, #f0f5ff 0%, #fff 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(34, 102, 204, 0.2);
+}
+
+.payment-icon {
+    font-size: 2em;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-icon.ideal-icon {
+    font-size: 1em;
+    background: linear-gradient(135deg, #cc0066 0%, #ff0080 100%);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+/* Payment Processing */
+.payment-processing {
+    padding: 40px 20px;
+}
+
+.spinner {
+    width: 80px;
+    height: 80px;
+    border: 8px solid #e6e6e6;
+    border-top: 8px solid #2266cc;
+    border-radius: 50%;
+    margin: 0 auto 30px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.payment-processing h2 {
+    color: #2266cc;
+    margin-bottom: 10px;
+}
+
+#processing-text {
+    color: #666;
+    font-size: 1.1em;
+}
+
+/* Payment Success */
+.payment-success {
+    padding: 30px 20px;
+}
+
+.success-checkmark {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #22cc44 0%, #11aa33 100%);
+    color: white;
+    font-size: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    animation: popIn 0.5s ease-out;
+    box-shadow: 0 8px 25px rgba(34, 204, 68, 0.4);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.payment-success h2 {
+    color: #22cc44;
+    margin-bottom: 10px;
+}
+
+.payment-success p {
+    color: #666;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
+/* Confetti */
+#confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.confetti {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: -20px;
+    animation: confettiFall 3s ease-out forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
 /* Footer */
 footer {
     text-align: center;

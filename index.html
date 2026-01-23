@@ -125,7 +125,64 @@
         </div>
     </div>
 
-    <!-- Modal voor kaartje kopen -->
+    <!-- Modal voor betalen -->
+    <div id="payment-modal" class="modal hidden">
+        <div class="modal-content payment-content">
+            <span class="close-btn">&times;</span>
+
+            <!-- Stap 1: Kies betaalmethode -->
+            <div id="payment-step-1" class="payment-step">
+                <h2>Afrekenen</h2>
+                <div class="payment-summary">
+                    <p>Kaartje voor: <strong id="payment-show-name">Show</strong></p>
+                    <p class="payment-total">Totaal: <span id="payment-amount">5</span> euro</p>
+                </div>
+                <h3>Kies je betaalmethode:</h3>
+                <div class="payment-methods">
+                    <button class="payment-method-btn" data-method="apple-pay">
+                        <span class="payment-icon"></span>
+                        <span>Apple Pay</span>
+                    </button>
+                    <button class="payment-method-btn" data-method="google-pay">
+                        <span class="payment-icon">G</span>
+                        <span>Google Pay</span>
+                    </button>
+                    <button class="payment-method-btn" data-method="ideal">
+                        <span class="payment-icon ideal-icon">iDEAL</span>
+                        <span>iDEAL</span>
+                    </button>
+                    <button class="payment-method-btn" data-method="creditcard">
+                        <span class="payment-icon">💳</span>
+                        <span>Creditcard</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stap 2: Verwerken -->
+            <div id="payment-step-2" class="payment-step hidden">
+                <div class="payment-processing">
+                    <div class="spinner"></div>
+                    <h2>Betaling verwerken...</h2>
+                    <p id="processing-text">Even geduld alsjeblieft</p>
+                </div>
+            </div>
+
+            <!-- Stap 3: Gelukt! -->
+            <div id="payment-step-3" class="payment-step hidden">
+                <div class="payment-success">
+                    <div class="success-checkmark">✓</div>
+                    <h2>Betaling Gelukt!</h2>
+                    <p>Bedankt voor je aankoop!</p>
+                    <button id="show-ticket-btn" class="big-button">
+                        Bekijk je Kaartje!
+                    </button>
+                </div>
+                <div id="confetti-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal voor kaartje bekijken -->
     <div id="ticket-modal" class="modal hidden">
         <div class="modal-content ticket-content">
             <span class="close-btn">&times;</span>
@@ -136,6 +193,7 @@
                     <h3 id="ticket-show-name">Show Naam</h3>
                     <p>Toegang voor 1 persoon</p>
                     <p class="ticket-price">Prijs: <span id="ticket-price-display">5</span> euro</p>
+                    <p class="ticket-status">BETAALD ✓</p>
                 </div>
             </div>
             <button id="print-ticket-btn" class="big-button">
