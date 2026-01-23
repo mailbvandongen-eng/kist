@@ -330,6 +330,11 @@ function addShow(name, description, image) {
 
 function deleteShow(id) {
     if (confirm('Weet je zeker dat je deze show wilt verwijderen?')) {
+        const password = prompt('Voer het geheime wachtwoord in om te verwijderen:');
+        if (password !== ADMIN_PASSWORD) {
+            alert('Verkeerd wachtwoord! Alleen Joerie mag shows verwijderen.');
+            return;
+        }
         database.ref('shows/' + id).remove();
         playClickSound();
     }
