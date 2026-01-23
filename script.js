@@ -609,9 +609,113 @@ function applyEffect(source, effect) {
             wetGain.connect(audioContext.destination);
             break;
 
+        case 'alien':
+            // Alien stem - hoog met vibrato
+            source.playbackRate.value = 1.5;
+            const alienOsc = audioContext.createOscillator();
+            const alienGain = audioContext.createGain();
+            alienOsc.frequency.value = 8; // Snelle vibrato
+            alienOsc.connect(alienGain);
+            alienGain.gain.value = 100;
+            alienGain.connect(source.playbackRate);
+            source.connect(audioContext.destination);
+            alienOsc.start();
+            source.onended = () => {
+                alienOsc.stop();
+                document.getElementById('play-status').textContent = 'Klaar om af te spelen!';
+            };
+            break;
+
+        case 'underwater':
+            // Onder water - lowpass filter
+            const underwaterFilter = audioContext.createBiquadFilter();
+            underwaterFilter.type = 'lowpass';
+            underwaterFilter.frequency.value = 500;
+            underwaterFilter.Q.value = 10;
+            source.playbackRate.value = 0.9;
+            source.connect(underwaterFilter);
+            underwaterFilter.connect(audioContext.destination);
+            break;
+
+        case 'telephone':
+            // Oude telefoon - bandpass filter
+            const phoneFilter = audioContext.createBiquadFilter();
+            phoneFilter.type = 'bandpass';
+            phoneFilter.frequency.value = 1500;
+            phoneFilter.Q.value = 5;
+            const phoneDistortion = audioContext.createWaveShaper();
+            phoneDistortion.curve = makeDistortionCurve(20);
+            source.connect(phoneFilter);
+            phoneFilter.connect(phoneDistortion);
+            phoneDistortion.connect(audioContext.destination);
+            break;
+
+        case 'ghost':
+            // Spook - langzaam met veel reverb/echo
+            source.playbackRate.value = 0.7;
+            const ghostDelay1 = audioContext.createDelay();
+            const ghostDelay2 = audioContext.createDelay();
+            const ghostGain1 = audioContext.createGain();
+            const ghostGain2 = audioContext.createGain();
+            ghostDelay1.delayTime.value = 0.1;
+            ghostDelay2.delayTime.value = 0.2;
+            ghostGain1.gain.value = 0.7;
+            ghostGain2.gain.value = 0.5;
+            source.connect(audioContext.destination);
+            source.connect(ghostDelay1);
+            ghostDelay1.connect(ghostGain1);
+            ghostGain1.connect(audioContext.destination);
+            ghostGain1.connect(ghostDelay2);
+            ghostDelay2.connect(ghostGain2);
+            ghostGain2.connect(audioContext.destination);
+            break;
+
+        case 'megaphone':
+            // Megafoon - distortion met highpass
+            const megaFilter = audioContext.createBiquadFilter();
+            megaFilter.type = 'highpass';
+            megaFilter.frequency.value = 800;
+            const megaDistortion = audioContext.createWaveShaper();
+            megaDistortion.curve = makeDistortionCurve(50);
+            const megaGain = audioContext.createGain();
+            megaGain.gain.value = 0.5;
+            source.connect(megaFilter);
+            megaFilter.connect(megaDistortion);
+            megaDistortion.connect(megaGain);
+            megaGain.connect(audioContext.destination);
+            break;
+
+        case 'wobble':
+            // Wiebelig - snelle pitch veranderingen
+            const wobbleOsc = audioContext.createOscillator();
+            const wobbleGain = audioContext.createGain();
+            wobbleOsc.frequency.value = 5;
+            wobbleOsc.connect(wobbleGain);
+            wobbleGain.gain.value = 0.3;
+            wobbleGain.connect(source.playbackRate);
+            source.connect(audioContext.destination);
+            wobbleOsc.start();
+            source.onended = () => {
+                wobbleOsc.stop();
+                document.getElementById('play-status').textContent = 'Klaar om af te spelen!';
+            };
+            break;
+
         default:
             source.connect(audioContext.destination);
     }
+}
+
+// Helper functie voor distortion
+function makeDistortionCurve(amount) {
+    const samples = 44100;
+    const curve = new Float32Array(samples);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < samples; i++) {
+        const x = (i * 2) / samples - 1;
+        curve[i] = ((3 + amount) * x * 20 * deg) / (Math.PI + amount * Math.abs(x));
+    }
+    return curve;
 }
 
 function selectEffect(effect) {
@@ -763,39 +867,54 @@ function setupEventListeners() {
         playClickSound();
     });
 
-    // Image upload area
-    const imageUploadArea = document.getElementById('image-upload-area');
-    const imageInput = document.getElementById('show-image');
+    // Foto knoppen
+    const cameraInput = document.getElementById('show-image-camera');
+    const galleryInput = document.getElementById('show-image-gallery');
     const imagePreview = document.getElementById('image-preview');
-    const uploadPlaceholder = document.getElementById('upload-placeholder');
     const removeImageBtn = document.getElementById('remove-image-btn');
 
-    imageUploadArea.addEventListener('click', function(e) {
-        if (e.target !== removeImageBtn) {
-            imageInput.click();
-        }
+    // Foto maken knop
+    document.getElementById('take-photo-btn').addEventListener('click', function() {
+        cameraInput.click();
+        playClickSound();
     });
 
-    imageInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
+    // Foto kiezen knop
+    document.getElementById('choose-photo-btn').addEventListener('click', function() {
+        galleryInput.click();
+        playClickSound();
+    });
+
+    // Verwerk foto van camera
+    cameraInput.addEventListener('change', function() {
+        handleImageSelect(this);
+    });
+
+    // Verwerk foto uit galerij
+    galleryInput.addEventListener('change', function() {
+        handleImageSelect(this);
+    });
+
+    function handleImageSelect(input) {
+        if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
                 imagePreview.classList.remove('hidden');
-                uploadPlaceholder.classList.add('hidden');
                 removeImageBtn.classList.remove('hidden');
             };
-            reader.readAsDataURL(this.files[0]);
-            playClickSound();
+            reader.readAsDataURL(input.files[0]);
+            playSuccessSound();
         }
-    });
+    }
 
+    // Verwijder foto knop
     removeImageBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        imageInput.value = '';
+        cameraInput.value = '';
+        galleryInput.value = '';
         imagePreview.src = '';
         imagePreview.classList.add('hidden');
-        uploadPlaceholder.classList.remove('hidden');
         removeImageBtn.classList.add('hidden');
         playClickSound();
     });
@@ -817,10 +936,10 @@ function setupEventListeners() {
 
         // Reset formulier inclusief afbeelding
         this.reset();
-        imageInput.value = '';
+        cameraInput.value = '';
+        galleryInput.value = '';
         imagePreview.src = '';
         imagePreview.classList.add('hidden');
-        uploadPlaceholder.classList.remove('hidden');
         removeImageBtn.classList.add('hidden');
     });
 

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nJoerie''s Shows website - eerste versie\n\n- Splash screen met logo animatie\n- Shows beheer (toevoegen, verwijderen, kaartjes kopen)\n- Geluid opnemen, afspelen en vervormen met grappige effecten\n- Rood/blauw kindvriendelijk design\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nPlaatjes toevoegen aan shows\n\n- Image upload bij nieuwe show toevoegen\n- Preview van afbeelding in formulier\n- Afbeelding wordt getoond op show card\n- Afbeelding wordt getoond op kaartje\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)"
+    ]
+  }
+}

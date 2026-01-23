@@ -94,16 +94,34 @@
                 <h3>Grappige Effecten!</h3>
                 <div class="effects-buttons">
                     <button class="effect-btn" data-effect="chipmunk">
-                        Chipmunk (Hoog)
+                        🐿️ Chipmunk
                     </button>
                     <button class="effect-btn" data-effect="monster">
-                        Monster (Laag)
+                        👹 Monster
                     </button>
                     <button class="effect-btn" data-effect="robot">
-                        Robot
+                        🤖 Robot
                     </button>
                     <button class="effect-btn" data-effect="echo">
-                        Echo
+                        🔊 Echo
+                    </button>
+                    <button class="effect-btn" data-effect="alien">
+                        👽 Alien
+                    </button>
+                    <button class="effect-btn" data-effect="underwater">
+                        🐠 Onder water
+                    </button>
+                    <button class="effect-btn" data-effect="telephone">
+                        📞 Telefoon
+                    </button>
+                    <button class="effect-btn" data-effect="ghost">
+                        👻 Spook
+                    </button>
+                    <button class="effect-btn" data-effect="megaphone">
+                        📢 Megafoon
+                    </button>
+                    <button class="effect-btn" data-effect="wobble">
+                        🌀 Wiebelig
                     </button>
                 </div>
             </div>
@@ -138,13 +156,18 @@
                 <label for="show-description">Beschrijving:</label>
                 <textarea id="show-description" placeholder="Waar gaat de show over?"></textarea>
 
-                <label>Plaatje voor de show:</label>
-                <div class="image-upload-area" id="image-upload-area">
-                    <input type="file" id="show-image" accept="image/*" hidden>
-                    <div class="upload-placeholder" id="upload-placeholder">
-                        <span class="upload-icon">📷</span>
-                        <p>Klik om een plaatje te kiezen</p>
-                    </div>
+                <label>Foto voor de show:</label>
+                <div class="image-buttons">
+                    <button type="button" id="take-photo-btn" class="photo-btn">
+                        <span>📸</span> Foto maken
+                    </button>
+                    <button type="button" id="choose-photo-btn" class="photo-btn">
+                        <span>🖼️</span> Foto kiezen
+                    </button>
+                </div>
+                <input type="file" id="show-image-camera" accept="image/*" capture="environment" hidden>
+                <input type="file" id="show-image-gallery" accept="image/*" hidden>
+                <div class="image-preview-area" id="image-preview-area">
                     <img id="image-preview" class="image-preview hidden" alt="Preview">
                     <button type="button" id="remove-image-btn" class="remove-image-btn hidden">&times;</button>
                 </div>
