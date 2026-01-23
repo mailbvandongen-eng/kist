@@ -47,14 +47,16 @@ function initApp() {
     loadShowsFromFirebase();
     loadEarningsFromFirebase();
     loadSounds();
-    loadApplauseCount();
-    loadCountdown();
-    loadGuestbook();
-    loadHallOfFame();
-    loadSpookyMode();
-    renderSavedCharacters();
-    updateYourStats();
     setupEventListeners();
+
+    // Laad nieuwe features veilig (zodat een fout niet alles breekt)
+    try { loadApplauseCount(); } catch(e) { console.error('Applaus laden mislukt:', e); }
+    try { loadCountdown(); } catch(e) { console.error('Countdown laden mislukt:', e); }
+    try { loadGuestbook(); } catch(e) { console.error('Gastenboek laden mislukt:', e); }
+    try { loadHallOfFame(); } catch(e) { console.error('Hall of Fame laden mislukt:', e); }
+    try { loadSpookyMode(); } catch(e) { console.error('Spookmodus laden mislukt:', e); }
+    try { renderSavedCharacters(); } catch(e) { console.error('Karakters laden mislukt:', e); }
+    try { updateYourStats(); } catch(e) { console.error('Stats laden mislukt:', e); }
 }
 
 // ==========================================
@@ -1008,49 +1010,46 @@ function setupEventListeners() {
     }, { once: true });
 
     // ==========================================
-    // GELUIDSBORD EVENT LISTENERS
+    // NIEUWE FEATURES EVENT LISTENERS (veilig)
     // ==========================================
+
+    // Geluidsbord
     document.querySelectorAll('.soundboard-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const sound = this.dataset.sound;
-            playSoundboardSound(sound);
+            playSoundboardSound(this.dataset.sound);
         });
     });
 
-    // ==========================================
-    // APPLAUS KNOP EVENT LISTENER
-    // ==========================================
-    document.getElementById('big-applause-btn').addEventListener('click', addApplause);
+    // Applaus knop
+    const applauseBtn = document.getElementById('big-applause-btn');
+    if (applauseBtn) applauseBtn.addEventListener('click', addApplause);
 
-    // ==========================================
-    // COUNTDOWN EVENT LISTENERS
-    // ==========================================
-    document.getElementById('set-countdown-btn').addEventListener('click', setCountdown);
-    document.getElementById('reset-countdown-btn').addEventListener('click', resetCountdown);
+    // Countdown
+    const setCountdownBtn = document.getElementById('set-countdown-btn');
+    const resetCountdownBtn = document.getElementById('reset-countdown-btn');
+    if (setCountdownBtn) setCountdownBtn.addEventListener('click', setCountdown);
+    if (resetCountdownBtn) resetCountdownBtn.addEventListener('click', resetCountdown);
 
-    // ==========================================
-    // RAD VAN FORTUIN EVENT LISTENER
-    // ==========================================
-    document.getElementById('spin-wheel-btn').addEventListener('click', spinWheel);
+    // Rad van Fortuin
+    const spinBtn = document.getElementById('spin-wheel-btn');
+    if (spinBtn) spinBtn.addEventListener('click', spinWheel);
 
-    // ==========================================
-    // GASTENBOEK EVENT LISTENERS
-    // ==========================================
-    document.getElementById('post-message-btn').addEventListener('click', postGuestbookMessage);
+    // Gastenboek
+    const postMsgBtn = document.getElementById('post-message-btn');
+    if (postMsgBtn) postMsgBtn.addEventListener('click', postGuestbookMessage);
 
     // Emoji picker
     document.querySelectorAll('.emoji-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            const emoji = this.dataset.emoji;
             const textarea = document.getElementById('guest-message');
-            textarea.value += emoji;
-            textarea.focus();
+            if (textarea) {
+                textarea.value += this.dataset.emoji;
+                textarea.focus();
+            }
         });
     });
 
-    // ==========================================
-    // KARAKTER MAKER EVENT LISTENERS
-    // ==========================================
+    // Karakter maker
     document.querySelectorAll('.option-buttons').forEach(group => {
         const target = group.dataset.target;
         group.querySelectorAll('.char-option').forEach(btn => {
@@ -1060,17 +1059,16 @@ function setupEventListeners() {
         });
     });
 
-    document.getElementById('save-character-btn').addEventListener('click', saveCharacter);
+    const saveCharBtn = document.getElementById('save-character-btn');
+    if (saveCharBtn) saveCharBtn.addEventListener('click', saveCharacter);
 
-    // ==========================================
-    // SPOOKMODUS EVENT LISTENER
-    // ==========================================
-    document.getElementById('toggle-spooky-btn').addEventListener('click', toggleSpookyMode);
+    // Spookmodus
+    const spookyBtn = document.getElementById('toggle-spooky-btn');
+    if (spookyBtn) spookyBtn.addEventListener('click', toggleSpookyMode);
 
-    // ==========================================
-    // KRASKAART EVENT LISTENER
-    // ==========================================
-    document.getElementById('claim-scratch-btn').addEventListener('click', claimScratchPrize);
+    // Kraskaart
+    const claimScratchBtn = document.getElementById('claim-scratch-btn');
+    if (claimScratchBtn) claimScratchBtn.addEventListener('click', claimScratchPrize);
 }
 
 // ==========================================
@@ -1344,7 +1342,8 @@ function loadApplauseCount() {
     const ref = database.ref('applause');
     ref.on('value', (snapshot) => {
         applauseCount = snapshot.val() || 0;
-        document.getElementById('applause-count').textContent = applauseCount;
+        const el = document.getElementById('applause-count');
+        if (el) el.textContent = applauseCount;
     });
 }
 
@@ -1371,17 +1370,22 @@ function createClapEffect() {
 let countdownInterval = null;
 
 function loadCountdown() {
+    const setupEl = document.getElementById('countdown-setup');
+    const displayEl = document.getElementById('countdown-display');
+    const titleEl = document.getElementById('countdown-show-title');
+    if (!setupEl || !displayEl) return;
+
     const ref = database.ref('countdown');
     ref.on('value', (snapshot) => {
         const data = snapshot.val();
         if (data && data.targetTime > Date.now()) {
-            document.getElementById('countdown-setup').classList.add('hidden');
-            document.getElementById('countdown-display').classList.remove('hidden');
-            document.getElementById('countdown-show-title').textContent = data.showName;
+            setupEl.classList.add('hidden');
+            displayEl.classList.remove('hidden');
+            if (titleEl) titleEl.textContent = data.showName;
             startCountdown(data.targetTime);
         } else {
-            document.getElementById('countdown-setup').classList.remove('hidden');
-            document.getElementById('countdown-display').classList.add('hidden');
+            setupEl.classList.remove('hidden');
+            displayEl.classList.add('hidden');
             if (countdownInterval) clearInterval(countdownInterval);
         }
     });
@@ -1520,31 +1524,38 @@ function updateYourStats() {
     const visitorId = getVisitorId();
 
     database.ref('stars/' + visitorId).on('value', (snapshot) => {
-        document.getElementById('your-stars').textContent = snapshot.val() || 0;
+        const el = document.getElementById('your-stars');
+        if (el) el.textContent = snapshot.val() || 0;
     });
 
     database.ref('tickets/' + visitorId).on('value', (snapshot) => {
-        document.getElementById('your-tickets').textContent = snapshot.val() || 0;
+        const el = document.getElementById('your-tickets');
+        if (el) el.textContent = snapshot.val() || 0;
     });
 
     database.ref('badges/' + visitorId).on('value', (snapshot) => {
-        document.getElementById('your-badges').textContent = snapshot.val() || 0;
+        const el = document.getElementById('your-badges');
+        if (el) el.textContent = snapshot.val() || 0;
     });
 }
 
 function loadHallOfFame() {
     const ref = database.ref('stars');
     ref.orderByValue().limitToLast(10).on('value', (snapshot) => {
-        const data = snapshot.val() || {};
-        const sorted = Object.entries(data)
-            .map(([id, stars]) => ({ id, stars }))
-            .sort((a, b) => b.stars - a.stars);
+        try {
+            const data = snapshot.val() || {};
+            const sorted = Object.entries(data)
+                .map(([id, stars]) => ({ id, stars }))
+                .sort((a, b) => b.stars - a.stars);
 
-        // Update podium
-        updatePodium(sorted);
+            // Update podium
+            updatePodium(sorted);
 
-        // Update list
-        updateFameList(sorted.slice(3));
+            // Update list
+            updateFameList(sorted.slice(3));
+        } catch(e) {
+            console.error('Hall of Fame update fout:', e);
+        }
     });
 }
 
@@ -1580,10 +1591,12 @@ function updateFameList(others) {
 // GASTENBOEK
 // ==========================================
 function loadGuestbook() {
+    const container = document.getElementById('guestbook-messages');
+    if (!container) return;
+
     const ref = database.ref('guestbook');
     ref.orderByChild('timestamp').limitToLast(50).on('value', (snapshot) => {
         const data = snapshot.val();
-        const container = document.getElementById('guestbook-messages');
 
         if (!data) {
             container.innerHTML = '<p class="empty-message">Nog geen berichten</p>';
@@ -1599,10 +1612,10 @@ function loadGuestbook() {
             const date = new Date(msg.timestamp);
             div.innerHTML = `
                 <div class="guest-header">
-                    <span class="guest-name">${escapeHtml(msg.name)}</span>
+                    <span class="guest-name">${escapeHtml(msg.name || '')}</span>
                     <span class="guest-time">${date.toLocaleDateString('nl-NL')}</span>
                 </div>
-                <div class="guest-text">${escapeHtml(msg.message)}</div>
+                <div class="guest-text">${escapeHtml(msg.message || '')}</div>
             `;
             container.appendChild(div);
         });
@@ -1680,8 +1693,10 @@ function saveCharacter() {
 }
 
 function renderSavedCharacters() {
-    const characters = JSON.parse(localStorage.getItem('joerieCharacters') || '[]');
     const container = document.getElementById('characters-list');
+    if (!container) return;
+
+    const characters = JSON.parse(localStorage.getItem('joerieCharacters') || '[]');
 
     if (characters.length === 0) {
         container.innerHTML = '<p class="empty-message">Nog geen karakters opgeslagen</p>';
@@ -1694,9 +1709,9 @@ function renderSavedCharacters() {
         div.className = 'saved-character';
         div.innerHTML = `
             <div class="saved-char-display">
-                ${char.hat} ${char.face} ${char.body} ${char.accessory}
+                ${char.hat || ''} ${char.face || ''} ${char.body || ''} ${char.accessory || ''}
             </div>
-            <div class="saved-char-name">${escapeHtml(char.name)}</div>
+            <div class="saved-char-name">${escapeHtml(char.name || '')}</div>
         `;
         container.appendChild(div);
     });
