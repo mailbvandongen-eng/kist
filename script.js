@@ -21,6 +21,103 @@ const auth = firebase.auth();
 const database = firebase.database();
 
 // ==========================================
+// MIJN KAARTJES - LOKALE OPSLAG
+// ==========================================
+function getMyTickets() {
+    const tickets = localStorage.getItem('joerie_tickets');
+    return tickets ? JSON.parse(tickets) : [];
+}
+
+function saveTicket(show, buyerName) {
+    const tickets = getMyTickets();
+    const ticketId = 'JOERIE-' + Date.now().toString(36).toUpperCase();
+    const newTicket = {
+        id: ticketId,
+        showId: show.id,
+        showName: show.name,
+        showImage: show.image || null,
+        buyerName: buyerName,
+        purchaseDate: new Date().toLocaleDateString('nl-NL'),
+        purchaseTime: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+    };
+    tickets.push(newTicket);
+    localStorage.setItem('joerie_tickets', JSON.stringify(tickets));
+    renderMyTickets();
+    return newTicket;
+}
+
+function renderMyTickets() {
+    const container = document.getElementById('my-tickets-container');
+    const tickets = getMyTickets();
+
+    if (tickets.length === 0) {
+        container.innerHTML = '<p class="empty-tickets-message">Je hebt nog geen kaartjes gekocht.</p>';
+        return;
+    }
+
+    container.innerHTML = tickets.map(ticket => `
+        <div class="my-ticket-card" onclick="showMyTicket('${ticket.id}')">
+            ${ticket.showImage
+                ? `<img src="${ticket.showImage}" class="my-ticket-image" alt="${ticket.showName}">`
+                : `<div class="my-ticket-image">🎭</div>`
+            }
+            <div class="my-ticket-info">
+                <h4>${ticket.showName}</h4>
+                <p>🎫 ${ticket.id}</p>
+                <p>📅 ${ticket.purchaseDate} om ${ticket.purchaseTime}</p>
+            </div>
+            <div class="my-ticket-arrow">➤</div>
+        </div>
+    `).join('');
+}
+
+function showMyTicket(ticketId) {
+    const tickets = getMyTickets();
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    // Vul de ticket modal in
+    document.getElementById('ticket-show-name').textContent = ticket.showName;
+
+    const ticketImage = document.querySelector('.ticket-image');
+    if (ticket.showImage) {
+        ticketImage.src = ticket.showImage;
+    } else {
+        ticketImage.src = 'kist.jfif';
+    }
+
+    // Genereer QR code voor dit kaartje
+    generateTicketQRForId(ticket);
+
+    // Toon de modal
+    document.getElementById('ticket-modal').classList.remove('hidden');
+    playClickSound();
+}
+
+function generateTicketQRForId(ticket) {
+    const canvas = document.getElementById('ticket-qr-code');
+    const qrData = JSON.stringify({
+        show: ticket.showName,
+        ticketId: ticket.id,
+        date: ticket.purchaseDate,
+        valid: true
+    });
+
+    if (typeof QRCode !== 'undefined') {
+        QRCode.toCanvas(canvas, qrData, {
+            width: 120,
+            margin: 2,
+            color: {
+                dark: '#cc0000',
+                light: '#ffffff'
+            }
+        }, function(error) {
+            if (error) console.error('QR code error:', error);
+        });
+    }
+}
+
+// ==========================================
 // SPLASH SCREEN
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
@@ -67,6 +164,7 @@ function initApp() {
     try { loadEmojiStories(); } catch(e) { console.error('Emoji stories laden mislukt:', e); }
     try { updateHeaderStars(); } catch(e) { console.error('Header stars mislukt:', e); }
     try { initBeatSequencer(); } catch(e) { console.error('Beat sequencer init mislukt:', e); }
+    try { renderMyTickets(); } catch(e) { console.error('Mijn kaartjes laden mislukt:', e); }
 }
 
 // ==========================================
@@ -481,6 +579,9 @@ function processPayment(method) {
 
         // Voeg betaling toe met naam!
         addPayment(currentPaymentShow.name, buyerName);
+
+        // Sla kaartje op voor Mijn Kaartjes
+        saveTicket(currentPaymentShow, buyerName);
 
         // Tel ticket voor stats
         const visitorId = getVisitorId();

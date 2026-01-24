@@ -1422,6 +1422,75 @@ section h3 {
 .fame-stars { color: #ff9900; }
 
 /* ==========================================
+   MIJN KAARTJES
+   ========================================== */
+#my-tickets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.empty-tickets-message {
+    text-align: center;
+    color: #999;
+    padding: 30px;
+    font-style: italic;
+}
+
+.my-ticket-card {
+    background: linear-gradient(135deg, #fff8e6 0%, #fff0cc 100%);
+    border: 3px dashed #cc9900;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.my-ticket-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.my-ticket-card:active {
+    transform: scale(0.98);
+}
+
+.my-ticket-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+}
+
+.my-ticket-info {
+    flex: 1;
+}
+
+.my-ticket-info h4 {
+    margin: 0 0 5px 0;
+    color: #cc0000;
+}
+
+.my-ticket-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+.my-ticket-arrow {
+    font-size: 24px;
+    color: #cc9900;
+}
+
+/* ==========================================
    STATS & BADGES
    ========================================== */
 .stats-grid {
