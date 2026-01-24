@@ -1995,6 +1995,26 @@ body.spooky-mode .fanclub-card {
     font-weight: bold;
 }
 
+.ticket-qr {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.ticket-qr canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+.qr-label {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+}
+
 /* Scratch card */
 .scratch-card {
     position: relative;

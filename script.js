@@ -527,11 +527,39 @@ function showTicketAfterPayment() {
         } else {
             ticketImage.src = 'kist.jfif';
         }
+
+        // Genereer QR code
+        generateTicketQR(currentPaymentShow);
     }
 
     // Toon kaartje
     document.getElementById('ticket-modal').classList.remove('hidden');
     playSuccessSound();
+}
+
+function generateTicketQR(show) {
+    const canvas = document.getElementById('ticket-qr-code');
+    const ticketId = 'JOERIE-' + Date.now().toString(36).toUpperCase();
+    const qrData = JSON.stringify({
+        show: show.name,
+        ticketId: ticketId,
+        date: new Date().toLocaleDateString('nl-NL'),
+        valid: true
+    });
+
+    // Maak de QR code
+    if (typeof QRCode !== 'undefined') {
+        QRCode.toCanvas(canvas, qrData, {
+            width: 120,
+            margin: 2,
+            color: {
+                dark: '#cc0000',
+                light: '#ffffff'
+            }
+        }, function(error) {
+            if (error) console.error('QR code error:', error);
+        });
+    }
 }
 
 function launchConfetti() {

@@ -9,6 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 </head>
 <body>
     <!-- Splash Screen met Logo -->
@@ -802,6 +804,10 @@
                     <h3 id="ticket-show-name">Show</h3>
                     <p>Toegang voor 1 persoon</p>
                     <p class="ticket-status">BETAALD ✓</p>
+                </div>
+                <div class="ticket-qr">
+                    <canvas id="ticket-qr-code"></canvas>
+                    <p class="qr-label">Scan voor toegang</p>
                 </div>
             </div>
             <button id="print-ticket-btn" class="big-button">Print!</button>
