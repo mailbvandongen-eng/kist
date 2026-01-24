@@ -11,6 +11,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <!-- QR Code Library -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
     <!-- Splash Screen met Logo -->
@@ -104,9 +106,14 @@
             <section id="shows-section">
                 <h2>🎪 Mijn Shows</h2>
                 <div id="shows-container"></div>
-                <button id="add-show-btn" class="big-button">
-                    <span class="plus">+</span> Nieuwe Show
-                </button>
+                <div class="show-buttons">
+                    <button id="add-show-btn" class="big-button">
+                        <span class="plus">+</span> Nieuwe Show
+                    </button>
+                    <button id="scan-ticket-btn" class="big-button scanner-btn">
+                        <span class="scan-icon">📷</span> Scan Kaartje
+                    </button>
+                </div>
             </section>
 
             <!-- Betalingen -->
@@ -811,6 +818,32 @@
                 </div>
             </div>
             <button id="print-ticket-btn" class="big-button">Print!</button>
+        </div>
+    </div>
+
+    <!-- QR Scanner Modal -->
+    <div id="scanner-modal" class="modal hidden">
+        <div class="modal-content scanner-content">
+            <span class="close-btn">&times;</span>
+            <h2>📷 Scan Kaartje</h2>
+            <div id="scanner-container">
+                <div id="qr-reader"></div>
+            </div>
+            <div id="scan-result" class="scan-result hidden">
+                <div id="scan-success" class="scan-success hidden">
+                    <div class="scan-checkmark">✓</div>
+                    <h3>Geldig Kaartje!</h3>
+                    <p class="scan-show-name"></p>
+                    <p class="scan-ticket-id"></p>
+                    <p class="scan-date"></p>
+                </div>
+                <div id="scan-error" class="scan-error hidden">
+                    <div class="scan-cross">✗</div>
+                    <h3>Ongeldig Kaartje</h3>
+                    <p>Dit kaartje kan niet worden geverifieerd.</p>
+                </div>
+            </div>
+            <button id="scan-again-btn" class="big-button hidden">Scan Nog Een</button>
         </div>
     </div>
 

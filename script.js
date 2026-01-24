@@ -562,6 +562,114 @@ function generateTicketQR(show) {
     }
 }
 
+// ==================== QR SCANNER ====================
+let html5QrCode = null;
+
+function openQRScanner() {
+    document.getElementById('scanner-modal').classList.remove('hidden');
+    document.getElementById('scan-result').classList.add('hidden');
+    document.getElementById('scan-again-btn').classList.add('hidden');
+    document.getElementById('scan-success').classList.add('hidden');
+    document.getElementById('scan-error').classList.add('hidden');
+
+    // Start de scanner
+    if (typeof Html5Qrcode !== 'undefined') {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => {
+            console.error("Scanner start error:", err);
+            alert("Kan de camera niet starten. Geef toestemming voor de camera.");
+        });
+    }
+}
+
+function onScanSuccess(decodedText) {
+    // Stop de scanner
+    if (html5QrCode) {
+        html5QrCode.stop().catch(err => console.error(err));
+    }
+
+    playSuccessSound();
+
+    // Probeer de QR data te parsen
+    try {
+        const ticketData = JSON.parse(decodedText);
+
+        if (ticketData.valid && ticketData.ticketId && ticketData.ticketId.startsWith('JOERIE-')) {
+            // Geldig kaartje!
+            document.getElementById('scan-result').classList.remove('hidden');
+            document.getElementById('scan-success').classList.remove('hidden');
+            document.getElementById('scan-error').classList.add('hidden');
+
+            document.querySelector('.scan-show-name').textContent = '🎭 ' + ticketData.show;
+            document.querySelector('.scan-ticket-id').textContent = '🎫 ' + ticketData.ticketId;
+            document.querySelector('.scan-date').textContent = '📅 ' + ticketData.date;
+
+            // Confetti!
+            launchConfetti();
+        } else {
+            showScanError();
+        }
+    } catch (e) {
+        showScanError();
+    }
+
+    document.getElementById('scan-again-btn').classList.remove('hidden');
+}
+
+function onScanFailure(error) {
+    // Negeer scan fouten tijdens het scannen
+}
+
+function showScanError() {
+    document.getElementById('scan-result').classList.remove('hidden');
+    document.getElementById('scan-success').classList.add('hidden');
+    document.getElementById('scan-error').classList.remove('hidden');
+    playErrorSound();
+}
+
+function resetScanner() {
+    document.getElementById('scan-result').classList.add('hidden');
+    document.getElementById('scan-again-btn').classList.add('hidden');
+
+    // Herstart scanner
+    if (typeof Html5Qrcode !== 'undefined') {
+        html5QrCode = new Html5Qrcode("qr-reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => {
+            console.error("Scanner restart error:", err);
+        });
+    }
+}
+
+function playErrorSound() {
+    if (!audioContext) initAudio();
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(200, audioContext.currentTime);
+    gain.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gain.gain.exponentialDecayTo = 0.01;
+    osc.start();
+    osc.stop(audioContext.currentTime + 0.3);
+}
+
 function launchConfetti() {
     const container = document.getElementById('confetti-container');
     container.innerHTML = '';
@@ -999,6 +1107,18 @@ function setupEventListeners() {
         playClickSound();
     });
 
+    // QR Scanner knop
+    document.getElementById('scan-ticket-btn').addEventListener('click', function() {
+        openQRScanner();
+        playClickSound();
+    });
+
+    // Scan opnieuw knop
+    document.getElementById('scan-again-btn').addEventListener('click', function() {
+        resetScanner();
+        playClickSound();
+    });
+
     // Foto knoppen
     const cameraInput = document.getElementById('show-image-camera');
     const galleryInput = document.getElementById('show-image-gallery');
@@ -1098,7 +1218,12 @@ function setupEventListeners() {
     // Sluit modals
     document.querySelectorAll('.close-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            this.closest('.modal').classList.add('hidden');
+            const modal = this.closest('.modal');
+            modal.classList.add('hidden');
+            // Stop scanner als die draait
+            if (modal.id === 'scanner-modal' && html5QrCode) {
+                html5QrCode.stop().catch(err => console.error(err));
+            }
             playClickSound();
         });
     });
@@ -1108,6 +1233,10 @@ function setupEventListeners() {
         modal.addEventListener('click', function(e) {
             if (e.target === this) {
                 this.classList.add('hidden');
+                // Stop scanner als die draait
+                if (this.id === 'scanner-modal' && html5QrCode) {
+                    html5QrCode.stop().catch(err => console.error(err));
+                }
                 playClickSound();
             }
         });

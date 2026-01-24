@@ -2015,6 +2015,106 @@ body.spooky-mode .fanclub-card {
     font-weight: bold;
 }
 
+/* Show buttons */
+.show-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.scanner-btn {
+    background: linear-gradient(135deg, #9933ff 0%, #6600cc 100%);
+}
+
+.scanner-btn:hover {
+    background: linear-gradient(135deg, #aa44ff 0%, #7700dd 100%);
+}
+
+.scan-icon {
+    margin-right: 5px;
+}
+
+/* QR Scanner */
+.scanner-content {
+    max-width: 400px;
+}
+
+#qr-reader {
+    width: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#qr-reader video {
+    border-radius: 10px;
+}
+
+.scan-result {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.scan-success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border: 2px solid #28a745;
+}
+
+.scan-checkmark {
+    font-size: 60px;
+    color: #28a745;
+    animation: popIn 0.5s ease;
+}
+
+.scan-success h3 {
+    color: #155724;
+    margin: 10px 0;
+}
+
+.scan-success p {
+    color: #155724;
+    margin: 5px 0;
+}
+
+.scan-show-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.scan-error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border: 2px solid #dc3545;
+}
+
+.scan-cross {
+    font-size: 60px;
+    color: #dc3545;
+    animation: shake 0.5s ease;
+}
+
+.scan-error h3 {
+    color: #721c24;
+    margin: 10px 0;
+}
+
+.scan-error p {
+    color: #721c24;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
 /* Scratch card */
 .scratch-card {
     position: relative;
