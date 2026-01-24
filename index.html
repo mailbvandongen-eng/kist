@@ -116,11 +116,30 @@
                 </div>
             </section>
 
-            <!-- Betalingen -->
-            <section id="payments-section">
-                <h2>💵 Betalingen</h2>
-                <div id="payments-list">
-                    <p class="empty-message">Nog geen betalingen</p>
+            <!-- Kaartjes Dashboard -->
+            <section id="tickets-dashboard-section">
+                <h2>🎫 Kaartjes Dashboard</h2>
+                <div class="dashboard-stats">
+                    <div class="dash-stat">
+                        <span class="dash-stat-value" id="total-tickets-sold">0</span>
+                        <span class="dash-stat-label">Verkocht</span>
+                    </div>
+                    <div class="dash-stat">
+                        <span class="dash-stat-value" id="tickets-scanned">0</span>
+                        <span class="dash-stat-label">Gescand</span>
+                    </div>
+                    <div class="dash-stat">
+                        <span class="dash-stat-value" id="tickets-pending">0</span>
+                        <span class="dash-stat-label">Nog niet</span>
+                    </div>
+                </div>
+                <div class="dashboard-filter">
+                    <button class="filter-btn active" data-filter="all">Alles</button>
+                    <button class="filter-btn" data-filter="scanned">Gescand ✓</button>
+                    <button class="filter-btn" data-filter="pending">Nog niet</button>
+                </div>
+                <div id="tickets-dashboard-list">
+                    <p class="empty-message">Nog geen kaartjes verkocht</p>
                 </div>
             </section>
         </div>

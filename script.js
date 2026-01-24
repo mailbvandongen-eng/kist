@@ -21,15 +21,17 @@ const auth = firebase.auth();
 const database = firebase.database();
 
 // ==========================================
-// MIJN KAARTJES - LOKALE OPSLAG
+// MIJN KAARTJES - LOKALE + FIREBASE OPSLAG
 // ==========================================
+let allSoldTickets = [];
+let currentDashboardFilter = 'all';
+
 function getMyTickets() {
     const tickets = localStorage.getItem('joerie_tickets');
     return tickets ? JSON.parse(tickets) : [];
 }
 
 function saveTicket(show, buyerName) {
-    const tickets = getMyTickets();
     const ticketId = 'JOERIE-' + Date.now().toString(36).toUpperCase();
     const newTicket = {
         id: ticketId,
@@ -38,12 +40,80 @@ function saveTicket(show, buyerName) {
         showImage: show.image || null,
         buyerName: buyerName,
         purchaseDate: new Date().toLocaleDateString('nl-NL'),
-        purchaseTime: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+        purchaseTime: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: Date.now(),
+        scanned: false
     };
+
+    // Lokaal opslaan voor de koper
+    const tickets = getMyTickets();
     tickets.push(newTicket);
     localStorage.setItem('joerie_tickets', JSON.stringify(tickets));
     renderMyTickets();
+
+    // Firebase opslaan voor het dashboard
+    database.ref('soldTickets/' + ticketId).set(newTicket);
+
     return newTicket;
+}
+
+function loadTicketsDashboard() {
+    database.ref('soldTickets').orderByChild('timestamp').on('value', (snapshot) => {
+        allSoldTickets = [];
+        snapshot.forEach((child) => {
+            allSoldTickets.unshift(child.val()); // Nieuwste eerst
+        });
+        renderTicketsDashboard();
+    });
+}
+
+function renderTicketsDashboard() {
+    const container = document.getElementById('tickets-dashboard-list');
+    const totalEl = document.getElementById('total-tickets-sold');
+    const scannedEl = document.getElementById('tickets-scanned');
+    const pendingEl = document.getElementById('tickets-pending');
+
+    const scannedCount = allSoldTickets.filter(t => t.scanned).length;
+    const pendingCount = allSoldTickets.filter(t => !t.scanned).length;
+
+    totalEl.textContent = allSoldTickets.length;
+    scannedEl.textContent = scannedCount;
+    pendingEl.textContent = pendingCount;
+
+    // Filter toepassen
+    let filtered = allSoldTickets;
+    if (currentDashboardFilter === 'scanned') {
+        filtered = allSoldTickets.filter(t => t.scanned);
+    } else if (currentDashboardFilter === 'pending') {
+        filtered = allSoldTickets.filter(t => !t.scanned);
+    }
+
+    if (filtered.length === 0) {
+        container.innerHTML = '<p class="empty-message">Geen kaartjes gevonden</p>';
+        return;
+    }
+
+    container.innerHTML = filtered.map(ticket => `
+        <div class="ticket-dashboard-item ${ticket.scanned ? 'scanned' : 'pending'}">
+            ${ticket.showImage
+                ? `<img src="${ticket.showImage}" class="ticket-thumb" alt="${ticket.showName}">`
+                : `<div class="ticket-thumb">🎭</div>`
+            }
+            <div class="ticket-details">
+                <h4><span class="ticket-buyer">${escapeHtml(ticket.buyerName)}</span></h4>
+                <div class="ticket-show-name">🎭 ${escapeHtml(ticket.showName)}</div>
+                <div class="ticket-meta">🎫 ${ticket.id} • 📅 ${ticket.purchaseDate} ${ticket.purchaseTime}</div>
+            </div>
+            <div class="ticket-status ${ticket.scanned ? 'scanned' : 'pending'}">
+                ${ticket.scanned ? '✓ Gescand' : '⏳ Wacht'}
+            </div>
+        </div>
+    `).join('');
+}
+
+function markTicketAsScanned(ticketId) {
+    database.ref('soldTickets/' + ticketId + '/scanned').set(true);
+    database.ref('soldTickets/' + ticketId + '/scannedAt').set(new Date().toLocaleString('nl-NL'));
 }
 
 function renderMyTickets() {
@@ -165,6 +235,20 @@ function initApp() {
     try { updateHeaderStars(); } catch(e) { console.error('Header stars mislukt:', e); }
     try { initBeatSequencer(); } catch(e) { console.error('Beat sequencer init mislukt:', e); }
     try { renderMyTickets(); } catch(e) { console.error('Mijn kaartjes laden mislukt:', e); }
+    try { loadTicketsDashboard(); } catch(e) { console.error('Tickets dashboard laden mislukt:', e); }
+    try { setupDashboardFilters(); } catch(e) { console.error('Dashboard filters mislukt:', e); }
+}
+
+function setupDashboardFilters() {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentDashboardFilter = this.dataset.filter;
+            renderTicketsDashboard();
+            playClickSound();
+        });
+    });
 }
 
 // ==========================================
@@ -712,6 +796,9 @@ function onScanSuccess(decodedText) {
             document.querySelector('.scan-show-name').textContent = '🎭 ' + ticketData.show;
             document.querySelector('.scan-ticket-id').textContent = '🎫 ' + ticketData.ticketId;
             document.querySelector('.scan-date').textContent = '📅 ' + ticketData.date;
+
+            // Markeer kaartje als gescand in Firebase
+            markTicketAsScanned(ticketData.ticketId);
 
             // Confetti!
             launchConfetti();
