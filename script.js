@@ -32,7 +32,7 @@ function getMyTickets() {
 }
 
 function saveTicket(show, buyerName) {
-    const ticketId = 'JOERIE-' + Date.now().toString(36).toUpperCase();
+    const ticketId = 'JOERI-' + Date.now().toString(36).toUpperCase();
     const newTicket = {
         id: ticketId,
         showId: show.id,
@@ -573,7 +573,7 @@ function addShow(name, description, image) {
     const password = prompt('Voer het geheime wachtwoord in om een show toe te voegen:');
 
     if (password !== ADMIN_PASSWORD) {
-        alert('Verkeerd wachtwoord! Alleen Joerie mag shows toevoegen.');
+        alert('Verkeerd wachtwoord! Alleen Joeri mag shows toevoegen.');
         return false;
     }
 
@@ -592,7 +592,7 @@ function deleteShow(id) {
     if (confirm('Weet je zeker dat je deze show wilt verwijderen?')) {
         const password = prompt('Voer het geheime wachtwoord in om te verwijderen:');
         if (password !== ADMIN_PASSWORD) {
-            alert('Verkeerd wachtwoord! Alleen Joerie mag shows verwijderen.');
+            alert('Verkeerd wachtwoord! Alleen Joeri mag shows verwijderen.');
             return;
         }
         database.ref('shows/' + id).remove();
@@ -724,7 +724,7 @@ function showTicketAfterPayment() {
 
 function generateTicketQR(show) {
     const canvas = document.getElementById('ticket-qr-code');
-    const ticketId = 'JOERIE-' + Date.now().toString(36).toUpperCase();
+    const ticketId = 'JOERI-' + Date.now().toString(36).toUpperCase();
     const qrData = JSON.stringify({
         show: show.name,
         ticketId: ticketId,
@@ -787,7 +787,7 @@ function onScanSuccess(decodedText) {
     try {
         const ticketData = JSON.parse(decodedText);
 
-        if (ticketData.valid && ticketData.ticketId && ticketData.ticketId.startsWith('JOERIE-')) {
+        if (ticketData.valid && ticketData.ticketId && ticketData.ticketId.startsWith('JOERI-')) {
             // Geldig kaartje!
             document.getElementById('scan-result').classList.remove('hidden');
             document.getElementById('scan-success').classList.remove('hidden');
