@@ -4070,78 +4070,51 @@ function playDanceMusic() {
     if (!audioContext) initAudio();
     let beat = 0;
 
-    // Muziek noten voor melodie (C major pentatonic)
-    const melodyNotes = [262, 294, 330, 392, 440, 523, 587, 659];
-    const bassNotes = [131, 147, 165, 196]; // Lage bass noten
-    let melodyIndex = 0;
-
     const musicInterval = setInterval(() => {
         if (!dancePartyActive) {
             clearInterval(musicInterval);
             return;
         }
 
-        const now = audioContext.currentTime;
+        // 16-beat patroon voor variatie
+        const pattern = beat % 16;
 
-        // Kick drum op beat 1 en 3
-        if (beat % 4 === 0 || beat % 4 === 2) {
+        // Kick drum - basis patroon met af en toe extra
+        if (pattern === 0 || pattern === 4 || pattern === 8 || pattern === 12) {
+            playKickDrum();
+        }
+        // Extra kick voor groove
+        if (pattern === 10) {
             playKickDrum();
         }
 
-        // Snare op beat 2 en 4
-        if (beat % 4 === 1 || beat % 4 === 3) {
+        // Snare op 2 en 4 (pattern 4, 12)
+        if (pattern === 4 || pattern === 12) {
             playSnareDrum();
         }
 
-        // Hi-hat op elke beat
-        playHiHat();
-
-        // Keyboard/synth melodie elke 2 beats
-        if (beat % 2 === 0) {
-            playKeyboardNote(melodyNotes[melodyIndex % melodyNotes.length], 0.15);
-            melodyIndex++;
+        // Hi-hat - elke 2 beats, niet constant
+        if (pattern % 2 === 0) {
+            playHiHat();
         }
 
-        // Bass lijn elke 4 beats
-        if (beat % 4 === 0) {
-            playBassNote(bassNotes[Math.floor(beat / 4) % bassNotes.length]);
+        // Cymbal crash aan begin van elke 32 beats
+        if (beat % 32 === 0 && beat > 0) {
+            playCymbal();
         }
 
-        // Funky gitaar/synth chord elke 8 beats
-        if (beat % 8 === 0) {
-            playGuitarChord();
-        }
-
-        // Extra sparkle sound elke 16 beats
-        if (beat % 16 === 0) {
-            playSparkleSound();
+        // Tom fill elke 32 beats (op beat 28-31)
+        if (beat % 32 >= 28 && beat % 32 <= 31) {
+            if (pattern % 2 === 0) {
+                playTomHit(200 - (beat % 4) * 30);
+            }
         }
 
         beat++;
-    }, 200); // Iets sneller tempo
+    }, 250); // Originele tempo
 }
 
-function playKeyboardNote(freq, duration) {
-    if (!audioContext) return;
-    const now = audioContext.currentTime;
-
-    const osc = audioContext.createOscillator();
-    const gain = audioContext.createGain();
-
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(freq, now);
-
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
-
-    osc.connect(gain);
-    gain.connect(audioContext.destination);
-
-    osc.start(now);
-    osc.stop(now + duration);
-}
-
-function playBassNote(freq) {
+function playTomHit(freq) {
     if (!audioContext) return;
     const now = audioContext.currentTime;
 
@@ -4150,63 +4123,15 @@ function playBassNote(freq) {
 
     osc.type = 'sine';
     osc.frequency.setValueAtTime(freq, now);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.5, now + 0.12);
 
-    gain.gain.setValueAtTime(0.2, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
 
     osc.connect(gain);
     gain.connect(audioContext.destination);
-
     osc.start(now);
-    osc.stop(now + 0.3);
-}
-
-function playGuitarChord() {
-    if (!audioContext) return;
-    const now = audioContext.currentTime;
-
-    // Speel meerdere noten tegelijk voor een chord effect
-    const chordFreqs = [330, 392, 494]; // E, G, B (Em chord)
-
-    chordFreqs.forEach((freq, i) => {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, now);
-
-        gain.gain.setValueAtTime(0.08, now + i * 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-
-        osc.start(now + i * 0.02);
-        osc.stop(now + 0.4);
-    });
-}
-
-function playSparkleSound() {
-    if (!audioContext) return;
-    const now = audioContext.currentTime;
-
-    // Hoge twinkelende noten
-    for (let i = 0; i < 4; i++) {
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1000 + i * 200, now + i * 0.05);
-
-        gain.gain.setValueAtTime(0.05, now + i * 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.1);
-
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-
-        osc.start(now + i * 0.05);
-        osc.stop(now + i * 0.05 + 0.15);
-    }
+    osc.stop(now + 0.12);
 }
 
 // ==========================================
