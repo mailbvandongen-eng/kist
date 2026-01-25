@@ -859,29 +859,97 @@ function playErrorSound() {
 }
 
 function launchConfetti() {
-    const container = document.getElementById('confetti-container');
+    const colors = ['#ff4444', '#2266cc', '#ffcc00', '#22cc44', '#ff66cc', '#44ccff', '#ff9900', '#9933ff'];
+    const stickers = ['🎉', '🎊', '🎈', '🎁', '⭐', '✨', '💫', '🌟', '🎭', '🎪', '🎵', '🎶', '❤️', '💖', '🥳', '🎀'];
+    const confettiShapes = ['■', '●', '▲', '★', '♦', '♥', '◆', '▼'];
+
+    // Maak confetti container in body voor volledige scherm effect
+    let container = document.getElementById('party-confetti-overlay');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'party-confetti-overlay';
+        container.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;overflow:hidden;';
+        document.body.appendChild(container);
+    }
     container.innerHTML = '';
 
-    const colors = ['#ff4444', '#2266cc', '#ffcc00', '#22cc44', '#ff66cc', '#44ccff'];
-    const shapes = ['■', '●', '▲', '★', '♦', '♥'];
+    // Stickers die van boven vallen
+    for (let i = 0; i < 30; i++) {
+        const sticker = document.createElement('div');
+        sticker.textContent = stickers[Math.floor(Math.random() * stickers.length)];
+        sticker.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: -50px;
+            font-size: ${25 + Math.random() * 30}px;
+            animation: stickerFall ${3 + Math.random() * 2}s ease-out forwards;
+            animation-delay: ${Math.random() * 1}s;
+        `;
+        container.appendChild(sticker);
+    }
 
-    for (let i = 0; i < 100; i++) {
+    // Slingers (golvende lijnen)
+    for (let i = 0; i < 15; i++) {
+        const slinger = document.createElement('div');
+        slinger.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: -100px;
+            width: 8px;
+            height: ${80 + Math.random() * 60}px;
+            background: linear-gradient(180deg, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]});
+            border-radius: 4px;
+            animation: slingerFall ${2.5 + Math.random() * 2}s ease-out forwards;
+            animation-delay: ${Math.random() * 0.8}s;
+            transform-origin: top center;
+        `;
+        container.appendChild(slinger);
+    }
+
+    // Confetti shapes
+    for (let i = 0; i < 80; i++) {
         const confetti = document.createElement('div');
-        confetti.className = 'confetti';
-        confetti.style.left = Math.random() * 100 + '%';
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDelay = Math.random() * 2 + 's';
-        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
-        confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
-        confetti.style.fontSize = (10 + Math.random() * 20) + 'px';
-        confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+        confetti.textContent = confettiShapes[Math.floor(Math.random() * confettiShapes.length)];
+        confetti.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: -30px;
+            font-size: ${10 + Math.random() * 15}px;
+            color: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation: confettiFallSpin ${2 + Math.random() * 3}s ease-out forwards;
+            animation-delay: ${Math.random() * 1.5}s;
+        `;
         container.appendChild(confetti);
     }
 
-    // Verwijder confetti na 5 seconden
+    // Voeg CSS animaties toe als ze nog niet bestaan
+    if (!document.getElementById('confetti-styles')) {
+        const style = document.createElement('style');
+        style.id = 'confetti-styles';
+        style.textContent = `
+            @keyframes stickerFall {
+                0% { transform: translateY(0) rotate(0deg) scale(0); opacity: 1; }
+                20% { transform: translateY(100px) rotate(20deg) scale(1.2); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
+            }
+            @keyframes slingerFall {
+                0% { transform: translateY(0) rotate(0deg) scaleY(0); opacity: 1; }
+                30% { transform: translateY(150px) rotate(-15deg) scaleY(1); opacity: 1; }
+                60% { transform: translateY(400px) rotate(15deg) scaleY(1); opacity: 0.8; }
+                100% { transform: translateY(100vh) rotate(-10deg) scaleY(0.5); opacity: 0; }
+            }
+            @keyframes confettiFallSpin {
+                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Verwijder na 6 seconden
     setTimeout(() => {
         container.innerHTML = '';
-    }, 5000);
+    }, 6000);
 }
 
 function playPaymentSuccessSound() {
@@ -3999,9 +4067,13 @@ function stopDanceParty() {
 }
 
 function playDanceMusic() {
-    // Simple beat
-    const beatPattern = [1, 0, 1, 0, 1, 0, 1, 0];
+    if (!audioContext) initAudio();
     let beat = 0;
+
+    // Muziek noten voor melodie (C major pentatonic)
+    const melodyNotes = [262, 294, 330, 392, 440, 523, 587, 659];
+    const bassNotes = [131, 147, 165, 196]; // Lage bass noten
+    let melodyIndex = 0;
 
     const musicInterval = setInterval(() => {
         if (!dancePartyActive) {
@@ -4009,18 +4081,132 @@ function playDanceMusic() {
             return;
         }
 
-        if (beatPattern[beat % 8]) {
+        const now = audioContext.currentTime;
+
+        // Kick drum op beat 1 en 3
+        if (beat % 4 === 0 || beat % 4 === 2) {
             playKickDrum();
         }
-        if ((beat + 2) % 4 === 0) {
+
+        // Snare op beat 2 en 4
+        if (beat % 4 === 1 || beat % 4 === 3) {
             playSnareDrum();
         }
+
+        // Hi-hat op elke beat
+        playHiHat();
+
+        // Keyboard/synth melodie elke 2 beats
         if (beat % 2 === 0) {
-            playHiHat();
+            playKeyboardNote(melodyNotes[melodyIndex % melodyNotes.length], 0.15);
+            melodyIndex++;
+        }
+
+        // Bass lijn elke 4 beats
+        if (beat % 4 === 0) {
+            playBassNote(bassNotes[Math.floor(beat / 4) % bassNotes.length]);
+        }
+
+        // Funky gitaar/synth chord elke 8 beats
+        if (beat % 8 === 0) {
+            playGuitarChord();
+        }
+
+        // Extra sparkle sound elke 16 beats
+        if (beat % 16 === 0) {
+            playSparkleSound();
         }
 
         beat++;
-    }, 250);
+    }, 200); // Iets sneller tempo
+}
+
+function playKeyboardNote(freq, duration) {
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(freq, now);
+
+    gain.gain.setValueAtTime(0.1, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start(now);
+    osc.stop(now + duration);
+}
+
+function playBassNote(freq) {
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+
+    const osc = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, now);
+
+    gain.gain.setValueAtTime(0.2, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+    osc.connect(gain);
+    gain.connect(audioContext.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.3);
+}
+
+function playGuitarChord() {
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+
+    // Speel meerdere noten tegelijk voor een chord effect
+    const chordFreqs = [330, 392, 494]; // E, G, B (Em chord)
+
+    chordFreqs.forEach((freq, i) => {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.08, now + i * 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now + i * 0.02);
+        osc.stop(now + 0.4);
+    });
+}
+
+function playSparkleSound() {
+    if (!audioContext) return;
+    const now = audioContext.currentTime;
+
+    // Hoge twinkelende noten
+    for (let i = 0; i < 4; i++) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000 + i * 200, now + i * 0.05);
+
+        gain.gain.setValueAtTime(0.05, now + i * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.05 + 0.1);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        osc.start(now + i * 0.05);
+        osc.stop(now + i * 0.05 + 0.15);
+    }
 }
 
 // ==========================================
@@ -4112,35 +4298,89 @@ function playCannonSound() {
 }
 
 function launchMegaConfetti() {
-    const container = document.getElementById('confetti-container') || document.body;
-
     const colors = ['#ff4444', '#2266cc', '#ffcc00', '#22cc44', '#ff66cc', '#44ccff', '#ff9933', '#9933ff', '#ff0066', '#00ff66'];
-    const shapes = ['★', '●', '■', '▲', '♦', '♥', '✦', '❋', '✿', '🎉', '🎊', '✨'];
+    const stickers = ['🎉', '🎊', '🎈', '🎁', '⭐', '✨', '💫', '🌟', '🎭', '🎪', '🥳', '🎀', '💖', '🎵', '🏆', '👑'];
+    const shapes = ['★', '●', '■', '▲', '♦', '♥', '✦', '❋'];
 
-    // Veel meer confetti
-    for (let i = 0; i < 80; i++) {
+    // Zorg dat confetti-styles bestaan
+    if (!document.getElementById('confetti-styles')) {
+        const style = document.createElement('style');
+        style.id = 'confetti-styles';
+        style.textContent = `
+            @keyframes stickerFall {
+                0% { transform: translateY(0) rotate(0deg) scale(0); opacity: 1; }
+                20% { transform: translateY(100px) rotate(20deg) scale(1.2); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
+            }
+            @keyframes slingerFall {
+                0% { transform: translateY(0) rotate(0deg) scaleY(0); opacity: 1; }
+                30% { transform: translateY(150px) rotate(-15deg) scaleY(1); opacity: 1; }
+                60% { transform: translateY(400px) rotate(15deg) scaleY(1); opacity: 0.8; }
+                100% { transform: translateY(100vh) rotate(-10deg) scaleY(0.5); opacity: 0; }
+            }
+            @keyframes confettiFallSpin {
+                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // MEGA stickers
+    for (let i = 0; i < 25; i++) {
+        const sticker = document.createElement('div');
+        sticker.textContent = stickers[Math.floor(Math.random() * stickers.length)];
+        sticker.style.cssText = `
+            position: fixed;
+            left: ${20 + Math.random() * 60}%;
+            top: -60px;
+            font-size: ${30 + Math.random() * 40}px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: stickerFall ${2.5 + Math.random() * 2}s ease-out forwards;
+            animation-delay: ${Math.random() * 0.5}s;
+        `;
+        document.body.appendChild(sticker);
+        setTimeout(() => sticker.remove(), 5000);
+    }
+
+    // MEGA slingers
+    for (let i = 0; i < 20; i++) {
+        const slinger = document.createElement('div');
+        slinger.style.cssText = `
+            position: fixed;
+            left: ${Math.random() * 100}%;
+            top: -120px;
+            width: 10px;
+            height: ${100 + Math.random() * 80}px;
+            background: linear-gradient(180deg, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]}, ${colors[Math.floor(Math.random() * colors.length)]});
+            border-radius: 5px;
+            pointer-events: none;
+            z-index: 9998;
+            animation: slingerFall ${2 + Math.random() * 2}s ease-out forwards;
+            animation-delay: ${Math.random() * 0.3}s;
+        `;
+        document.body.appendChild(slinger);
+        setTimeout(() => slinger.remove(), 5000);
+    }
+
+    // Confetti shapes
+    for (let i = 0; i < 100; i++) {
         const confetti = document.createElement('div');
-        confetti.className = 'mega-confetti';
-        confetti.style.position = 'fixed';
-        confetti.style.left = (30 + Math.random() * 40) + '%';
-        confetti.style.top = '-20px';
-        confetti.style.fontSize = (12 + Math.random() * 20) + 'px';
-        confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.pointerEvents = 'none';
-        confetti.style.zIndex = '9999';
         confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
-
-        const fallDuration = 2 + Math.random() * 3;
-        const horizontalDrift = -100 + Math.random() * 200;
-        const rotation = Math.random() * 720;
-
-        confetti.style.animation = `confettiFall ${fallDuration}s ease-out forwards`;
-        confetti.style.setProperty('--drift', horizontalDrift + 'px');
-        confetti.style.setProperty('--rotation', rotation + 'deg');
-
+        confetti.style.cssText = `
+            position: fixed;
+            left: ${10 + Math.random() * 80}%;
+            top: -30px;
+            font-size: ${12 + Math.random() * 18}px;
+            color: ${colors[Math.floor(Math.random() * colors.length)]};
+            pointer-events: none;
+            z-index: 9997;
+            animation: confettiFallSpin ${2 + Math.random() * 3}s ease-out forwards;
+            animation-delay: ${Math.random() * 1}s;
+        `;
         document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), fallDuration * 1000);
+        setTimeout(() => confetti.remove(), 6000);
     }
 }
 
