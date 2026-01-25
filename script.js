@@ -928,19 +928,27 @@ function launchConfetti() {
         style.id = 'confetti-styles';
         style.textContent = `
             @keyframes stickerFall {
-                0% { transform: translateY(0) rotate(0deg) scale(0); opacity: 1; }
-                20% { transform: translateY(100px) rotate(20deg) scale(1.2); opacity: 1; }
-                100% { transform: translateY(100vh) rotate(360deg) scale(0.8); opacity: 0; }
+                0% { transform: translateY(0) translateX(0) rotate(0deg) scale(0.5); opacity: 0; }
+                10% { transform: translateY(50px) translateX(10px) rotate(15deg) scale(1); opacity: 1; }
+                30% { transform: translateY(200px) translateX(-20px) rotate(-10deg) scale(1); opacity: 1; }
+                50% { transform: translateY(400px) translateX(15px) rotate(20deg) scale(0.95); opacity: 0.9; }
+                70% { transform: translateY(600px) translateX(-10px) rotate(-15deg) scale(0.9); opacity: 0.7; }
+                100% { transform: translateY(100vh) translateX(5px) rotate(25deg) scale(0.8); opacity: 0; }
             }
             @keyframes slingerFall {
-                0% { transform: translateY(0) rotate(0deg) scaleY(0); opacity: 1; }
-                30% { transform: translateY(150px) rotate(-15deg) scaleY(1); opacity: 1; }
-                60% { transform: translateY(400px) rotate(15deg) scaleY(1); opacity: 0.8; }
-                100% { transform: translateY(100vh) rotate(-10deg) scaleY(0.5); opacity: 0; }
+                0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0; }
+                10% { transform: translateY(80px) translateX(20px) rotate(8deg); opacity: 1; }
+                30% { transform: translateY(250px) translateX(-15px) rotate(-5deg); opacity: 1; }
+                50% { transform: translateY(450px) translateX(25px) rotate(10deg); opacity: 0.9; }
+                70% { transform: translateY(650px) translateX(-10px) rotate(-8deg); opacity: 0.7; }
+                100% { transform: translateY(100vh) translateX(5px) rotate(3deg); opacity: 0; }
             }
             @keyframes confettiFallSpin {
-                0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-                100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+                0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 1; }
+                25% { transform: translateY(25vh) translateX(30px) rotate(180deg); opacity: 1; }
+                50% { transform: translateY(50vh) translateX(-20px) rotate(360deg); opacity: 0.8; }
+                75% { transform: translateY(75vh) translateX(25px) rotate(540deg); opacity: 0.5; }
+                100% { transform: translateY(100vh) translateX(-10px) rotate(720deg); opacity: 0; }
             }
         `;
         document.head.appendChild(style);
@@ -4068,7 +4076,10 @@ function stopDanceParty() {
 
 function playDanceMusic() {
     if (!audioContext) initAudio();
-    let beat = 0;
+
+    // Techno: vier-op-de-vloer, constant en stabiel
+    // 125 BPM = 480ms per beat, we doen 8e noten = 240ms
+    const tempo = 240;
 
     const musicInterval = setInterval(() => {
         if (!dancePartyActive) {
@@ -4076,42 +4087,32 @@ function playDanceMusic() {
             return;
         }
 
-        // 16-beat patroon voor variatie
-        const pattern = beat % 16;
+        // Kick op elke beat (vier-op-de-vloer techno)
+        playKickDrum();
 
-        // Kick drum - basis patroon met af en toe extra
-        if (pattern === 0 || pattern === 4 || pattern === 8 || pattern === 12) {
-            playKickDrum();
-        }
-        // Extra kick voor groove
-        if (pattern === 10) {
-            playKickDrum();
-        }
+    }, tempo * 2); // Kick elke halve maat
 
-        // Snare op 2 en 4 (pattern 4, 12)
-        if (pattern === 4 || pattern === 12) {
+    // Hi-hat op 8e noten (constant tsss tsss tsss)
+    const hihatInterval = setInterval(() => {
+        if (!dancePartyActive) {
+            clearInterval(hihatInterval);
+            return;
+        }
+        playHiHat();
+    }, tempo);
+
+    // Clap/snare op 2 en 4
+    let clapBeat = 0;
+    const clapInterval = setInterval(() => {
+        if (!dancePartyActive) {
+            clearInterval(clapInterval);
+            return;
+        }
+        if (clapBeat % 2 === 1) {
             playSnareDrum();
         }
-
-        // Hi-hat - elke 2 beats, niet constant
-        if (pattern % 2 === 0) {
-            playHiHat();
-        }
-
-        // Cymbal crash aan begin van elke 32 beats
-        if (beat % 32 === 0 && beat > 0) {
-            playCymbal();
-        }
-
-        // Tom fill elke 32 beats (op beat 28-31)
-        if (beat % 32 >= 28 && beat % 32 <= 31) {
-            if (pattern % 2 === 0) {
-                playTomHit(200 - (beat % 4) * 30);
-            }
-        }
-
-        beat++;
-    }, 250); // Originele tempo
+        clapBeat++;
+    }, tempo * 2);
 }
 
 function playTomHit(freq) {
