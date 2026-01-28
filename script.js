@@ -307,8 +307,8 @@ function updateUserUI(user) {
 // ==========================================
 // VERDIENSTEN EN BETALINGEN BIJHOUDEN (FIREBASE)
 // ==========================================
-const TICKET_PRICE = 1; // Alle kaartjes kosten 1 euro
-const ADMIN_PASSWORD = '123'; // Wachtwoord voor shows toevoegen
+const DEFAULT_TICKET_PRICE = 1; // Standaard prijs per kaartje
+const ADMIN_PASSWORD = '123123'; // Wachtwoord voor shows beheren
 let totalEarnings = 0;
 let payments = [];
 
@@ -335,13 +335,13 @@ function loadEarningsFromFirebase() {
     });
 }
 
-function addPayment(showName, buyerName) {
+function addPayment(showName, buyerName, price) {
     // Voeg betaling toe aan database
     const paymentsRef = database.ref('payments');
     paymentsRef.push({
         showName: showName,
         buyerName: buyerName,
-        amount: TICKET_PRICE,
+        amount: price,
         timestamp: Date.now(),
         claimed: false
     });
@@ -349,7 +349,7 @@ function addPayment(showName, buyerName) {
     // Update totaal
     const earningsRef = database.ref('earnings');
     earningsRef.transaction((current) => {
-        return (current || 0) + TICKET_PRICE;
+        return (current || 0) + price;
     });
 }
 
@@ -556,16 +556,48 @@ function renderShows() {
             imageHtml = `<div class="show-card-no-image">🎭</div>`;
         }
 
+        const showPrice = show.price || DEFAULT_TICKET_PRICE;
+
         card.innerHTML = `
             <button class="delete-btn" onclick="deleteShow('${show.id}')">&times;</button>
+            <button class="edit-price-btn" onclick="editPrice('${show.id}')" title="Prijs aanpassen">💰</button>
             ${imageHtml}
             <h3>${escapeHtml(show.name)}</h3>
             <p>${escapeHtml(show.description)}</p>
-            <p class="price">${TICKET_PRICE} euro</p>
+            <p class="price">${showPrice} euro</p>
             <button class="buy-btn" onclick="buyTicket('${show.id}')">Koop Kaartje!</button>
         `;
         container.appendChild(card);
     });
+}
+
+function editPrice(showId) {
+    // Vraag om wachtwoord
+    const password = prompt('Voer het geheime wachtwoord in om de prijs aan te passen:');
+
+    if (password !== ADMIN_PASSWORD) {
+        alert('Verkeerd wachtwoord! Alleen Joeri mag prijzen aanpassen.');
+        return;
+    }
+
+    const show = shows.find(s => s.id === showId);
+    if (!show) return;
+
+    const currentPrice = show.price || DEFAULT_TICKET_PRICE;
+    const newPriceStr = prompt(`Huidige prijs: ${currentPrice} euro\n\nVoer de nieuwe prijs in (in euro's):`, currentPrice);
+
+    if (newPriceStr === null) return; // Geannuleerd
+
+    const newPrice = parseFloat(newPriceStr);
+    if (isNaN(newPrice) || newPrice < 0) {
+        alert('Ongeldige prijs! Voer een getal in.');
+        return;
+    }
+
+    // Update prijs in database
+    database.ref('shows/' + showId + '/price').set(newPrice);
+    playSuccessSound();
+    alert(`Prijs aangepast naar ${newPrice} euro!`);
 }
 
 function addShow(name, description, image) {
@@ -613,8 +645,9 @@ function buyTicket(id) {
         document.getElementById('payment-step-3').classList.add('hidden');
 
         // Vul de betaalgegevens in
+        const showPrice = show.price || DEFAULT_TICKET_PRICE;
         document.getElementById('payment-show-name').textContent = show.name;
-        document.getElementById('payment-amount').textContent = TICKET_PRICE;
+        document.getElementById('payment-amount').textContent = showPrice;
 
         // Toon het betaalscherm
         document.getElementById('payment-modal').classList.remove('hidden');
@@ -662,7 +695,8 @@ function processPayment(method) {
         document.getElementById('payment-step-3').classList.remove('hidden');
 
         // Voeg betaling toe met naam!
-        addPayment(currentPaymentShow.name, buyerName);
+        const paymentPrice = currentPaymentShow.price || DEFAULT_TICKET_PRICE;
+        addPayment(currentPaymentShow.name, buyerName, paymentPrice);
 
         // Sla kaartje op voor Mijn Kaartjes
         saveTicket(currentPaymentShow, buyerName);
@@ -704,7 +738,8 @@ function showTicketAfterPayment() {
     // Vul kaartje in
     if (currentPaymentShow) {
         document.getElementById('ticket-show-name').textContent = currentPaymentShow.name;
-        document.getElementById('ticket-price-display').textContent = TICKET_PRICE;
+        const ticketPrice = currentPaymentShow.price || DEFAULT_TICKET_PRICE;
+        document.getElementById('ticket-price-display').textContent = ticketPrice;
 
         const ticketImage = document.querySelector('.ticket-image');
         if (currentPaymentShow.image) {
