@@ -173,7 +173,7 @@ function generateTicketQRForId(ticket) {
         valid: true
     });
 
-    if (typeof QRCode !== 'undefined') {
+    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
         QRCode.toCanvas(canvas, qrData, {
             width: 120,
             margin: 2,
@@ -182,8 +182,14 @@ function generateTicketQRForId(ticket) {
                 light: '#ffffff'
             }
         }, function(error) {
-            if (error) console.error('QR code error:', error);
+            if (error) {
+                console.error('QR code error:', error);
+                drawFallbackQR(canvas, ticket.id);
+            }
         });
+    } else {
+        console.warn('QRCode library niet geladen, fallback gebruikt');
+        drawFallbackQR(canvas, ticket.id);
     }
 }
 
@@ -768,7 +774,7 @@ function generateTicketQR(show) {
     });
 
     // Maak de QR code
-    if (typeof QRCode !== 'undefined') {
+    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
         QRCode.toCanvas(canvas, qrData, {
             width: 120,
             margin: 2,
@@ -777,9 +783,56 @@ function generateTicketQR(show) {
                 light: '#ffffff'
             }
         }, function(error) {
-            if (error) console.error('QR code error:', error);
+            if (error) {
+                console.error('QR code error:', error);
+                drawFallbackQR(canvas, ticketId);
+            }
         });
+    } else {
+        console.warn('QRCode library niet geladen, fallback gebruikt');
+        drawFallbackQR(canvas, ticketId);
     }
+}
+
+function drawFallbackQR(canvas, ticketId) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = 120;
+    canvas.height = 120;
+
+    // Teken een simpele placeholder QR-achtige afbeelding
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 120, 120);
+
+    ctx.fillStyle = '#cc0000';
+    // Teken een grid patroon
+    for (let i = 0; i < 10; i++) {
+        for (let j = 0; j < 10; j++) {
+            if ((i + j) % 2 === 0 || (i < 3 && j < 3) || (i < 3 && j > 6) || (i > 6 && j < 3)) {
+                ctx.fillRect(10 + i * 10, 10 + j * 10, 8, 8);
+            }
+        }
+    }
+
+    // Teken hoek markers
+    ctx.fillRect(10, 10, 24, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(14, 14, 16, 16);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(18, 18, 8, 8);
+
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(86, 10, 24, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(90, 14, 16, 16);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(94, 18, 8, 8);
+
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(10, 86, 24, 24);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(14, 90, 16, 16);
+    ctx.fillStyle = '#cc0000';
+    ctx.fillRect(18, 94, 8, 8);
 }
 
 // ==================== QR SCANNER ====================

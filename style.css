@@ -2187,6 +2187,8 @@ body.spooky-mode .fanclub-card {
 .ticket-qr canvas {
     display: block;
     margin: 0 auto;
+    width: 120px;
+    height: 120px;
 }
 
 .qr-label {
@@ -2357,4 +2359,63 @@ footer {
     .memory-card { font-size: 1.5em; }
     .piano-key.white { width: 30px; height: 90px; }
     .piano-key.black { width: 22px; height: 60px; margin: 0 -11px; }
+}
+
+/* Print styles - alleen het kaartje printen */
+@media print {
+    /* Verberg alles */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Toon alleen het kaartje */
+    #ticket-modal,
+    #ticket-modal .modal-content,
+    #ticket-modal .ticket-display,
+    #ticket-modal .ticket-display * {
+        visibility: visible;
+    }
+
+    /* Verberg knoppen en andere elementen */
+    #ticket-modal .close-btn,
+    #ticket-modal h2,
+    #ticket-modal #print-ticket-btn {
+        display: none !important;
+    }
+
+    /* Positioneer het kaartje */
+    #ticket-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: auto;
+        background: white !important;
+    }
+
+    #ticket-modal .modal-content {
+        box-shadow: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .ticket-display {
+        position: absolute;
+        left: 50%;
+        top: 20px;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #cc0000, #ff4444) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 20px;
+        border-radius: 15px;
+    }
+
+    .ticket-qr {
+        background: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
