@@ -94,7 +94,9 @@ function renderTicketsDashboard() {
     }
 
     container.innerHTML = filtered.map(ticket => `
-        <div class="ticket-dashboard-item ${ticket.scanned ? 'scanned' : 'pending'}">
+        <div class="ticket-dashboard-item ${ticket.scanned ? 'scanned' : 'pending'}"
+             onclick="${ticket.scanned ? '' : `scanTicket('${ticket.id}')`}"
+             style="${ticket.scanned ? '' : 'cursor: pointer;'}">
             ${ticket.showImage
                 ? `<img src="${ticket.showImage}" class="ticket-thumb" alt="${ticket.showName}">`
                 : `<div class="ticket-thumb">🎭</div>`
@@ -105,7 +107,7 @@ function renderTicketsDashboard() {
                 <div class="ticket-meta">🎫 ${ticket.id} • 📅 ${ticket.purchaseDate} ${ticket.purchaseTime}</div>
             </div>
             <div class="ticket-status ${ticket.scanned ? 'scanned' : 'pending'}">
-                ${ticket.scanned ? '✓ Gescand' : '⏳ Wacht'}
+                ${ticket.scanned ? '✓ Gescand' : 'Tik om te scannen'}
             </div>
         </div>
     `).join('');
@@ -114,6 +116,20 @@ function renderTicketsDashboard() {
 function markTicketAsScanned(ticketId) {
     database.ref('soldTickets/' + ticketId + '/scanned').set(true);
     database.ref('soldTickets/' + ticketId + '/scannedAt').set(new Date().toLocaleString('nl-NL'));
+}
+
+function scanTicket(ticketId) {
+    // Markeer als gescand
+    markTicketAsScanned(ticketId);
+
+    // Speel geluid
+    playSuccessSound();
+
+    // Toon bevestiging
+    const ticket = allSoldTickets.find(t => t.id === ticketId);
+    if (ticket) {
+        alert('✅ Gescand!\n\n🎭 ' + ticket.showName + '\n👤 ' + ticket.buyerName);
+    }
 }
 
 function renderMyTickets() {
@@ -157,7 +173,8 @@ function showMyTicket(ticketId) {
     }
 
     // Genereer QR code voor dit kaartje
-    generateTicketQRForId(ticket);
+    // Toon ticket code
+    document.getElementById('ticket-code-display').textContent = ticket.id;
 
     // Toon de modal
     document.getElementById('ticket-modal').classList.remove('hidden');
@@ -754,8 +771,9 @@ function showTicketAfterPayment() {
             ticketImage.src = 'kist.jfif';
         }
 
-        // Genereer QR code
-        generateTicketQR(currentPaymentShow);
+        // Toon ticket code
+        const ticketId = 'JOERI-' + Date.now().toString(36).toUpperCase();
+        document.getElementById('ticket-code-display').textContent = ticketId;
     }
 
     // Toon kaartje
@@ -1459,9 +1477,16 @@ function setupEventListeners() {
         playClickSound();
     });
 
-    // QR Scanner knop
+    // Scan kaartjes knop - scroll naar lijst en filter op "nog niet gescand"
     document.getElementById('scan-ticket-btn').addEventListener('click', function() {
-        openQRScanner();
+        // Selecteer "Nog niet" filter
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector('.filter-btn[data-filter="pending"]').classList.add('active');
+        currentDashboardFilter = 'pending';
+        renderDashboardTickets();
+
+        // Scroll naar de lijst
+        document.getElementById('tickets-dashboard-section').scrollIntoView({ behavior: 'smooth' });
         playClickSound();
     });
 
