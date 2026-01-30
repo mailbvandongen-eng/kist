@@ -1574,9 +1574,103 @@ function setupEventListeners() {
 
     // Print kaartje knop
     document.getElementById('print-ticket-btn').addEventListener('click', function() {
-        window.print();
+        printTicket();
         playSuccessSound();
     });
+
+function printTicket() {
+    const showName = document.getElementById('ticket-show-name').textContent;
+    const ticketCode = document.getElementById('ticket-code-display').textContent;
+    const ticketPrice = document.getElementById('ticket-price-display').textContent;
+    const ticketImage = document.querySelector('.ticket-image').src;
+
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Kaartje - ${showName}</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    display: flex;
+                    justify-content: center;
+                    padding: 20px;
+                    margin: 0;
+                }
+                .ticket {
+                    background: linear-gradient(135deg, #cc0000, #ff4444);
+                    padding: 20px;
+                    border-radius: 15px;
+                    text-align: center;
+                    color: white;
+                    max-width: 280px;
+                }
+                .ticket img {
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 10px;
+                    object-fit: cover;
+                }
+                .ticket h2 {
+                    margin: 10px 0;
+                    font-size: 20px;
+                }
+                .ticket p {
+                    margin: 5px 0;
+                }
+                .ticket-code-box {
+                    background: white;
+                    padding: 15px;
+                    border-radius: 10px;
+                    margin-top: 15px;
+                }
+                .ticket-code-label {
+                    color: #666;
+                    font-size: 12px;
+                    margin-bottom: 5px;
+                }
+                .ticket-code {
+                    color: #cc0000;
+                    font-size: 18px;
+                    font-weight: bold;
+                    font-family: monospace;
+                    letter-spacing: 2px;
+                }
+                .status {
+                    margin-top: 10px;
+                    font-weight: bold;
+                }
+                @media print {
+                    body { padding: 0; }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="ticket">
+                <img src="${ticketImage}" alt="Show">
+                <h2>${showName}</h2>
+                <p>Toegang voor 1 persoon</p>
+                <p>Prijs: ${ticketPrice} euro</p>
+                <p class="status">BETAALD ✓</p>
+                <div class="ticket-code-box">
+                    <p class="ticket-code-label">Ticket code:</p>
+                    <p class="ticket-code">${ticketCode}</p>
+                </div>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() {
+                        window.close();
+                    };
+                };
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
 
     // Betaalmethode knoppen
     document.querySelectorAll('.payment-method-btn').forEach(btn => {

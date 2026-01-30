@@ -24,6 +24,13 @@ body {
 
 .hidden { display: none !important; }
 
+/* Print override voor hidden */
+@media print {
+    #ticket-modal.hidden {
+        display: block !important;
+    }
+}
+
 /* Bescherming tegen logo diefstal */
 .protected-image {
     -webkit-user-select: none;
@@ -2364,64 +2371,69 @@ footer {
 /* Print styles - alleen het kaartje printen */
 @media print {
     /* Verberg alles */
-    body * {
-        visibility: hidden;
+    body > *:not(#ticket-modal) {
+        display: none !important;
     }
 
-    /* Toon alleen het kaartje */
-    #ticket-modal,
-    #ticket-modal .modal-content,
-    #ticket-modal .ticket-display,
-    #ticket-modal .ticket-display * {
-        visibility: visible;
+    /* Forceer modal zichtbaar (ook als hidden class) */
+    #ticket-modal {
+        display: block !important;
+        position: static !important;
+        background: none !important;
     }
 
-    /* Verberg knoppen en andere elementen */
+    #ticket-modal.hidden {
+        display: block !important;
+    }
+
+    /* Verberg modal achtergrond en knoppen */
     #ticket-modal .close-btn,
     #ticket-modal h2,
     #ticket-modal #print-ticket-btn {
         display: none !important;
     }
 
-    /* Positioneer het kaartje */
-    #ticket-modal {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: auto;
-        background: white !important;
-    }
-
     #ticket-modal .modal-content {
-        box-shadow: none;
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        max-width: none;
+        box-shadow: none !important;
+        background: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
     }
 
+    /* Toon het kaartje mooi */
     .ticket-display {
-        position: absolute;
-        left: 50%;
-        top: 20px;
-        transform: translateX(-50%);
+        display: block !important;
+        margin: 20px auto !important;
         background: linear-gradient(135deg, #cc0000, #ff4444) !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-        padding: 20px;
-        border-radius: 15px;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+        max-width: 300px !important;
+    }
+
+    .ticket-display * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .ticket-info {
+        color: white !important;
     }
 
     .ticket-code {
         background: white !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
     }
 
     .ticket-code-value {
         color: #cc0000 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    }
+
+    /* Eén pagina */
+    @page {
+        size: auto;
+        margin: 10mm;
     }
 }
