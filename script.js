@@ -172,9 +172,11 @@ function showMyTicket(ticketId) {
         ticketImage.src = 'kist.jfif';
     }
 
-    // Genereer QR code voor dit kaartje
     // Toon ticket code
     document.getElementById('ticket-code-display').textContent = ticket.id;
+
+    // Genereer QR code voor dit kaartje
+    generateTicketQRForId(ticket);
 
     // Toon de modal
     document.getElementById('ticket-modal').classList.remove('hidden');
@@ -774,6 +776,13 @@ function showTicketAfterPayment() {
         // Toon ticket code
         const ticketId = 'JOERI-' + Date.now().toString(36).toUpperCase();
         document.getElementById('ticket-code-display').textContent = ticketId;
+
+        // Genereer QR code
+        generateTicketQRForId({
+            id: ticketId,
+            showName: currentPaymentShow.name,
+            purchaseDate: new Date().toLocaleDateString('nl-NL')
+        });
     }
 
     // Toon kaartje
@@ -1477,16 +1486,9 @@ function setupEventListeners() {
         playClickSound();
     });
 
-    // Scan kaartjes knop - scroll naar lijst en filter op "nog niet gescand"
+    // Scan kaartjes knop - open QR scanner
     document.getElementById('scan-ticket-btn').addEventListener('click', function() {
-        // Selecteer "Nog niet" filter
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelector('.filter-btn[data-filter="pending"]').classList.add('active');
-        currentDashboardFilter = 'pending';
-        renderDashboardTickets();
-
-        // Scroll naar de lijst
-        document.getElementById('tickets-dashboard-section').scrollIntoView({ behavior: 'smooth' });
+        openQRScanner();
         playClickSound();
     });
 
@@ -1584,12 +1586,21 @@ function printTicket() {
     const ticketPrice = document.getElementById('ticket-price-display').textContent;
     const ticketImage = document.querySelector('.ticket-image').src;
 
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    // QR data voorbereiden
+    const qrData = JSON.stringify({
+        show: showName,
+        ticketId: ticketCode,
+        date: new Date().toLocaleDateString('nl-NL'),
+        valid: true
+    });
+
+    const printWindow = window.open('', '_blank', 'width=400,height=700');
     printWindow.document.write(`
         <!DOCTYPE html>
         <html>
         <head>
             <title>Kaartje - ${showName}</title>
+            <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -1619,11 +1630,22 @@ function printTicket() {
                 .ticket p {
                     margin: 5px 0;
                 }
-                .ticket-code-box {
+                .qr-box {
                     background: white;
                     padding: 15px;
                     border-radius: 10px;
                     margin-top: 15px;
+                    display: inline-block;
+                }
+                .qr-box canvas {
+                    display: block;
+                    margin: 0 auto;
+                }
+                .ticket-code-box {
+                    background: white;
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    margin-top: 10px;
                 }
                 .ticket-code-label {
                     color: #666;
@@ -1632,7 +1654,7 @@ function printTicket() {
                 }
                 .ticket-code {
                     color: #cc0000;
-                    font-size: 18px;
+                    font-size: 16px;
                     font-weight: bold;
                     font-family: monospace;
                     letter-spacing: 2px;
@@ -1653,6 +1675,9 @@ function printTicket() {
                 <p>Toegang voor 1 persoon</p>
                 <p>Prijs: ${ticketPrice} euro</p>
                 <p class="status">BETAALD ✓</p>
+                <div class="qr-box">
+                    <canvas id="print-qr-code"></canvas>
+                </div>
                 <div class="ticket-code-box">
                     <p class="ticket-code-label">Ticket code:</p>
                     <p class="ticket-code">${ticketCode}</p>
@@ -1660,12 +1685,25 @@ function printTicket() {
             </div>
             <script>
                 window.onload = function() {
-                    window.print();
-                    window.onafterprint = function() {
-                        window.close();
-                    };
+                    var qrData = ${JSON.stringify(qrData)};
+                    var canvas = document.getElementById('print-qr-code');
+                    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
+                        QRCode.toCanvas(canvas, qrData, {
+                            width: 150,
+                            margin: 2,
+                            color: { dark: '#cc0000', light: '#ffffff' }
+                        }, function() {
+                            setTimeout(function() {
+                                window.print();
+                                window.onafterprint = function() { window.close(); };
+                            }, 200);
+                        });
+                    } else {
+                        window.print();
+                        window.onafterprint = function() { window.close(); };
+                    }
                 };
-            </script>
+            <\/script>
         </body>
         </html>
     `);

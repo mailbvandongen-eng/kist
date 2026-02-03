@@ -2183,9 +2183,22 @@ body.spooky-mode .fanclub-card {
     font-weight: bold;
 }
 
-.ticket-code {
+.ticket-qr {
     margin-top: 15px;
     padding: 15px;
+    background: white;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.ticket-qr canvas {
+    display: block;
+    margin: 0 auto;
+}
+
+.ticket-code {
+    margin-top: 10px;
+    padding: 10px 15px;
     background: white;
     border-radius: 10px;
     display: inline-block;
@@ -2421,6 +2434,15 @@ footer {
 
     .ticket-info {
         color: white !important;
+    }
+
+    .ticket-qr {
+        background: white !important;
+        display: inline-block !important;
+    }
+
+    .ticket-qr canvas {
+        display: block !important;
     }
 
     .ticket-code {
