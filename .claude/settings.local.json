@@ -12,7 +12,9 @@
       "Bash(git commit:*)",
       "mcp__ide__getDiagnostics",
       "Bash(cd:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }

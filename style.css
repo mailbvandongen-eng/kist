@@ -2191,9 +2191,13 @@ body.spooky-mode .fanclub-card {
     display: inline-block;
 }
 
-.ticket-qr canvas {
+.ticket-qr img, .ticket-qr canvas {
     display: block;
     margin: 0 auto;
+}
+
+#ticket-qr-code {
+    display: inline-block;
 }
 
 .ticket-code {

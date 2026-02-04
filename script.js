@@ -184,7 +184,8 @@ function showMyTicket(ticketId) {
 }
 
 function generateTicketQRForId(ticket) {
-    const canvas = document.getElementById('ticket-qr-code');
+    const container = document.getElementById('ticket-qr-code');
+    container.innerHTML = '';
     const qrData = JSON.stringify({
         show: ticket.showName,
         ticketId: ticket.id,
@@ -192,23 +193,15 @@ function generateTicketQRForId(ticket) {
         valid: true
     });
 
-    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
-        QRCode.toCanvas(canvas, qrData, {
-            width: 120,
-            margin: 2,
-            color: {
-                dark: '#cc0000',
-                light: '#ffffff'
-            }
-        }, function(error) {
-            if (error) {
-                console.error('QR code error:', error);
-                drawFallbackQR(canvas, ticket.id);
-            }
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+            text: qrData,
+            width: 150,
+            height: 150,
+            colorDark: '#cc0000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
         });
-    } else {
-        console.warn('QRCode library niet geladen, fallback gebruikt');
-        drawFallbackQR(canvas, ticket.id);
     }
 }
 
@@ -791,7 +784,8 @@ function showTicketAfterPayment() {
 }
 
 function generateTicketQR(show) {
-    const canvas = document.getElementById('ticket-qr-code');
+    const container = document.getElementById('ticket-qr-code');
+    container.innerHTML = '';
     const ticketId = 'JOERI-' + Date.now().toString(36).toUpperCase();
     const qrData = JSON.stringify({
         show: show.name,
@@ -800,66 +794,16 @@ function generateTicketQR(show) {
         valid: true
     });
 
-    // Maak de QR code
-    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
-        QRCode.toCanvas(canvas, qrData, {
-            width: 120,
-            margin: 2,
-            color: {
-                dark: '#cc0000',
-                light: '#ffffff'
-            }
-        }, function(error) {
-            if (error) {
-                console.error('QR code error:', error);
-                drawFallbackQR(canvas, ticketId);
-            }
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(container, {
+            text: qrData,
+            width: 150,
+            height: 150,
+            colorDark: '#cc0000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
         });
-    } else {
-        console.warn('QRCode library niet geladen, fallback gebruikt');
-        drawFallbackQR(canvas, ticketId);
     }
-}
-
-function drawFallbackQR(canvas, ticketId) {
-    const ctx = canvas.getContext('2d');
-    canvas.width = 120;
-    canvas.height = 120;
-
-    // Teken een simpele placeholder QR-achtige afbeelding
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, 120, 120);
-
-    ctx.fillStyle = '#cc0000';
-    // Teken een grid patroon
-    for (let i = 0; i < 10; i++) {
-        for (let j = 0; j < 10; j++) {
-            if ((i + j) % 2 === 0 || (i < 3 && j < 3) || (i < 3 && j > 6) || (i > 6 && j < 3)) {
-                ctx.fillRect(10 + i * 10, 10 + j * 10, 8, 8);
-            }
-        }
-    }
-
-    // Teken hoek markers
-    ctx.fillRect(10, 10, 24, 24);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(14, 14, 16, 16);
-    ctx.fillStyle = '#cc0000';
-    ctx.fillRect(18, 18, 8, 8);
-
-    ctx.fillStyle = '#cc0000';
-    ctx.fillRect(86, 10, 24, 24);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(90, 14, 16, 16);
-    ctx.fillStyle = '#cc0000';
-    ctx.fillRect(94, 18, 8, 8);
-
-    ctx.fillStyle = '#cc0000';
-    ctx.fillRect(10, 86, 24, 24);
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(14, 90, 16, 16);
-    ctx.fillStyle = '#cc0000';
-    ctx.fillRect(18, 94, 8, 8);
 }
 
 // ==================== QR SCANNER ====================
@@ -1600,7 +1544,7 @@ function printTicket() {
         <html>
         <head>
             <title>Kaartje - ${showName}</title>
-            <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -1637,7 +1581,7 @@ function printTicket() {
                     margin-top: 15px;
                     display: inline-block;
                 }
-                .qr-box canvas {
+                .qr-box img, .qr-box canvas {
                     display: block;
                     margin: 0 auto;
                 }
@@ -1676,7 +1620,7 @@ function printTicket() {
                 <p>Prijs: ${ticketPrice} euro</p>
                 <p class="status">BETAALD ✓</p>
                 <div class="qr-box">
-                    <canvas id="print-qr-code"></canvas>
+                    <div id="print-qr-code"></div>
                 </div>
                 <div class="ticket-code-box">
                     <p class="ticket-code-label">Ticket code:</p>
@@ -1686,18 +1630,20 @@ function printTicket() {
             <script>
                 window.onload = function() {
                     var qrData = ${JSON.stringify(qrData)};
-                    var canvas = document.getElementById('print-qr-code');
-                    if (typeof QRCode !== 'undefined' && QRCode.toCanvas) {
-                        QRCode.toCanvas(canvas, qrData, {
+                    var container = document.getElementById('print-qr-code');
+                    if (typeof QRCode !== 'undefined') {
+                        new QRCode(container, {
+                            text: qrData,
                             width: 150,
-                            margin: 2,
-                            color: { dark: '#cc0000', light: '#ffffff' }
-                        }, function() {
-                            setTimeout(function() {
-                                window.print();
-                                window.onafterprint = function() { window.close(); };
-                            }, 200);
+                            height: 150,
+                            colorDark: '#cc0000',
+                            colorLight: '#ffffff',
+                            correctLevel: QRCode.CorrectLevel.M
                         });
+                        setTimeout(function() {
+                            window.print();
+                            window.onafterprint = function() { window.close(); };
+                        }, 500);
                     } else {
                         window.print();
                         window.onafterprint = function() { window.close(); };
