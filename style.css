@@ -24,6 +24,59 @@ body {
 
 .hidden { display: none !important; }
 
+/* ==========================================
+   LUCIDE ICONS
+   ========================================== */
+[data-lucide] {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    display: inline-block;
+}
+
+h2 [data-lucide], h3 [data-lucide] {
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.tab-icon [data-lucide] {
+    width: 24px;
+    height: 24px;
+}
+
+.header-stats [data-lucide] {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.earnings-icon [data-lucide], .stars-icon [data-lucide] {
+    margin-right: 4px;
+}
+
+.scan-icon [data-lucide] {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+}
+
+.photo-btn-icon [data-lucide] {
+    width: 24px;
+    height: 24px;
+}
+
+.dance-party-toggle [data-lucide] {
+    width: 24px;
+    height: 24px;
+}
+
+.mode-icon [data-lucide] {
+    width: 20px;
+    height: 20px;
+}
+
 /* Print override voor hidden */
 @media print {
     #ticket-modal.hidden {

@@ -49,6 +49,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <!-- QR Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
     <!-- Noscript fallback voor zoekmachines -->
@@ -89,11 +91,11 @@
             <h1>Joeri's Shows</h1>
             <div class="header-stats">
                 <div class="earnings-display">
-                    <span class="earnings-icon">💰</span>
+                    <span class="earnings-icon"><i data-lucide="coins"></i></span>
                     <span id="total-earnings">0</span> euro
                 </div>
                 <div class="stars-display">
-                    <span class="stars-icon">⭐</span>
+                    <span class="stars-icon"><i data-lucide="star"></i></span>
                     <span id="header-stars">0</span> sterren
                 </div>
             </div>
@@ -102,27 +104,27 @@
         <!-- Tab Navigatie -->
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="shows">
-                <span class="tab-icon">🎭</span>
+                <span class="tab-icon"><i data-lucide="drama"></i></span>
                 <span class="tab-text">Shows</span>
             </button>
             <button class="tab-btn" data-tab="speelhoek">
-                <span class="tab-icon">🎮</span>
+                <span class="tab-icon"><i data-lucide="gamepad-2"></i></span>
                 <span class="tab-text">Speelhoek</span>
             </button>
             <button class="tab-btn" data-tab="spelletjes">
-                <span class="tab-icon">🎯</span>
+                <span class="tab-icon"><i data-lucide="target"></i></span>
                 <span class="tab-text">Spelletjes</span>
             </button>
             <button class="tab-btn" data-tab="creatief">
-                <span class="tab-icon">🎨</span>
+                <span class="tab-icon"><i data-lucide="palette"></i></span>
                 <span class="tab-text">Creatief</span>
             </button>
             <button class="tab-btn" data-tab="community">
-                <span class="tab-icon">👥</span>
+                <span class="tab-icon"><i data-lucide="users"></i></span>
                 <span class="tab-text">Community</span>
             </button>
             <button class="tab-btn" data-tab="mijnspullen">
-                <span class="tab-icon">🎒</span>
+                <span class="tab-icon"><i data-lucide="backpack"></i></span>
                 <span class="tab-text">Mijn Spullen</span>
             </button>
         </nav>
@@ -132,7 +134,7 @@
             <!-- Countdown -->
             <section id="countdown-section" class="mini-section">
                 <div class="countdown-setup" id="countdown-setup">
-                    <h3>⏰ Volgende Show</h3>
+                    <h3><i data-lucide="clock"></i> Volgende Show</h3>
                     <input type="datetime-local" id="show-datetime">
                     <input type="text" id="show-countdown-name" placeholder="Naam van de show">
                     <button id="set-countdown-btn" class="small-btn">Start Aftellen!</button>
@@ -151,21 +153,21 @@
 
             <!-- Shows -->
             <section id="shows-section">
-                <h2>🎪 Mijn Shows</h2>
+                <h2><i data-lucide="tent"></i> Mijn Shows</h2>
                 <div id="shows-container"></div>
                 <div class="show-buttons">
                     <button id="add-show-btn" class="big-button">
                         <span class="plus">+</span> Nieuwe Show
                     </button>
                     <button id="scan-ticket-btn" class="big-button scanner-btn">
-                        <span class="scan-icon">📷</span> Scan Kaartje
+                        <span class="scan-icon"><i data-lucide="scan-line"></i></span> Scan Kaartje
                     </button>
                 </div>
             </section>
 
             <!-- Kaartjes Dashboard -->
             <section id="tickets-dashboard-section">
-                <h2>🎫 Kaartjes Dashboard</h2>
+                <h2><i data-lucide="ticket"></i> Kaartjes Dashboard</h2>
                 <div class="dashboard-stats">
                     <div class="dash-stat">
                         <span class="dash-stat-value" id="total-tickets-sold">0</span>
@@ -195,7 +197,7 @@
         <div class="tab-content" id="tab-speelhoek">
             <!-- Geluidsbord -->
             <section id="soundboard-section">
-                <h2>🔊 Geluidsbord</h2>
+                <h2><i data-lucide="volume-2"></i> Geluidsbord</h2>
                 <div class="soundboard-grid">
                     <button class="soundboard-btn" data-sound="applause"><span class="sb-icon">👏</span><span class="sb-text">Applaus</span></button>
                     <button class="soundboard-btn" data-sound="drumroll"><span class="sb-icon">🥁</span><span class="sb-text">Tromgeroffel</span></button>
@@ -214,7 +216,7 @@
 
             <!-- Applaus -->
             <section id="applause-section">
-                <h2>👏 Geef Applaus!</h2>
+                <h2><i data-lucide="hand"></i> Geef Applaus!</h2>
                 <div class="applause-counter"><span id="applause-count">0</span> keer applaus!</div>
                 <button id="big-applause-btn" class="mega-button">
                     <span class="mega-icon">👏</span>
@@ -225,7 +227,7 @@
 
             <!-- Confetti Kanon -->
             <section id="confetti-section">
-                <h2>🎊 Confetti Kanon</h2>
+                <h2><i data-lucide="party-popper"></i> Confetti Kanon</h2>
                 <p class="section-intro">MEGA confetti explosie!</p>
                 <button id="confetti-cannon-btn" class="mega-button rainbow">
                     <span class="mega-icon">🎊</span>
@@ -235,7 +237,7 @@
 
             <!-- Popcorn Teller -->
             <section id="popcorn-section">
-                <h2>🍿 Popcorn Teller</h2>
+                <h2><i data-lucide="cup-soda"></i> Popcorn Teller</h2>
                 <p class="section-intro">Hoeveel popcorn eet je tijdens de show?</p>
                 <div class="popcorn-display">
                     <span id="popcorn-count">0</span> 🍿
@@ -245,7 +247,7 @@
 
             <!-- Rad van Fortuin -->
             <section id="wheel-section">
-                <h2>🎡 Rad van Fortuin</h2>
+                <h2><i data-lucide="circle-dashed"></i> Rad van Fortuin</h2>
                 <div class="wheel-container">
                     <div class="wheel-pointer">▼</div>
                     <div class="wheel" id="fortune-wheel"></div>
@@ -259,7 +261,7 @@
         <div class="tab-content" id="tab-spelletjes">
             <!-- Memory -->
             <section id="memory-section">
-                <h2>🧠 Memory</h2>
+                <h2><i data-lucide="brain"></i> Memory</h2>
                 <p class="section-intro">Vind alle paren!</p>
                 <div class="memory-stats">
                     <span>Zetten: <span id="memory-moves">0</span></span>
@@ -271,7 +273,7 @@
 
             <!-- Quiz -->
             <section id="quiz-section">
-                <h2>❓ Quiz</h2>
+                <h2><i data-lucide="help-circle"></i> Quiz</h2>
                 <p class="section-intro">Test je kennis!</p>
                 <div id="quiz-container">
                     <div id="quiz-question" class="quiz-question">Klik op start!</div>
@@ -283,7 +285,7 @@
 
             <!-- Balloon Pop -->
             <section id="balloon-section">
-                <h2>🎈 Balloon Pop</h2>
+                <h2><i data-lucide="circle"></i> Balloon Pop</h2>
                 <p class="section-intro">Prik de ballonnen!</p>
                 <div class="balloon-stats">
                     <span>Score: <span id="balloon-score">0</span></span>
@@ -295,7 +297,7 @@
 
             <!-- Whack-a-mole -->
             <section id="whack-section">
-                <h2>🔨 Whack-a-Mole</h2>
+                <h2><i data-lucide="hammer"></i> Whack-a-Mole</h2>
                 <p class="section-intro">Tik op de mol!</p>
                 <div class="whack-stats">
                     <span>Score: <span id="whack-score">0</span></span>
@@ -320,7 +322,7 @@
         <div class="tab-content" id="tab-creatief">
             <!-- Geluidjes Opnemen -->
             <section id="sound-section">
-                <h2>🎤 Geluiden Opnemen</h2>
+                <h2><i data-lucide="mic"></i> Geluiden Opnemen</h2>
                 <div class="sound-controls">
                     <div class="sound-box">
                         <button id="record-btn" class="round-button red"><span>●</span></button>
@@ -348,12 +350,12 @@
 
             <!-- Muziek Maker -->
             <section id="music-section">
-                <h2>🎹 Muziek Maker</h2>
+                <h2><i data-lucide="piano"></i> Muziek Maker</h2>
                 <p class="section-intro">Maak je eigen beat!</p>
 
                 <!-- Beat Sequencer -->
                 <div class="beat-sequencer">
-                    <h3>🥁 Beat Machine</h3>
+                    <h3><i data-lucide="drum"></i> Beat Machine</h3>
                     <div class="beat-controls">
                         <button id="beat-play-btn" class="beat-btn play">▶️ Play</button>
                         <button id="beat-stop-btn" class="beat-btn stop">⏹️ Stop</button>
@@ -464,7 +466,7 @@
                 </div>
 
                 <!-- Piano -->
-                <h3>🎹 Piano</h3>
+                <h3><i data-lucide="piano"></i> Piano</h3>
                 <div class="piano-keys" id="piano-keys">
                     <button class="piano-key white" data-note="C">C</button>
                     <button class="piano-key black" data-note="Cs">C#</button>
@@ -481,7 +483,7 @@
                 </div>
 
                 <!-- Losse Drum Pads -->
-                <h3>🥁 Drum Pads</h3>
+                <h3><i data-lucide="drum"></i> Drum Pads</h3>
                 <div class="drum-pads" id="drum-pads">
                     <button class="drum-pad" data-drum="kick">🥁 Kick</button>
                     <button class="drum-pad" data-drum="snare">🪘 Snare</button>
@@ -492,7 +494,7 @@
 
             <!-- Karakter Maker -->
             <section id="character-section">
-                <h2>🦸 Karakter Maker</h2>
+                <h2><i data-lucide="user"></i> Karakter Maker</h2>
                 <div class="character-builder">
                     <div class="character-preview" id="character-preview">
                         <div class="char-hat" id="char-hat">🎩</div>
@@ -553,7 +555,7 @@
 
             <!-- Emoji Verhaal -->
             <section id="emoji-story-section">
-                <h2>📖 Emoji Verhaal</h2>
+                <h2><i data-lucide="book-open"></i> Emoji Verhaal</h2>
                 <p class="section-intro">Maak een verhaal met emoji's!</p>
                 <div class="emoji-story-picker">
                     <span class="story-emoji" data-emoji="👦">👦</span>
@@ -587,7 +589,7 @@
         <div class="tab-content" id="tab-community">
             <!-- Gastenboek -->
             <section id="guestbook-section">
-                <h2>📔 Gastenboek</h2>
+                <h2><i data-lucide="book"></i> Gastenboek</h2>
                 <div class="guestbook-form">
                     <input type="text" id="guest-name" placeholder="Je naam" maxlength="30">
                     <textarea id="guest-message" placeholder="Je berichtje..." maxlength="200"></textarea>
@@ -606,7 +608,7 @@
 
             <!-- Fan Mail -->
             <section id="fanmail-section">
-                <h2>💌 Fan Mail</h2>
+                <h2><i data-lucide="mail"></i> Fan Mail</h2>
                 <p class="section-intro">Stuur een berichtje naar Joeri!</p>
                 <div class="fanmail-form">
                     <input type="text" id="fanmail-name" placeholder="Je naam" maxlength="30">
@@ -620,14 +622,14 @@
 
             <!-- Stemmen -->
             <section id="voting-section">
-                <h2>🗳️ Stem op je Favoriet!</h2>
+                <h2><i data-lucide="vote"></i> Stem op je Favoriet!</h2>
                 <p class="section-intro">Welke show vind jij het leukst?</p>
                 <div id="voting-shows"></div>
             </section>
 
             <!-- Hall of Fame -->
             <section id="hall-of-fame-section">
-                <h2>🏆 Hall of Fame</h2>
+                <h2><i data-lucide="trophy"></i> Hall of Fame</h2>
                 <div class="fame-podium">
                     <div class="podium-spot second" id="podium-2">
                         <div class="podium-avatar">🥈</div>
@@ -650,7 +652,7 @@
 
             <!-- Fan Club Kaart -->
             <section id="fanclub-section">
-                <h2>🎫 Fan Club Kaart</h2>
+                <h2><i data-lucide="credit-card"></i> Fan Club Kaart</h2>
                 <p class="section-intro">Maak je eigen lidmaatschapskaart!</p>
                 <div class="fanclub-card" id="fanclub-card">
                     <div class="fanclub-header">JOERIE'S SHOWS FAN CLUB</div>
@@ -668,7 +670,7 @@
         <div class="tab-content" id="tab-mijnspullen">
             <!-- Mijn Kaartjes -->
             <section id="my-tickets-section">
-                <h2>🎫 Mijn Kaartjes</h2>
+                <h2><i data-lucide="ticket"></i> Mijn Kaartjes</h2>
                 <div id="my-tickets-container">
                     <p class="empty-tickets-message">Je hebt nog geen kaartjes gekocht.</p>
                 </div>
@@ -676,7 +678,7 @@
 
             <!-- Dagelijkse Beloning -->
             <section id="daily-reward-section">
-                <h2>🎁 Dagelijkse Beloning</h2>
+                <h2><i data-lucide="gift"></i> Dagelijkse Beloning</h2>
                 <div id="daily-reward-container">
                     <button id="claim-daily-btn" class="mega-button gift">
                         <span class="mega-icon">🎁</span>
@@ -688,7 +690,7 @@
 
             <!-- Statistieken -->
             <section id="stats-section">
-                <h2>📊 Mijn Statistieken</h2>
+                <h2><i data-lucide="bar-chart-3"></i> Mijn Statistieken</h2>
                 <div class="stats-grid">
                     <div class="stat-box">
                         <span class="stat-icon">⭐</span>
@@ -715,7 +717,7 @@
 
             <!-- Badges -->
             <section id="badges-section">
-                <h2>🏅 Mijn Badges</h2>
+                <h2><i data-lucide="award"></i> Mijn Badges</h2>
                 <div class="badges-grid" id="badges-grid">
                     <div class="badge locked" data-badge="first-ticket" title="Koop je eerste kaartje">
                         <span class="badge-icon">🎫</span>
@@ -754,7 +756,7 @@
 
             <!-- Sticker Album -->
             <section id="sticker-section">
-                <h2>🏷️ Sticker Album</h2>
+                <h2><i data-lucide="sticker"></i> Sticker Album</h2>
                 <p class="section-intro">Verzamel alle stickers!</p>
                 <div class="sticker-album" id="sticker-album">
                     <div class="sticker-slot" data-sticker="1"><span>🎭</span></div>
@@ -775,7 +777,7 @@
 
             <!-- Complimenten -->
             <section id="compliment-section">
-                <h2>💝 Complimenten Generator</h2>
+                <h2><i data-lucide="heart"></i> Complimenten Generator</h2>
                 <div class="compliment-display" id="compliment-display">
                     <p>Klik voor een compliment!</p>
                 </div>
@@ -785,13 +787,13 @@
 
         <!-- Dance Party Button (Fixed) -->
         <button id="dance-party-btn" class="dance-party-toggle" title="Dance Party!">
-            💃
+            <i data-lucide="music"></i>
         </button>
 
         <!-- Spookmodus Toggle -->
         <div id="spooky-toggle" class="mode-toggle">
             <button id="toggle-spooky-btn" title="Spookmodus">
-                <span class="mode-icon">🌙</span>
+                <span class="mode-icon"><i data-lucide="moon"></i></span>
             </button>
         </div>
 
@@ -821,11 +823,11 @@
                 <textarea id="show-description" placeholder="Beschrijving"></textarea>
                 <div class="image-buttons">
                     <button type="button" id="take-photo-btn" class="photo-btn camera-btn">
-                        <span class="photo-btn-icon">📸</span>
+                        <span class="photo-btn-icon"><i data-lucide="camera"></i></span>
                         <span class="photo-btn-text">Foto</span>
                     </button>
                     <button type="button" id="choose-photo-btn" class="photo-btn gallery-btn">
-                        <span class="photo-btn-icon">🖼️</span>
+                        <span class="photo-btn-icon"><i data-lucide="image"></i></span>
                         <span class="photo-btn-text">Kies</span>
                     </button>
                 </div>
@@ -904,7 +906,7 @@
     <div id="scanner-modal" class="modal hidden">
         <div class="modal-content scanner-content">
             <span class="close-btn">&times;</span>
-            <h2>📷 Scan Kaartje</h2>
+            <h2><i data-lucide="scan-line"></i> Scan Kaartje</h2>
             <div id="scanner-container">
                 <div id="qr-reader"></div>
             </div>

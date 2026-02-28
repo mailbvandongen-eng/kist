@@ -2,6 +2,13 @@
 // JOERIE'S SHOWS - JAVASCRIPT MET FIREBASE
 // ==========================================
 
+// Initialiseer Lucide iconen
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+
 // ==========================================
 // FIREBASE CONFIGURATIE
 // ==========================================
