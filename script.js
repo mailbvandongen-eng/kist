@@ -592,14 +592,14 @@ function renderShows() {
         if (show.image) {
             imageHtml = `<img src="${show.image}" alt="${escapeHtml(show.name)}" class="show-card-image">`;
         } else {
-            imageHtml = `<div class="show-card-no-image">🎭</div>`;
+            imageHtml = `<div class="show-card-no-image"><i data-lucide="drama"></i></div>`;
         }
 
         const showPrice = show.price || DEFAULT_TICKET_PRICE;
 
         card.innerHTML = `
-            <button class="delete-btn" onclick="deleteShow('${show.id}')">&times;</button>
-            <button class="edit-price-btn" onclick="editPrice('${show.id}')" title="Prijs aanpassen">💰</button>
+            <button class="delete-btn" onclick="deleteShow('${show.id}')"><i data-lucide="x"></i></button>
+            <button class="edit-price-btn" onclick="editPrice('${show.id}')" title="Prijs aanpassen"><i data-lucide="coins"></i></button>
             ${imageHtml}
             <h3>${escapeHtml(show.name)}</h3>
             <p>${escapeHtml(show.description)}</p>
@@ -608,6 +608,11 @@ function renderShows() {
         `;
         container.appendChild(card);
     });
+
+    // Re-initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 function editPrice(showId) {
