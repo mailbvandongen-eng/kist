@@ -399,6 +399,7 @@ function claimPayment(paymentId) {
 
 function renderPayments() {
     const list = document.getElementById('payments-list');
+    if (!list) return; // Element bestaat niet
 
     if (payments.length === 0) {
         list.innerHTML = '<p class="empty-message">Nog geen betalingen</p>';
