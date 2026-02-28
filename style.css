@@ -761,6 +761,7 @@ section h3 {
     );
     opacity: 0;
     transition: opacity 0.4s ease;
+    pointer-events: none;
 }
 
 .show-card:hover {
@@ -836,30 +837,40 @@ section h3 {
 }
 
 .show-info {
-    padding: 12px;
+    padding: 10px;
     position: relative;
     z-index: 1;
+    overflow: hidden;
 }
 
-.show-info h3,
-.show-card h3 {
+.show-info h3 {
     color: white;
-    font-size: 1em;
+    font-size: 0.85em;
     font-weight: 700;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.show-info p,
-.show-card p {
+.show-info .show-desc {
     color: var(--text-secondary);
-    font-size: 0.75em;
-    margin-bottom: 8px;
+    font-size: 0.7em;
+    margin-bottom: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
 }
 
-.show-card .price {
+.show-info .price {
     font-weight: 600;
+    font-size: 0.75em;
     color: var(--color-accent);
+    margin-bottom: 6px;
 }
 
 .show-actions {
@@ -892,11 +903,27 @@ section h3 {
     box-shadow: 0 0 35px rgba(0, 255, 150, 0.5);
 }
 
-.show-card .buy-btn {
+.show-card .buy-btn,
+.show-info .buy-btn {
     padding: 8px 12px;
-    font-size: 0.75em;
+    font-size: 0.7em;
     border-radius: 10px;
-    margin-top: 5px;
+    margin-top: 0;
+    width: 100%;
+    display: block;
+    border: none;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    background: linear-gradient(135deg, hsl(150, 100%, 45%) 0%, hsl(170, 100%, 40%) 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(0, 255, 150, 0.3);
+    transition: all 0.3s ease;
+}
+
+.show-info .buy-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 25px rgba(0, 255, 150, 0.5);
 }
 
 .delete-btn {

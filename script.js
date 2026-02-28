@@ -602,10 +602,12 @@ function renderShows() {
             <button class="delete-btn" onclick="deleteShow('${show.id}')"><i data-lucide="x"></i></button>
             <button class="edit-price-btn" onclick="editPrice('${show.id}')" title="Prijs aanpassen"><i data-lucide="coins"></i></button>
             ${imageHtml}
-            <h3>${escapeHtml(show.name)}</h3>
-            <p>${escapeHtml(show.description)}</p>
-            <p class="price">${showPrice} euro</p>
-            <button class="buy-btn" onclick="buyTicket('${show.id}')">Koop Kaartje!</button>
+            <div class="show-info">
+                <h3>${escapeHtml(show.name)}</h3>
+                <p class="show-desc">${escapeHtml(show.description)}</p>
+                <p class="price">${showPrice} euro</p>
+                <button class="buy-btn" onclick="buyTicket('${show.id}')">Koop Kaartje!</button>
+            </div>
         `;
         container.appendChild(card);
     });
