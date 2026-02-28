@@ -211,14 +211,28 @@ function generateTicketQRForId(ticket) {
 document.addEventListener('DOMContentLoaded', function() {
     const splashScreen = document.getElementById('splash-screen');
     const mainContent = document.getElementById('main-content');
+    const startBtn = document.getElementById('start-btn');
+    const introMusic = document.getElementById('intro-music');
 
-    // Na 3.5 seconden de splash screen verbergen en content tonen
-    setTimeout(function() {
-        splashScreen.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        // Speel een welkomst geluidje
-        playClickSound();
-    }, 3500);
+    // Start knop - speelt muziek af en toont de website
+    startBtn.addEventListener('click', function() {
+        // Speel de intro muziek
+        if (introMusic) {
+            introMusic.volume = 0.7;
+            introMusic.play().catch(function(e) {
+                console.log('Audio kon niet afspelen:', e);
+            });
+        }
+
+        // Fade out de splash screen
+        splashScreen.style.transition = 'opacity 0.5s ease-out';
+        splashScreen.style.opacity = '0';
+
+        setTimeout(function() {
+            splashScreen.classList.add('hidden');
+            mainContent.classList.remove('hidden');
+        }, 500);
+    });
 
     // Initialiseer de app
     initApp();

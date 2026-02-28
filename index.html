@@ -65,7 +65,7 @@
     <!-- Splash Screen met Logo -->
     <div id="splash-screen">
         <img src="logo.jfif" alt="Joeri's Shows Logo" id="splash-logo" class="protected-image" draggable="false" oncontextmenu="return false;">
-        <div class="loading-text">Laden...</div>
+        <button id="start-btn" class="start-button">Start!</button>
     </div>
 
     <!-- Hoofdpagina -->
@@ -941,6 +941,11 @@
             <button id="claim-scratch-btn" class="big-button hidden">Claim!</button>
         </div>
     </div>
+
+    <!-- Intro muziek (audio uit video) -->
+    <video id="intro-music" style="display:none;" preload="auto">
+        <source src="gemini_generated_video_E018009D.MOV" type="video/mp4">
+    </video>
 
     <script src="script.js"></script>
 </body>
